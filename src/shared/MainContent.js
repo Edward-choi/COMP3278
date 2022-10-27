@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { styled, useTheme } from '@mui/material/styles';
+import { styled } from '@mui/material/styles';
 import { Link } from 'react-router-dom';
 
 import Box from '@mui/material/Box';
@@ -89,8 +89,12 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
     }),
 );
 
+var drawerOpen = false;
+function setDrawerOpen(open) {
+    drawerOpen = open;
+}
 function MainContent({content}) {
-    const [open, setOpen] = React.useState(false);
+    const [open, setOpen] = React.useState(drawerOpen);
 
     return (
         <Box sx={{ display: 'flex' }}>
@@ -99,11 +103,11 @@ function MainContent({content}) {
                 <DrawerHeader>
                     {
                         open ?
-                            <IconButton onClick={() => setOpen(false)}>
+                            <IconButton onClick={() => {setOpen(false); setDrawerOpen(false)}}>
                                 <ChevronLeftIcon />
                             </IconButton>
                             :
-                            <IconButton onClick={() => setOpen(true)}>
+                            <IconButton onClick={() => {setOpen(true); setDrawerOpen(true)}}>
                                 <MenuIcon />
                             </IconButton>
                     }

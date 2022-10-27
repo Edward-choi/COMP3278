@@ -1,4 +1,4 @@
-import MainContent from "./MainContent";
+import MainContent from "../shared/MainContent";
 
 function Courses() {
     const content = <h1>Courses</h1>

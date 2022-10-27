@@ -1,4 +1,4 @@
-import MainContent from "./MainContent";
+import MainContent from "../shared/MainContent";
 
 function Home() {
     const content = <h1>Home</h1>
