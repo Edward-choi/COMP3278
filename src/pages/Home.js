@@ -1,10 +1,10 @@
-import Layout from "./Layout";
+import MainContent from "./MainContent";
 
 function Home() {
     const content = <h1>Home</h1>
     return (
         <div>
-            <Layout content={content}/>
+            <MainContent content={content}/>
         </div>
     );
 }

@@ -89,7 +89,7 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
     }),
 );
 
-function Layout({content}) {
+function MainContent({content}) {
     const [open, setOpen] = React.useState(false);
 
     return (
@@ -204,4 +204,4 @@ function Layout({content}) {
     );
 }
 
-export default Layout;
+export default MainContent;
