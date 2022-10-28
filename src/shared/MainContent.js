@@ -1,6 +1,6 @@
 import * as React from "react";
 import { styled } from "@mui/material/styles";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 import {
   Box,
@@ -126,13 +126,13 @@ function setDrawerOpen(open) {
   drawerOpen = open;
 }
 
-var currentPage = "home";
-function setCurrentPage(page) {
-  currentPage = page;
-}
-
 const DrawerPages = [
-  { icon: <NavIcons.HomeIcon />, label: "Home", page: "home", to: "/" },
+  {
+    icon: <NavIcons.HomeIcon />,
+    label: "Home",
+    page: "home",
+    to: "/",
+  },
   {
     icon: <NavIcons.CourseIcon />,
     label: "Courses",
@@ -148,118 +148,97 @@ const DrawerPages = [
 ];
 
 const MainContent = ({ children }) => {
+  const location = useLocation();
+  const page = location.pathname;
   const [open, setOpen] = React.useState(drawerOpen);
-  const [page] = React.useState(currentPage);
 
   return (
     <Box sx={{ display: "flex" }}>
-      <Box sx={{ display: "flex" }}>
-        <Drawer variant="permanent" open={open}>
-          <DrawerHeader>
-            {open ? (
-              <IconButton
-                onClick={() => {
-                  setOpen(false);
-                  setDrawerOpen(false);
-                }}
-              >
-                <ChevronLeftIcon />
-              </IconButton>
-            ) : (
-              <IconButton
-                onClick={() => {
-                  setOpen(true);
-                  setDrawerOpen(true);
-                }}
-              >
-                <MenuIcon />
-              </IconButton>
-            )}
-          </DrawerHeader>
-          <Divider sx={{ my: 6 }} />
-          <List
-            sx={{
-              display: "flex",
-              alignItems: open ? "flex-start" : "center",
-              height: "100%",
-              flexDirection: "column",
-            }}
-          >
-            {DrawerPages.map((item) => (
-              <ListItem
-                disablePadding
-                sx={{ display: "block", borderRadius: 4 }}
-              >
-                <DrawerItem
-                  key={item.label}
-                  autoFocus={item.page === "home"}
-                  selected={page === item.page}
-                  sx={{
-                    justifyContent: open ? "initial" : "center",
-                    bgcolor: page === item.page ? "action.soft" : "background",
-                  }}
+      <ThemeProvider
+        theme={createTheme({
+          spacing: 4,
+          palette: {
+            mode: "light",
+            primary: { main: "#436DFF" },
+            action: { soft: "#F2F4FB", medium: "#E9EDFB", strong: "#D6DFFC" },
+            neutral: {
+              darkest: "#1C1C1C",
+              medium: "#575757",
+              mild: "#b4b4b4",
+              lightest: "#EEEEEE",
+            },
+            background: { light: "#FBFBFB" },
+            error: { main: "#CE1C1C", secondary: "#B62B2B" },
+            success: { main: "#AAC842", secondary: "#94D37E" },
+          },
+          duration: {
+            enteringScreen: 300,
+            leavingScreen: 300,
+          },
+        })}
+      >
+        <CssBaseline enableColorScheme />
+        <Box sx={{ display: "flex" }}>
+          <Drawer variant="permanent" open={open}>
+            <DrawerHeader>
+              {open ? (
+                <IconButton
                   onClick={() => {
-                    //   setPage(item.page);
-                    setCurrentPage(item.page);
+                    setOpen(false);
+                    setDrawerOpen(false);
                   }}
-                  component={Link}
-                  to={item.to}
                 >
-                  <ListItemIcon
+                  <ChevronLeftIcon />
+                </IconButton>
+              ) : (
+                <IconButton
+                  onClick={() => {
+                    setOpen(true);
+                    setDrawerOpen(true);
+                  }}
+                >
+                  <MenuIcon />
+                </IconButton>
+              )}
+            </DrawerHeader>
+            <Divider sx={{ my: 6 }} />
+            <List>
+              {DrawerPages.map((item) => (
+                <ListItem
+                  disablePadding
+                  sx={{ display: "block", borderRadius: 4 }}
+                >
+                  <DrawerItem
+                    key={item.label}
+                    selected={page === item.to}
                     sx={{
-                      minWidth: 0,
-                      mr: open ? 3 : "auto",
-                      justifyContent: "center",
+                      justifyContent: open ? "initial" : "center",
+                      bgcolor: page === item.to ? "action.soft" : "background",
                     }}
+                    component={Link}
+                    to={item.to}
                   >
-                    {item.icon}
-                  </ListItemIcon>
-                  <ListItemText
-                    primary={item.label}
-                    sx={{ opacity: open ? 1 : 0 }}
-                  />
-                </DrawerItem>
-              </ListItem>
-            ))}
-
-            <ListItem
-              disablePadding
-              sx={{
-                display: "block",
-                borderRadius: 4,
-                position: "absolute",
-                bottom: "26px",
-                height: "44px",
-              }}
-            >
-              <DrawerItem
-                sx={{
-                  justifyContent: open ? "initial" : "center",
-                  bgcolor: page === "login" ? "action.soft" : "background",
-                }}
-                onClick={() => {
-                  // setPage("login");
-                  setCurrentPage("login");
-                }}
-                component={Link}
-                to="/login"
-              >
-                <ListItemIcon
-                  sx={{
-                    minWidth: 0,
-                    mr: open ? 3 : "auto",
-                    justifyContent: "center",
-                  }}
-                >
-                  <NavIcons.LogoutIcon />
-                </ListItemIcon>
-                <ListItemText primary="Logout" sx={{ opacity: open ? 1 : 0 }} />
-              </DrawerItem>
-            </ListItem>
-          </List>
-        </Drawer>
-        <Main open={open}>{children}</Main>
-      </Box>
+                    <ListItemIcon
+                      sx={{
+                        minWidth: 0,
+                        mr: open ? 3 : "auto",
+                        justifyContent: "center",
+                      }}
+                    >
+                      {item.icon}
+                    </ListItemIcon>
+                    <ListItemText
+                      primary={item.label}
+                      sx={{ opacity: open ? 1 : 0 }}
+                    />
+                  </DrawerItem>
+                </ListItem>
+              ))}
+            </List>
+          </Drawer>
+          <Main open={open}>{children}</Main>
+        </Box>
+      </ThemeProvider>
     </Box>
   );
 };
