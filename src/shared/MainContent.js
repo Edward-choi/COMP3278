@@ -93,8 +93,16 @@ var drawerOpen = false;
 function setDrawerOpen(open) {
     drawerOpen = open;
 }
+
+var currentPage = "home";
+function setCurrentPage(page) {
+    currentPage = page;
+}
+
+
 const MainContent = ({children}) => {
     const [open, setOpen] = React.useState(drawerOpen);
+    const [page, setPage] = React.useState(currentPage);
 
     return (
         <Box sx={{ display: 'flex' }}>
@@ -120,7 +128,9 @@ const MainContent = ({children}) => {
                                 minHeight: 48,
                                 justifyContent: open ? 'initial' : 'center',
                                 px: 2.5,
+                                bgcolor: page==="home" ? "rgb(236, 236, 236)" : "#fff"
                             }}
+                            onClick={() => {setPage("home"); setCurrentPage("home")}}
                             component={Link} to="/"
                         >
                             <ListItemIcon
@@ -141,7 +151,9 @@ const MainContent = ({children}) => {
                                 minHeight: 48,
                                 justifyContent: open ? 'initial' : 'center',
                                 px: 2.5,
+                                bgcolor: page==="courses" ? "rgb(236, 236, 236)" : "#fff"
                             }}
+                            onClick={() => {setPage("courses"); setCurrentPage("courses")}}
                             component={Link} to="/courses"
                         >
                             <ListItemIcon
@@ -162,7 +174,9 @@ const MainContent = ({children}) => {
                                 minHeight: 48,
                                 justifyContent: open ? 'initial' : 'center',
                                 px: 2.5,
+                                bgcolor: page==="timetable" ? "rgb(236, 236, 236)" : "#fff"
                             }}
+                            onClick={() => {setPage("timetable"); setCurrentPage("timetable")}}
                             component={Link} to="/timetable"
                         >
                             <ListItemIcon
@@ -183,7 +197,9 @@ const MainContent = ({children}) => {
                                 minHeight: 48,
                                 justifyContent: open ? 'initial' : 'center',
                                 px: 2.5,
+                                bgcolor: page==="login" ? "rgb(236, 236, 236)" : "#fff"
                             }}
+                            onClick={() => {setPage("login"); setCurrentPage("login")}}
                             component={Link} to="/login"
                         >
                             <ListItemIcon
