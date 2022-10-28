@@ -154,91 +154,66 @@ const MainContent = ({ children }) => {
 
   return (
     <Box sx={{ display: "flex" }}>
-      <ThemeProvider
-        theme={createTheme({
-          spacing: 4,
-          palette: {
-            mode: "light",
-            primary: { main: "#436DFF" },
-            action: { soft: "#F2F4FB", medium: "#E9EDFB", strong: "#D6DFFC" },
-            neutral: {
-              darkest: "#1C1C1C",
-              medium: "#575757",
-              mild: "#b4b4b4",
-              lightest: "#EEEEEE",
-            },
-            background: { light: "#FBFBFB" },
-            error: { main: "#CE1C1C", secondary: "#B62B2B" },
-            success: { main: "#AAC842", secondary: "#94D37E" },
-          },
-          duration: {
-            enteringScreen: 300,
-            leavingScreen: 300,
-          },
-        })}
-      >
-        <CssBaseline enableColorScheme />
-        <Box sx={{ display: "flex" }}>
-          <Drawer variant="permanent" open={open}>
-            <DrawerHeader>
-              {open ? (
-                <IconButton
-                  onClick={() => {
-                    setOpen(false);
-                    setDrawerOpen(false);
+      <Box sx={{ display: "flex" }}>
+        <Drawer variant="permanent" open={open}>
+          <DrawerHeader>
+            {open ? (
+              <IconButton
+                onClick={() => {
+                  setOpen(false);
+                  setDrawerOpen(false);
+                }}
+              >
+                <ChevronLeftIcon />
+              </IconButton>
+            ) : (
+              <IconButton
+                onClick={() => {
+                  setOpen(true);
+                  setDrawerOpen(true);
+                }}
+              >
+                <MenuIcon />
+              </IconButton>
+            )}
+          </DrawerHeader>
+          <Divider sx={{ my: 6 }} />
+          <List>
+            {DrawerPages.map((item) => (
+              <ListItem
+                disablePadding
+                sx={{ display: "block", borderRadius: 4 }}
+              >
+                <DrawerItem
+                  key={item.label}
+                  selected={page === item.to}
+                  sx={{
+                    justifyContent: open ? "initial" : "center",
+                    bgcolor: page === item.to ? "action.soft" : "background",
                   }}
+                  component={Link}
+                  to={item.to}
                 >
-                  <ChevronLeftIcon />
-                </IconButton>
-              ) : (
-                <IconButton
-                  onClick={() => {
-                    setOpen(true);
-                    setDrawerOpen(true);
-                  }}
-                >
-                  <MenuIcon />
-                </IconButton>
-              )}
-            </DrawerHeader>
-            <Divider sx={{ my: 6 }} />
-            <List>
-              {DrawerPages.map((item) => (
-                <ListItem
-                  disablePadding
-                  sx={{ display: "block", borderRadius: 4 }}
-                >
-                  <DrawerItem
-                    key={item.label}
-                    selected={page === item.to}
+                  <ListItemIcon
                     sx={{
-                      justifyContent: open ? "initial" : "center",
-                      bgcolor: page === item.to ? "action.soft" : "background",
+                      minWidth: 0,
+                      mr: open ? 3 : "auto",
+                      justifyContent: "center",
                     }}
-                    component={Link}
-                    to={item.to}
                   >
-                    <ListItemIcon
-                      sx={{
-                        minWidth: 0,
-                        mr: open ? 3 : "auto",
-                        justifyContent: "center",
-                      }}
-                    >
-                      {item.icon}
-                    </ListItemIcon>
-                    <ListItemText
-                      primary={item.label}
-                      sx={{ opacity: open ? 1 : 0 }}
-                    />
-                  </DrawerItem>
-                </ListItem>
-              ))}
-            </List>
-          </Drawer>
-          <Main open={open}>{children}</Main>
-        </Box>
-      </ThemeProvider>
+                    {item.icon}
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={item.label}
+                    sx={{ opacity: open ? 1 : 0 }}
+                  />
+                </DrawerItem>
+              </ListItem>
+            ))}
+          </List>
+        </Drawer>
+        <Main open={open}>{children}</Main>
+      </Box>
     </Box>
   );
 };
