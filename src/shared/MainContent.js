@@ -93,7 +93,7 @@ var drawerOpen = false;
 function setDrawerOpen(open) {
     drawerOpen = open;
 }
-function MainContent({content}) {
+const MainContent = ({children}) => {
     const [open, setOpen] = React.useState(drawerOpen);
 
     return (
@@ -202,7 +202,7 @@ function MainContent({content}) {
                 <Divider />
             </Drawer>
             <Main open={open}>
-                {content}
+                {children}
             </Main>
         </Box>
     );

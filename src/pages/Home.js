@@ -1,10 +1,11 @@
 import MainContent from "../shared/MainContent";
 
 function Home() {
-    const content = <h1>Home</h1>
     return (
         <div>
-            <MainContent content={content}/>
+            <MainContent>
+                <h1>Home</h1>
+            </MainContent>
         </div>
     );
 }
