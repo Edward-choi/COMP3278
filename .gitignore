@@ -1,2 +1,7 @@
 node_modules
+<<<<<<< Updated upstream
 build
+=======
+.env
+.env.test
+>>>>>>> Stashed changes
