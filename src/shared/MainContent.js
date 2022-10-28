@@ -1,227 +1,253 @@
-import * as React from 'react';
-import { styled } from '@mui/material/styles';
-import { Link } from 'react-router-dom';
+import * as React from "react";
+import { styled } from "@mui/material/styles";
+import { Link } from "react-router-dom";
 
-import Box from '@mui/material/Box';
-import MuiDrawer from '@mui/material/Drawer';
-import List from '@mui/material/List';
-import CssBaseline from '@mui/material/CssBaseline';
-import Divider from '@mui/material/Divider';
+import {
+  Box,
+  List,
+  CssBaseline,
+  Divider,
+  IconButton,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  ThemeProvider,
+  createTheme,
+} from "@mui/material";
 
-import IconButton from '@mui/material/IconButton';
-import MenuIcon from '@mui/icons-material/Menu';
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import ListItem from '@mui/material/ListItem';
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import ListItemText from '@mui/material/ListItemText';
+import MuiDrawer from "@mui/material/Drawer";
+import MenuIcon from "@mui/icons-material/Menu";
+import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 
-import HomeIcon from '@mui/icons-material/Home';
-import LocalLibraryIcon from '@mui/icons-material/LocalLibrary';
-import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
-import LogoutIcon from '@mui/icons-material/Logout';
+import NavIcons from "../components/icons";
 
-const drawerWidth = 240;
+const drawerWidth = 260;
 
-const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
-    ({ theme, open }) => ({
-        flexGrow: 1,
-        padding: theme.spacing(3),
-        transition: theme.transitions.create('margin', {
-            easing: theme.transitions.easing.sharp,
-            duration: theme.transitions.duration.leavingScreen,
-        }),
-        marginLeft: 0,
-        ...(open && {
-            transition: theme.transitions.create('margin', {
-                easing: theme.transitions.easing.easeOut,
-                duration: theme.transitions.duration.enteringScreen,
-            }),
-            marginLeft: 0,
-        }),
+const Main = styled("main", { shouldForwardProp: (prop) => prop !== "open" })(
+  ({ theme, open }) => ({
+    flexGrow: 1,
+    padding: theme.breakpoints.up("lg")
+      ? theme.spacing(16, 16)
+      : theme.spacing(12, 16),
+    transition: theme.transitions.create("margin", {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.leavingScreen,
     }),
+    marginLeft: 0,
+    ...(open && {
+      transition: theme.transitions.create("margin", {
+        easing: theme.transitions.easing.easeOut,
+        duration: theme.transitions.duration.enteringScreen,
+      }),
+      marginLeft: 0,
+    }),
+  })
 );
 
 const openedMixin = (theme) => ({
-    width: drawerWidth,
-    transition: theme.transitions.create('width', {
-        easing: theme.transitions.easing.sharp,
-        duration: theme.transitions.duration.enteringScreen,
-    }),
-    overflowX: 'hidden',
+  width: drawerWidth,
+  padding: theme.spacing(8, 6),
+  transition: theme.transitions.create("width", {
+    easing: theme.transitions.easing.sharp,
+    duration: theme.transitions.duration.enteringScreen,
+  }),
+  border: "none",
+  elevation: 0,
+  background: theme.palette.background.light,
+  overflowX: "hidden",
 });
 
 const closedMixin = (theme) => ({
-    transition: theme.transitions.create('width', {
-        easing: theme.transitions.easing.sharp,
-        duration: theme.transitions.duration.leavingScreen,
-    }),
-    overflowX: 'hidden',
-    width: `calc(${theme.spacing(7)} + 1px)`,
-    [theme.breakpoints.up('sm')]: {
-        width: `calc(${theme.spacing(8)} + 1px)`,
-    },
+  transition: theme.transitions.create("width", {
+    easing: theme.transitions.easing.sharp,
+    duration: theme.transitions.duration.leavingScreen,
+  }),
+  border: "none",
+  elevation: 0,
+  background: theme.palette.background.light,
+  overflowX: "hidden",
+  width: `calc(${theme.spacing(15)} + 1px)`,
+  [theme.breakpoints.up("sm")]: {
+    width: `calc(${theme.spacing(16)} + 1px)`,
+  },
+  padding: theme.spacing(8, 2.5),
 });
 
-const DrawerHeader = styled('div')(({ theme }) => ({
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-    padding: theme.spacing(0, 1),
-    // necessary for content to be below app bar
-    ...theme.mixins.toolbar,
+const DrawerHeader = styled("div")(({ theme }) => ({
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "flex-end",
+  padding: theme.spacing(0, 1),
+
+  // necessary for content to be below app bar
+  ...theme.mixins.toolbar,
 }));
 
-const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' })(
-    ({ theme, open }) => ({
-        width: drawerWidth,
-        flexShrink: 0,
-        whiteSpace: 'nowrap',
-        boxSizing: 'border-box',
-        ...(open && {
-            ...openedMixin(theme),
-            '& .MuiDrawer-paper': openedMixin(theme),
-        }),
-        ...(!open && {
-            ...closedMixin(theme),
-            '& .MuiDrawer-paper': closedMixin(theme),
-        }),
-    }),
-);
+const Drawer = styled(MuiDrawer, {
+  shouldForwardProp: (prop) => prop !== "open",
+})(({ theme, open }) => ({
+  width: drawerWidth,
+  flexShrink: 0,
+  whiteSpace: "nowrap",
+  boxSizing: "border-box",
+
+  ...(open && {
+    ...openedMixin(theme),
+    "& .MuiDrawer-paper": openedMixin(theme),
+  }),
+  ...(!open && {
+    ...closedMixin(theme),
+    "& .MuiDrawer-paper": closedMixin(theme),
+  }),
+}));
+
+const DrawerItem = styled(ListItemButton, {
+  shouldForwardProp: (prop) => prop !== "selected",
+})(({ theme, selected }) => ({
+  minHeight: 44,
+  padding: theme.spacing(0, 2.5),
+  "&:hover": {
+    backgroundColor: theme.palette.action.soft,
+  },
+  "& *": {
+    color: selected ? theme.palette.primary.main : theme.palette.neutral.medium,
+  },
+  "& .MuiTouchRipple-child": {
+    backgroundColor: theme.palette.action.main,
+  },
+  "& path": {
+    fill: selected ? theme.palette.primary.main : theme.palette.neutral.medium,
+  },
+  borderRadius: theme.spacing(1),
+  marginBottom: theme.spacing(3),
+}));
 
 var drawerOpen = false;
 function setDrawerOpen(open) {
-    drawerOpen = open;
+  drawerOpen = open;
 }
 
 var currentPage = "home";
 function setCurrentPage(page) {
-    currentPage = page;
+  currentPage = page;
 }
 
+const DrawerPages = [
+  { icon: <NavIcons.HomeIcon />, label: "Home", page: "home", to: "/" },
+  {
+    icon: <NavIcons.CourseIcon />,
+    label: "Courses",
+    page: "courses",
+    to: "/courses",
+  },
+  {
+    icon: <NavIcons.CalendarIcon />,
+    label: "Timetable",
+    page: "timetable",
+    to: "/timetable",
+  },
+];
 
-const MainContent = ({children}) => {
-    const [open, setOpen] = React.useState(drawerOpen);
-    const [page, setPage] = React.useState(currentPage);
+const MainContent = ({ children }) => {
+  const [open, setOpen] = React.useState(drawerOpen);
+  const [page, setPage] = React.useState(currentPage);
 
-    return (
-        <Box sx={{ display: 'flex' }}>
-            <CssBaseline />
-            <Drawer variant="permanent" open={open}>
-                <DrawerHeader>
-                    {
-                        open ?
-                            <IconButton onClick={() => {setOpen(false); setDrawerOpen(false)}}>
-                                <ChevronLeftIcon />
-                            </IconButton>
-                            :
-                            <IconButton onClick={() => {setOpen(true); setDrawerOpen(true)}}>
-                                <MenuIcon />
-                            </IconButton>
-                    }
-                </DrawerHeader>
-                <Divider />
-                <List>
-                    <ListItem disablePadding sx={{ display: 'block' }}>
-                        <ListItemButton
-                            sx={{
-                                minHeight: 48,
-                                justifyContent: open ? 'initial' : 'center',
-                                px: 2.5,
-                                bgcolor: page==="home" ? "rgb(236, 236, 236)" : "#fff"
-                            }}
-                            onClick={() => {setPage("home"); setCurrentPage("home")}}
-                            component={Link} to="/"
-                        >
-                            <ListItemIcon
-                                sx={{
-                                    minWidth: 0,
-                                    mr: open ? 3 : 'auto',
-                                    justifyContent: 'center',
-                                }}
-                            >
-                                <HomeIcon />
-                            </ListItemIcon>
-                            <ListItemText primary="Home" sx={{ opacity: open ? 1 : 0 }} />
-                        </ListItemButton>
-                    </ListItem>
-                    <ListItem disablePadding sx={{ display: 'block' }}>
-                        <ListItemButton
-                            sx={{
-                                minHeight: 48,
-                                justifyContent: open ? 'initial' : 'center',
-                                px: 2.5,
-                                bgcolor: page==="courses" ? "rgb(236, 236, 236)" : "#fff"
-                            }}
-                            onClick={() => {setPage("courses"); setCurrentPage("courses")}}
-                            component={Link} to="/courses"
-                        >
-                            <ListItemIcon
-                                sx={{
-                                    minWidth: 0,
-                                    mr: open ? 3 : 'auto',
-                                    justifyContent: 'center',
-                                }}
-                            >
-                                <LocalLibraryIcon />
-                            </ListItemIcon>
-                            <ListItemText primary="Courses" sx={{ opacity: open ? 1 : 0 }} />
-                        </ListItemButton>
-                    </ListItem>
-                    <ListItem disablePadding sx={{ display: 'block' }}>
-                        <ListItemButton
-                            sx={{
-                                minHeight: 48,
-                                justifyContent: open ? 'initial' : 'center',
-                                px: 2.5,
-                                bgcolor: page==="timetable" ? "rgb(236, 236, 236)" : "#fff"
-                            }}
-                            onClick={() => {setPage("timetable"); setCurrentPage("timetable")}}
-                            component={Link} to="/timetable"
-                        >
-                            <ListItemIcon
-                                sx={{
-                                    minWidth: 0,
-                                    mr: open ? 3 : 'auto',
-                                    justifyContent: 'center',
-                                }}
-                            >
-                                <CalendarTodayIcon />
-                            </ListItemIcon>
-                            <ListItemText primary="Timetable" sx={{ opacity: open ? 1 : 0 }} />
-                        </ListItemButton>
-                    </ListItem>
-                    <ListItem disablePadding sx={{ display: 'block' }}>
-                        <ListItemButton
-                            sx={{
-                                minHeight: 48,
-                                justifyContent: open ? 'initial' : 'center',
-                                px: 2.5,
-                                bgcolor: page==="login" ? "rgb(236, 236, 236)" : "#fff"
-                            }}
-                            onClick={() => {setPage("login"); setCurrentPage("login")}}
-                            component={Link} to="/login"
-                        >
-                            <ListItemIcon
-                                sx={{
-                                    minWidth: 0,
-                                    mr: open ? 3 : 'auto',
-                                    justifyContent: 'center',
-                                }}
-                            >
-                                <LogoutIcon />
-                            </ListItemIcon>
-                            <ListItemText primary="Logout" sx={{ opacity: open ? 1 : 0 }} />
-                        </ListItemButton>
-                    </ListItem>
-                </List>
-                <Divider />
-            </Drawer>
-            <Main open={open}>
-                {children}
-            </Main>
+  return (
+    <Box sx={{ display: "flex" }}>
+      <ThemeProvider
+        theme={createTheme({
+          spacing: 4,
+          palette: {
+            mode: "light",
+            primary: { main: "#436DFF" },
+            action: { soft: "#F2F4FB", medium: "#E9EDFB", strong: "#D6DFFC" },
+            neutral: {
+              darkest: "#1C1C1C",
+              medium: "#575757",
+              mild: "#b4b4b4",
+              lightest: "#EEEEEE",
+            },
+            background: { light: "#FBFBFB" },
+            error: { main: "#CE1C1C", secondary: "#B62B2B" },
+            success: { main: "#AAC842", secondary: "#94D37E" },
+          },
+          duration: {
+            enteringScreen: 300,
+            leavingScreen: 300,
+          },
+        })}
+      >
+        <CssBaseline enableColorScheme />
+        <Box sx={{ display: "flex" }}>
+          <Drawer variant="permanent" open={open}>
+            <DrawerHeader>
+              {open ? (
+                <IconButton
+                  onClick={() => {
+                    setOpen(false);
+                    setDrawerOpen(false);
+                  }}
+                >
+                  <ChevronLeftIcon />
+                </IconButton>
+              ) : (
+                <IconButton
+                  onClick={() => {
+                    setOpen(true);
+                    setDrawerOpen(true);
+                  }}
+                >
+                  <MenuIcon />
+                </IconButton>
+              )}
+            </DrawerHeader>
+            <Divider sx={{ my: 6 }} />
+            <List>
+              {DrawerPages.map((item) => (
+                <ListItem
+                  disablePadding
+                  sx={{ display: "block", borderRadius: 4 }}
+                >
+                  <DrawerItem
+                    key={item.label}
+                    autoFocus={item.page === "home"}
+                    selected={page === item.page}
+                    sx={{
+                      justifyContent: open ? "initial" : "center",
+                      bgcolor:
+                        page === item.page ? "action.soft" : "background",
+                    }}
+                    onClick={() => {
+                      setPage(item.page);
+                      setCurrentPage(item.page);
+                    }}
+                    component={Link}
+                    to={item.to}
+                  >
+                    <ListItemIcon
+                      sx={{
+                        minWidth: 0,
+                        mr: open ? 3 : "auto",
+                        justifyContent: "center",
+                      }}
+                    >
+                      {item.icon}
+                    </ListItemIcon>
+                    <ListItemText
+                      primary={item.label}
+                      sx={{ opacity: open ? 1 : 0 }}
+                    />
+                  </DrawerItem>
+                </ListItem>
+              ))}
+            </List>
+          </Drawer>
+          <Main open={open}>{children}</Main>
         </Box>
-    );
-}
+      </ThemeProvider>
+    </Box>
+  );
+};
 
 export default MainContent;

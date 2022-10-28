@@ -1,11 +1,12 @@
-import './style.css';
-import { Route, Routes } from 'react-router-dom';
+import "./style.css";
+import { Route, Routes } from "react-router-dom";
+
 import React from "react";
 
-import Home from './pages/Home';
-import Login from './pages/Login';
-import Courses from './pages/Courses';
-import Timetable from './pages/Timetable';
+import Home from "./pages/Home";
+import Login from "./pages/Login";
+import Courses from "./pages/Courses";
+import Timetable from "./pages/Timetable";
 
 function App() {
   return (
