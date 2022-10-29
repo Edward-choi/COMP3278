@@ -62,3 +62,44 @@ body, html, main, div{
   font-size: 24px;
   line-height: 36px;
 }
+
+tr.MuiTableRow-root.css-1vtj80e-MuiTableRow-root {
+  height: 50px;
+}
+
+
+.Label-label.css-x79bbl {
+  margin-top: 26px;
+}
+
+.Label-label.css-x79bbl:first-child {
+  margin-top: 0px;
+}
+
+.Label-label.css-x79bbl:nth-child(even) {
+  visibility: hidden;
+}
+
+.Appointment-appointment.css-1ugm4nc {
+  border-radius: 5px !important;
+  background-color: #fff !important;
+  border-width: 2px !important;
+  border-color: lightgray !important;
+  box-shadow: 2px 2px lightgray !important;
+  color: black !important;
+  margin: 10px !important;
+  width: 90% !important;
+  padding: 2px !important;
+}
+
+.VerticalAppointment-container {
+  color: rgb(40 40 40 / 60%) !important;
+}
+
+.courseCode {
+  margin: 0;
+}
+
+.courseInfo {
+  margin-bottom: 10px;
+}

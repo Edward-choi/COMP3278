@@ -15,8 +15,8 @@ function Timetable() {
                 <h1>Timetable</h1>
                 <Paper>
                     <Scheduler data={appointments} height={660}>
-                        <WeekView startDayHour={9} endDayHour={19} />
-                        <Appointments />
+                        <WeekView startDayHour={8} endDayHour={19} cellDuration={30}/>
+                        <Appointments/>
                     </Scheduler>
                 </Paper>
             </MainContent>
