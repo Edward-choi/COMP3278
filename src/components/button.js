@@ -7,7 +7,7 @@ const CustomButton = styled(Button, {
   boxShadow: "none",
   textTransform: "none",
   borderRadius: theme.spacing(2),
-  ...(variant == "contained" && {}),
+  ...(variant === "contained" && {}),
 }));
 
 export default CustomButton;

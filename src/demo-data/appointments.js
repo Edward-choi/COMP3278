@@ -1,5 +1,4 @@
 import LocationOnIcon from '@mui/icons-material/LocationOn';
-import { width } from '@mui/system';
 const today = new Date();
 
 let day = today.getDate();
