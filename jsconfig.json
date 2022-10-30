@@ -1,0 +1,14 @@
+{
+  //https://nextjs.org/docs/advanced-features/module-path-aliases
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/components/*": ["components/*"],
+      "@/constants/*": ["constants/*"],
+      "@/locales/*": ["locales/*"],
+      "@/api/*": ["api/*"],
+      "@/queries/*": ["queries/*"],
+      "@/mutations/*": ["mutations/*"]
+    }
+  }
+}
