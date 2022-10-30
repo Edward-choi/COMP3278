@@ -1,0 +1,13 @@
+.grayBar {
+    width: 15px;
+    height: 5px;
+    margin: 5px;
+    background-color: #aaaaaa;
+}
+
+.blackBar {
+    width: 15px;
+    height: 5px;
+    margin: 5px;
+    background-color: #000000;
+}

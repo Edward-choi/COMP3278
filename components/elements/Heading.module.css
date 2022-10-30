@@ -1,0 +1,33 @@
+.container {
+    position: relative;
+    text-align: center;
+    height: 156px;
+    display: table;
+    width: 100%;
+    margin: auto;
+    background-color: #E8E1D1
+}
+
+.img {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    object-fit: cover;
+    height: 120px;
+    width: 95%;
+    filter: blur(4px);
+    
+}
+
+.containerText {
+    display: table-cell;
+    color: white;
+    font-size: 24px;
+    font-weight: bold;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-shadow: 1px 1px 5px black;
+}
