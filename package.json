@@ -1,72 +1,50 @@
 {
-  "name": "preface-subscription-frontend",
-  "version": "1.0.0",
-  "description": "Frontend for Preface Subsription",
-  "main": "index.js",
+  "name": "myapp",
+  "version": "0.1.0",
+  "private": true,
   "dependencies": {
-    "@fortawesome/fontawesome-svg-core": "^6.1.1",
-    "@fortawesome/free-brands-svg-icons": "^6.1.1",
-    "@fortawesome/free-regular-svg-icons": "^6.1.1",
-    "@fortawesome/free-solid-svg-icons": "^6.1.1",
-    "@fortawesome/react-fontawesome": "^0.2.0",
-    "@lingui/react": "^3.14.0",
-    "@next/bundle-analyzer": "^12.2.2",
-    "@tanstack/react-query": "^4.0.10",
-    "bulma": "^0.9.4",
-    "clsx": "^1.2.1",
-    "cross-env": "^7.0.3",
-    "next": "^12.2.0",
-    "next-compose-plugins": "^2.2.1",
-    "prop-types": "^15.8.1",
+    "@devexpress/dx-react-core": "^3.0.6",
+    "@devexpress/dx-react-scheduler": "^3.0.6",
+    "@devexpress/dx-react-scheduler-material-ui": "^3.0.6",
+    "@emotion/react": "^11.10.5",
+    "@emotion/styled": "^11.10.5",
+    "@material-ui/core": "^4.12.4",
+    "@mui/icons-material": "^5.10.9",
+    "@mui/material": "^5.10.11",
+    "@mui/private-theming": "^5.2.3",
+    "@mui/types": "7.1.0",
+    "@mui/x-date-pickers": "^5.0.6",
+    "@testing-library/jest-dom": "^5.16.5",
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/user-event": "^13.5.0",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
-  },
-  "devDependencies": {
-    "@babel/core": "^7.18.9",
-    "@lingui/cli": "^3.14.0",
-    "@lingui/macro": "^3.14.0",
-    "@storybook/addon-a11y": "^6.5.10",
-    "@storybook/addon-actions": "^6.5.9",
-    "@storybook/addon-essentials": "^6.5.9",
-    "@storybook/addon-interactions": "^6.5.9",
-    "@storybook/addon-links": "^6.5.9",
-    "@storybook/builder-webpack5": "^6.5.9",
-    "@storybook/manager-webpack5": "^6.5.9",
-    "@storybook/react": "^6.5.9",
-    "@storybook/test-runner": "^0.6.1",
-    "@storybook/testing-library": "0.0.13",
-    "axe-playwright": "^1.1.11",
-    "babel-loader": "^8.2.5",
-    "babel-plugin-macros": "^3.1.0",
-    "chromatic": "^6.7.4",
-    "eslint": "8.19.0",
-    "eslint-config-next": "12.2.0",
-    "eslint-plugin-storybook": "^0.5.13",
-    "jest": "^27.5.1",
-    "sass": "^1.53.0",
-    "storybook-addon-next": "^1.6.7"
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.4.2",
+    "react-scripts": "5.0.1",
+    "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "analyze": "cross-env NODE_ENV=production ANALYZE=true next build",
-    "dev": "next dev -p 3010",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint",
-    "locale:extract": "cross-env NODE_ENV=development lingui extract",
-    "locale:extract-clean": "cross-env NODE_ENV=development lingui extract --clean",
-    "locale:compile": "lingui compile --strict",
-    "storybook": "start-storybook -p 6006",
-    "build-storybook": "build-storybook",
-    "test-storybook": "test-storybook"
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/preface-2022-summer-fiesta/preface-subscription-frontend.git"
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
   },
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/preface-2022-summer-fiesta/preface-subscription-frontend/issues"
-  },
-  "homepage": "https://github.com/preface-2022-summer-fiesta/preface-subscription-frontend#readme"
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
 }
