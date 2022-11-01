@@ -1,6 +1,6 @@
 @import url("https://fonts.googleapis.com/css?family=Poppins");
 
-body, html, main, div{
+body, html, main, div, Button{
   font-family: 'Poppins';
   -moz-osx-font-smoothing: grayscale;
   -webkit-font-smoothing: antialiased;
