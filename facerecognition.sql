@@ -25,12 +25,12 @@ SET time_zone = "+00:00";
 
 -- Create table structures
 CREATE TABLE `Users` (
-	`UserID` Int,
+    `UserID` Int,
     PRIMARY KEY (`UserID`)
 );
 
 CREATE TABLE `Students` (
-	`UserID` Int,
+    `UserID` Int,
     `name` VARCHAR(100) NOT NULL,
     `year` Int NOT NULL,
     `major` VARCHAR(100),
@@ -39,7 +39,7 @@ CREATE TABLE `Students` (
 );
 
 CREATE TABLE `Teachers` (
-	`UserID` Int,
+    `UserID` Int,
     `name` VARCHAR(100) NOT NULL,
     `faculty` VARCHAR(100) NOT NULL,
     `department` VARCHAR(100) NOT NULL,
@@ -48,7 +48,7 @@ CREATE TABLE `Teachers` (
 );
 
 CREATE TABLE `Classes` (
-	`ClassID` Int,
+    `ClassID` Int,
     `UserID` Int NOT NULL,
     `course_name` VARCHAR(100) NOT NULL,
     `semester` Int NOT NULL,
@@ -57,7 +57,7 @@ CREATE TABLE `Classes` (
 );
 
 CREATE TABLE `Login_Hist` (
-	`loginID` Int,
+    `loginID` Int,
     `UserID` Int NOT NULL,
     `login_time` DATETIME NOT NULL,
     `logout_time` DATETIME NOT NULL,
@@ -66,7 +66,7 @@ CREATE TABLE `Login_Hist` (
 );
 
 CREATE TABLE `Students_Take_Classes` (
-	`UserID` Int,
+    `UserID` Int,
     `ClassID` Int,
     PRIMARY KEY (`UserID`, `ClassID`),
     FOREIGN KEY (`UserID`) REFERENCES `Students`(`UserID`),
@@ -74,7 +74,7 @@ CREATE TABLE `Students_Take_Classes` (
 );
 
 CREATE TABLE `Class_Time` (
-	`ClassID` Int,
+    `ClassID` Int,
     `time.day_of_week` Int,
     `time.start_time` TIME,
     `time.end_time` TIME,
@@ -83,7 +83,7 @@ CREATE TABLE `Class_Time` (
 );
 
 CREATE TABLE `Information` (
-	`ClassID` Int,
+    `ClassID` Int,
     `Week` Int,
     `classroom_address` VARCHAR(100),
     `teacher_message` VARCHAR(200),
