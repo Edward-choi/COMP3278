@@ -45,22 +45,30 @@ body, html, main, div, Button{
   }
 }
 
-.h1{
+h1{
   font-size: 40px;
   font-weight: 600;
   line-height: 60px;
+  letter-spacing: 0.02em;
+
 }
 
-.h2{
+h2{
   font-weight: 500;
   font-size: 32px;
   line-height: 48px;
+  letter-spacing: 0.02em;
+
 }
 
-.h3{
+h3{
   font-weight: 400;
   font-size: 24px;
   line-height: 36px;
+}
+
+p{
+  font-size: 14px;
 }
 
 tr.MuiTableRow-root.css-1vtj80e-MuiTableRow-root {
@@ -103,3 +111,65 @@ tr.MuiTableRow-root.css-1vtj80e-MuiTableRow-root {
 .courseInfo {
   margin-bottom: 10px;
 }
+
+.link{
+  font-size: 12px;
+  font-weight: 600;
+  color: #3657CC;
+  display: inline;
+  text-decoration-line: underline;
+}
+
+.banner {
+  width: 100%;
+  object-fit: cover;
+  background-position: center center;
+  padding: 0;
+  margin: 0;
+  
+  display: block;
+  align-self: center;
+}
+
+@media screen and (min-width: 1024px) {
+  .banner-container{
+    width: 50vw;
+    height: 100vh;
+    flex-grow: 1;
+    flex-shrink: 1;
+    align-content: center;
+    align-items: center;
+    justify-content: center;
+    display: flex;
+    text-align: center;
+    position: relative;
+    box-sizing: border-box;
+    background: linear-gradient( #8EA7FF,#B4C5FF);
+  }
+}
+
+@media screen and (max-width: 1024px) {
+  .banner-container{
+    display: none;
+  }
+}
+
+@media screen and (min-width:1024px) {
+  .form-container{
+    min-width: 50vw;
+    max-width: 50%;
+    padding: 0px 10%;
+    position: relative;
+  }
+}
+
+@media screen and (max-width:1024px) {
+  .form-container{
+    min-width: 50vw;
+    max-width: 50%;
+    
+    margin: 0 auto;
+    position: relative;
+  }
+}
+

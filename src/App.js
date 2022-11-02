@@ -7,6 +7,7 @@ import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Courses from "./pages/Courses";
 import Timetable from "./pages/Timetable";
+import Register from "./pages/Register";
 
 import { CssBaseline, ThemeProvider, createTheme } from "@mui/material";
 
@@ -17,7 +18,13 @@ function App() {
         spacing: 4,
         palette: {
           mode: "light",
-          primary: { main: "#436DFF" },
+          primary: {
+            main: "#436DFF",
+            dark: "#3657CC",
+            light: "#698ADD",
+            lighter: "#8EA7FF",
+            lightest: "#B4C5FF",
+          },
           action: { soft: "#F2F4FB", medium: "#E9EDFB", strong: "#D6DFFC" },
           neutral: {
             darkest: "#1C1C1C",
@@ -41,6 +48,7 @@ function App() {
         <Route path="/courses" element={<Courses />} />
         <Route path="/timetable" element={<Timetable />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
       </Routes>
     </ThemeProvider>
   );
