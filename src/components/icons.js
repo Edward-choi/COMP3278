@@ -27,6 +27,7 @@ import { ReactComponent as StarFillIcon } from "../assets/icons/star-fill.svg";
 import { ReactComponent as StarEmptyIcon } from "../assets/icons/star-outlined.svg";
 import { ReactComponent as StickyNoteIcon } from "../assets/icons/sticky-note.svg";
 import { ReactComponent as TickIcon } from "../assets/icons/tick.svg";
+import { ReactComponent as AvatarIcon } from "../assets/icons/user-avatar.svg";
 import { ReactComponent as WarningFillIcon } from "../assets/icons/warning-filled.svg";
 import { ReactComponent as WarningOutlinedIcon } from "../assets/icons/warning-outlined.svg";
 import { ReactComponent as DocIcon } from "../assets/icons/documents/doc.svg";
@@ -64,6 +65,7 @@ export default {
   StarEmptyIcon,
   StickyNoteIcon,
   TickIcon,
+  AvatarIcon,
   WarningFillIcon,
   WarningOutlinedIcon,
   DocIcon,

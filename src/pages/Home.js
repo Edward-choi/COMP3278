@@ -24,6 +24,14 @@ function Home() {
         link: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions",
       },
     ],
+    messages: [
+      {
+        subject: "Update Tutorial Schedule",
+        from: "Dr. Chan",
+        sendAt: new Date(2022, 10, 2, 12, 32, 12),
+        content: "Bla bal",
+      },
+    ],
   };
   return (
     <div>

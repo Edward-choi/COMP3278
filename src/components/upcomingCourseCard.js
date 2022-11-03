@@ -3,6 +3,7 @@ import { styled } from "@mui/material/styles";
 import { Box, Stack } from "@mui/system";
 import StyledButton from "./button";
 import Icons from "./icons";
+import MessageCard from "./messageCard";
 
 const CourseCard = styled("div")(({ theme }) => ({
   backgroundColor: "#FFF",
@@ -134,7 +135,7 @@ function UpcomingCourseCard({
       let meetingId = zoom.meetingId;
       let passCode = zoom.passCode;
       let renderLink, renderMeetingId, renderPassCode;
-      console.log(meetingId);
+
       if (link != undefined && link != null) {
         renderLink = (
           <a href={link} className="link">
@@ -211,7 +212,6 @@ function UpcomingCourseCard({
               alignItems: "center",
             }}
           >
-            {" "}
             <CourseDetailHeader>
               <Icons.NoteIcon />
               Course Materials
@@ -279,6 +279,26 @@ function UpcomingCourseCard({
     }
   };
 
+  const renderMessages = () => {
+    if (messages != undefined && messages != null && messages.length > 0) {
+      return (
+        <Stack spacing={2} direction="column">
+          <CourseDetailHeader>
+            <Icons.NoteIcon />
+            Course Materials
+          </CourseDetailHeader>
+          <CourseContainer>
+            <Stack spacing={2} direction="column">
+              {messages.map((message, index) => {
+                return <MessageCard key={index} message={message} />;
+              })}
+            </Stack>
+          </CourseContainer>
+        </Stack>
+      );
+    }
+  };
+
   return (
     <CourseCard ref={ref}>
       <Stack spacing={2} direction="column" width={"100%"}>
@@ -312,6 +332,7 @@ function UpcomingCourseCard({
         {renderAddress()}
         {renderZoom()}
         {renderMaterials()}
+        {renderMessages()}
       </Stack>
     </CourseCard>
   );
