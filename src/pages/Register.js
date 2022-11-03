@@ -1,5 +1,4 @@
 import * as React from "react";
-import { styled } from "@mui/material/styles";
 import { Link } from "react-router-dom";
 
 import {
@@ -116,7 +115,6 @@ function Register() {
                   placeholder="e.g. Alex"
                 />
                 <TextField
-                  required
                   fullWidth
                   id="last-name"
                   value={values.lastName}

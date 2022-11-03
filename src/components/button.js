@@ -3,8 +3,11 @@ import Button from "@mui/material/Button";
 
 const StyledButton = styled(Button, {
   shouldForwardProp: (prop) =>
-    prop !== "size" && prop !== "fullWidth" && prop !== "variant",
-})(({ theme, size, fullWidth, variant }) => ({
+    prop !== "size" &&
+    prop !== "fullWidth" &&
+    prop !== "variant" &&
+    prop !== "icon",
+})(({ theme, size, fullWidth, variant, icon }) => ({
   textTransform: "none",
   fontWeight: "bold",
   fontFamily: "Poppins",
@@ -18,33 +21,39 @@ const StyledButton = styled(Button, {
       : `6 ${theme.spacing(3)}`,
   boxShadow: "none",
   backgroundColor:
-    variant == "outlined" || variant == "text"
+    variant === "outlined" || variant === "text"
       ? "transparent"
       : theme.palette.primary.main,
   color:
-    variant == "outlined" || variant == "text"
+    variant === "outlined" || variant === "text"
       ? theme.palette.primary.main
       : "#FFF",
   width: fullWidth ? "100%" : "auto",
   textAlign: "center",
   border:
-    variant != "text"
+    variant !== "text"
       ? ["2px", "solid", theme.palette.primary.main].join(" ")
       : "none",
   "&: hover": {
     border: ["2px", "solid", theme.palette.primary.main].join(" "),
     backgroundColor:
-      variant == "outlined" || variant == "text"
+      variant === "outlined" || variant === "text"
         ? theme.palette.neutral.lightest
         : theme.palette.primary.light,
   },
-  ...(size == "large" && {
+  ...(size === "large" && {
     [theme.breakpoints.up("lg")]: { minWidth: "380px" },
   }),
-  "& .MuiButton-startIcon path": {
-    fill: variant == "outlined" ? theme.palette.primary.main : "#FFF",
-    stroke: variant == "contained" ? "transparent" : theme.palette.primary.main,
+  [theme.breakpoints.down("sm")]: {
+    "& .MuiButton-startIcon": { margin: 0 },
   },
+  "& .MuiButton-startIcon path": {
+    fill: variant === "outlined" ? theme.palette.primary.main : "#FFF",
+    stroke:
+      variant === "contained" ? "transparent" : theme.palette.primary.main,
+  },
+  justifyContent: "center",
+  alignItems: "center",
 }));
 
 export default StyledButton;

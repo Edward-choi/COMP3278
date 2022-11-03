@@ -51,6 +51,7 @@ h1{
   line-height: 60px;
   letter-spacing: 0.02em;
 
+
 }
 
 h2{
@@ -58,13 +59,16 @@ h2{
   font-size: 32px;
   line-height: 48px;
   letter-spacing: 0.02em;
-
+  padding: 8px 0;
+  margin: 0;
 }
 
 h3{
   font-weight: 400;
   font-size: 24px;
   line-height: 36px;
+  padding: 0;
+  margin: 0;
 }
 
 h4{

@@ -1,8 +1,6 @@
 import * as React from "react";
 import { styled } from "@mui/material/styles";
-import StyledButton from "./button";
 import Icons from "./icons";
-import { act } from "react-dom/test-utils";
 import { Box, Stack, IconButton, Collapse } from "@mui/material";
 
 const Accordion = styled("div", {
@@ -14,7 +12,7 @@ const Accordion = styled("div", {
   textAlign: "left",
   borderRadius: theme.spacing(1),
   padding: `${theme.spacing(4)} ${theme.spacing(6)}`,
-  border: ["1px", "solid", theme.palette.neutral.mild].join(" "),
+  border: ["1px", "solid", theme.palette.neutral.lightest].join(" "),
   boxSizing: "border-size",
   display: "flex",
   flexDirection: "column",
@@ -53,13 +51,14 @@ function MessageCard({ message: { subject, from, sendAt, content } }) {
             <Box
               sx={{
                 display: "inline-flex",
-                flexDirection: "row",
+                flexDirection: { xs: "column", md: "row" },
                 fontSize: 12,
-                gap: 5,
+                gap: { xs: 2, md: 5 },
               }}
             >
               <span style={{ display: "inline-flex" }}>
-                by <Box sx={{ color: "primary.dark" }}>{from}</Box>
+                by
+                <Box sx={{ color: "primary.dark" }}>{from}</Box>
               </span>
               {sendAt.toLocaleString("en-US", {
                 weekday: "long",

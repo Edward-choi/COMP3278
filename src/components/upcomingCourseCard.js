@@ -1,6 +1,6 @@
 import * as React from "react";
 import { styled } from "@mui/material/styles";
-import { Box, Stack } from "@mui/system";
+import { Box, Stack, useTheme, useMediaQuery } from "@mui/material";
 import StyledButton from "./button";
 import Icons from "./icons";
 import MessageCard from "./messageCard";
@@ -83,14 +83,17 @@ function UpcomingCourseCard({
     messages,
   },
 }) {
+  const theme = useTheme();
+  const isSmallOrLess = useMediaQuery(theme.breakpoints.up("sm"));
   const ref = React.useRef(null);
   const [width, setWidth] = React.useState(0);
   React.useLayoutEffect(() => {
     setWidth(ref.current.offsetWidth);
-  }, []);
+  }, [ref.current]);
 
   const sendCopyToEmail = () => {};
   const downloadAll = () => {};
+
   const renderTimeRangeString = () => {
     if (
       typeof startAt === "object" &&
@@ -103,94 +106,94 @@ function UpcomingCourseCard({
     }
     return "";
   };
+
   const renderDesc = () => {
-    if (desc != undefined && desc != null)
-      return (
-        <Box sx={{ fontSize: 12, color: "neutral.medium", lineHeight: 18 }}>
-          {desc}
+    return (
+      <Box sx={{ fontSize: 12, color: "neutral.medium", lineHeight: 18 }}>
+        {desc}
+      </Box>
+    );
+  };
+
+  const renderAddress = () => {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: { xs: "flex-start", sm: "space-between" },
+          alignItems: "center",
+          gap: { xs: 2, sm: 0 },
+        }}
+      >
+        <CourseDetailHeader>
+          <Icons.LocationOutLinedIcon />
+          {isSmallOrLess && "Course Address"}
+        </CourseDetailHeader>
+        {venue}
+      </Box>
+    );
+  };
+
+  const renderZoom = () => {
+    let link = zoom.link;
+    let meetingId = zoom.meetingId;
+    let passCode = zoom.passCode;
+    let renderLink, renderMeetingId, renderPassCode;
+
+    if (link !== undefined && link !== null) {
+      renderLink = (
+        <a href={link} className="link">
+          {link}
+        </a>
+      );
+    }
+    if (meetingId !== undefined && meetingId !== null) {
+      renderMeetingId = (
+        <Box sx={{ fontSize: 12, color: "neutral.medium", lineHeight: 1.8 }}>
+          Meeting ID: {meetingId}
         </Box>
       );
-  };
-  const renderAddress = () => {
-    if (venue != undefined && venue != null)
-      return (
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-          }}
-        >
-          <CourseDetailHeader>
-            <Icons.LocationOutLinedIcon />
-            Course Address
-          </CourseDetailHeader>
-          {venue}
-        </div>
+    }
+    if (passCode !== undefined && passCode !== null) {
+      renderPassCode = (
+        <Box sx={{ fontSize: 12, color: "neutral.medium", lineHeight: 1.8 }}>
+          Password: {passCode}
+        </Box>
       );
-  };
-  const renderZoom = () => {
-    if (zoom != undefined && zoom != null) {
-      let link = zoom.link;
-      let meetingId = zoom.meetingId;
-      let passCode = zoom.passCode;
-      let renderLink, renderMeetingId, renderPassCode;
-
-      if (link != undefined && link != null) {
-        renderLink = (
-          <a href={link} className="link">
-            {link}
-          </a>
-        );
-      }
-      if (meetingId != undefined && meetingId != null) {
-        renderMeetingId = (
-          <Box sx={{ fontSize: 12, color: "neutral.medium", lineHeight: 1.8 }}>
-            Meeting ID: {meetingId}
-          </Box>
-        );
-      }
-      if (passCode != undefined && passCode != null) {
-        renderPassCode = (
-          <Box sx={{ fontSize: 12, color: "neutral.medium", lineHeight: 1.8 }}>
-            Password: {passCode}
-          </Box>
-        );
-      }
-      if (
-        link != undefined &&
-        link != null &&
-        (meetingId == undefined || meetingId == null) &&
-        (passCode == undefined || passCode == null)
-      ) {
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-          }}
-        >
+    }
+    if (
+      link !== undefined &&
+      link !== null &&
+      (meetingId === undefined || meetingId === null) &&
+      (passCode === undefined || passCode === null)
+    ) {
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        <CourseDetailHeader>
+          <Icons.LinkIcon />
+          Zoom Link
+        </CourseDetailHeader>
+        {renderLink}
+      </div>;
+    } else {
+      return (
+        <Stack spacing={2} direction="column">
           <CourseDetailHeader>
             <Icons.LinkIcon />
             Zoom Link
           </CourseDetailHeader>
-          {renderLink}
-        </div>;
-      } else {
-        return (
-          <Stack spacing={2} direction="column">
-            <CourseDetailHeader>
-              <Icons.LinkIcon />
-              Zoom Link
-            </CourseDetailHeader>
-            <CourseContainer>
-              {renderLink}
-              {renderMeetingId}
-              {renderPassCode}
-            </CourseContainer>
-          </Stack>
-        );
-      }
+          <CourseContainer>
+            {renderLink}
+            {renderMeetingId}
+            {renderPassCode}
+          </CourseContainer>
+        </Stack>
+      );
     }
   };
 
@@ -200,107 +203,113 @@ function UpcomingCourseCard({
   };
 
   const renderMaterials = () => {
-    if (materials != undefined && materials != null && materials.length > 0) {
-      var maxLength = Math.floor((width - 64) / 80);
-      var croppedMaterials = materials.slice(0, maxLength);
-      return (
-        <Stack spacing={2} direction="column">
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <CourseDetailHeader>
-              <Icons.NoteIcon />
-              Course Materials
-            </CourseDetailHeader>
-            <StyledButton
-              size="small"
-              variant="outlined"
-              startIcon={<Icons.DownloadIcon />}
-              onClick={() => downloadAll()}
-            >
-              Download All
-            </StyledButton>
-          </div>
-          <CourseContainer>
-            <Stack spacing={3}>
-              {croppedMaterials.map(function (m, index) {
-                let fileName = m.link;
-                if (m.fileName != undefined && m.fileName != null) {
-                  fileName = m.fileName;
-                }
-                const ext = getExtension(fileName);
-                let fileIcon;
-                switch (ext) {
-                  case "pdf":
-                    fileIcon = <Icons.PdfIcon />;
-                    break;
-                  case "ppt":
-                    fileIcon = <Icons.PptIcon />;
-                    break;
-                  case "doc":
-                  case "docx":
-                    fileIcon = <Icons.DocIcon />;
-                    break;
-                  default:
-                    fileIcon = <Icons.LinkIcon />;
-                    break;
-                }
-                if (index < maxLength) {
-                  return (
-                    <a
-                      href={m.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{ textDecoration: "none" }}
-                      key={m.link}
-                    >
-                      <MaterialCard>
-                        {fileIcon}
-                        {fileName}
-                      </MaterialCard>
-                    </a>
-                  );
-                } else {
-                  <MaterialCard>
-                    <div style={{ fontSize: 16 }}>
-                      {materials.length - maxLength} More
-                    </div>
-                  </MaterialCard>;
-                }
-              })}
-            </Stack>
-          </CourseContainer>
-        </Stack>
-      );
-    }
-  };
+    var maxLength = Math.floor(width / 88);
+    var croppedMaterials = materials.slice(0, maxLength);
 
-  const renderMessages = () => {
-    if (messages != undefined && messages != null && messages.length > 0) {
-      return (
-        <Stack spacing={2} direction="column">
+    return (
+      <Stack spacing={2} direction="column">
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
           <CourseDetailHeader>
             <Icons.NoteIcon />
             Course Materials
           </CourseDetailHeader>
-          <CourseContainer>
-            <Stack spacing={2} direction="column">
-              {messages.map((message, index) => {
-                return <MessageCard key={index} message={message} />;
-              })}
-            </Stack>
-          </CourseContainer>
-        </Stack>
-      );
-    }
+          <StyledButton
+            size="small"
+            variant="outlined"
+            startIcon={<Icons.DownloadIcon />}
+            onClick={() => downloadAll()}
+            icon={true}
+          >
+            {isSmallOrLess && "Download All"}
+          </StyledButton>
+        </div>
+        <CourseContainer>
+          <Stack
+            spacing={3}
+            direction="row"
+            sx={{ overflow: "hidden" }}
+            ref={ref}
+          >
+            {croppedMaterials.map(function (m, index) {
+              let fileName = m.link;
+              if (m.fileName !== undefined && m.fileName !== null) {
+                fileName = m.fileName;
+              }
+              const ext = getExtension(fileName);
+              let fileIcon;
+              switch (ext) {
+                case "pdf":
+                  fileIcon = <Icons.PdfIcon />;
+                  break;
+                case "ppt":
+                  fileIcon = <Icons.PptIcon />;
+                  break;
+                case "doc":
+                case "docx":
+                  fileIcon = <Icons.DocIcon />;
+                  break;
+                default:
+                  fileIcon = <Icons.LinkIcon />;
+                  break;
+              }
+
+              if (index < maxLength - 1) {
+                return (
+                  <a
+                    href={m.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ textDecoration: "none" }}
+                    key={index}
+                  >
+                    <MaterialCard>
+                      {fileIcon}
+                      {fileName}
+                    </MaterialCard>
+                  </a>
+                );
+              } else {
+                return (
+                  <MaterialCard key={index}>
+                    <div style={{ fontSize: 16 }}>
+                      {materials.length - maxLength} More
+                    </div>
+                  </MaterialCard>
+                );
+              }
+            })}
+          </Stack>
+        </CourseContainer>
+      </Stack>
+    );
+  };
+
+  const renderMessages = () => {
+    return (
+      <Stack spacing={2} direction="column">
+        <CourseDetailHeader>
+          <Icons.MessageIcon />
+          Teacher's Messages
+        </CourseDetailHeader>
+        <CourseContainer>
+          <Stack spacing={2} direction="column">
+            {messages.map((message, index) => {
+              return <MessageCard key={index} message={message} />;
+            })}
+          </Stack>
+        </CourseContainer>
+      </Stack>
+    );
   };
 
   return (
-    <CourseCard ref={ref}>
+    <CourseCard>
       <Stack spacing={2} direction="column" width={"100%"}>
         <Box sx={{ color: "neutral.medium", fontSize: 14 }}>
           {renderTimeRangeString()}
@@ -309,7 +318,7 @@ function UpcomingCourseCard({
           sx={{
             display: "flex",
             flexDirection: "row",
-            gap: 8,
+            gap: { sm: 4, md: 8 },
             alignItems: "center",
             alignSelf: "stretch",
           }}
@@ -323,16 +332,16 @@ function UpcomingCourseCard({
             startIcon={<Icons.EmailIcon />}
             onClick={() => sendCopyToEmail()}
           >
-            Send Copy
+            {isSmallOrLess && "Send Copy"}
           </StyledButton>
         </Box>
-        {renderDesc()}
+        {desc && desc.length > 0 && renderDesc()}
       </Stack>
       <Stack spacing={6} direction="column" sx={{ alignSelf: "stretch" }}>
-        {renderAddress()}
-        {renderZoom()}
-        {renderMaterials()}
-        {renderMessages()}
+        {venue && renderAddress()}
+        {zoom && renderZoom()}
+        {materials && materials.length > 0 && renderMaterials()}
+        {messages && messages.length > 0 && renderMessages()}
       </Stack>
     </CourseCard>
   );
