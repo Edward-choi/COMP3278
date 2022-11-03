@@ -321,8 +321,12 @@ function Register() {
                   camera for fast and wise facial login.
                 </p>
               </Stack>
-              <Stack spacing={6} direction="column" sx={{ mt: 24 }}>
-                <StyledButton variant="contained" disableElevation>
+              <Stack
+                spacing={6}
+                direction="column"
+                sx={{ mt: 24, display: "inline-flex" }}
+              >
+                <StyledButton variant="contained" disableElevation size="large">
                   I'm Ready To Smile
                 </StyledButton>
                 <StyledButton
@@ -330,6 +334,7 @@ function Register() {
                   disableElevation
                   component={Link}
                   to="/login"
+                  size="large"
                 >
                   Skip For This Time
                 </StyledButton>

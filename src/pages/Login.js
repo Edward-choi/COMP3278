@@ -116,7 +116,7 @@ function Login() {
           <h1>Login</h1>
 
           <StyledButton
-            fullWidth={true}
+            fullWidth
             color="primary"
             variant="contained"
             disableElevation
@@ -204,7 +204,7 @@ function Login() {
 
           <Stack direction="column" spacing={3} mt={12}>
             <StyledButton
-              fullWidth={true}
+              fullWidth
               color="primary"
               variant="outlined"
               disableElevation

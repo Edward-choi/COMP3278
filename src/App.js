@@ -30,7 +30,7 @@ function App() {
             darkest: "#1C1C1C",
             medium: "#575757",
             mild: "#b4b4b4",
-            lightest: "#EEEEEE",
+            lightest: "#E8EAEE",
           },
           background: { light: "#FBFBFB" },
           error: { main: "#CE1C1C", secondary: "#B62B2B" },
