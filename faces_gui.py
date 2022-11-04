@@ -20,6 +20,9 @@ classWithinHour = None
 classWithinHourInfo = None
 cursor = myconn.cursor(buffered = True)
 
+classWithinHour = None
+classWithinHourInfo = None
+timetable = None
 
 #2 Load recognize and read label from model
 recognizer = cv2.face.LBPHFaceRecognizer_create()
@@ -126,6 +129,19 @@ while True:
                                 classWithinHourInfo = cursor.fetchall()
                                 #print(classWithinHour)
                                 #print(classWithinHourInfo)
+                
+                #get timetable order by weekday and class start time
+                tempWHERE = "classID = "
+                for i in range(len(StudentTakesClassesID)):
+                    temp = StudentTakesClassesID[i][0]
+                    tempWHERE = tempWHERE + str(temp)
+                    if (i < len(StudentTakesClassesID) - 1):
+                        tempWHERE = tempWHERE + " OR classID = "
+                select = "SELECT * FROM class_time WHERE %s" % tempWHERE
+                getTimetable = cursor.execute(select)
+                timetable = cursor.fetchall()
+                timetable = sorted(timetable, key = lambda x: (x[1], x[2]))
+                #print(timetable)
 
 
         # If the face is unrecognized
