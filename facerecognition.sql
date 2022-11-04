@@ -75,10 +75,10 @@ CREATE TABLE `Students_Take_Classes` (
 
 CREATE TABLE `Class_Time` (
     `ClassID` Int,
-    `time.day_of_week` Int,
-    `time.start_time` TIME,
-    `time.end_time` TIME,
-    PRIMARY KEY (`ClassID`, `time.day_of_week`, `time.start_time`, `time.end_time`),
+    `day_of_week` Int,
+    `start_time` TIME,
+    `end_time` TIME,
+    PRIMARY KEY (`ClassID`, `day_of_week`, `start_time`, `end_time`),
     FOREIGN KEY (`ClassID`) REFERENCES `Classes`(`ClassID`)
 );
 
