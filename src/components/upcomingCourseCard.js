@@ -363,6 +363,7 @@ function UpcomingCourseCard({
             gap: { sm: 4, md: 8 },
             alignItems: "center",
             alignSelf: "stretch",
+            justifyContent: "space-between",
           }}
         >
           <Link
