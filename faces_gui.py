@@ -96,28 +96,9 @@ while True:
 
             # If the student's information is found in the database
             else:
-                """
-                Implement useful functions here.
-                Check the course and classroom for the student.
-                    If the student has class room within one hour, the corresponding course materials
-                        will be presented in the GUI.
-                    if the student does not have class at the moment, the GUI presents a personal class 
-                        timetable for the student.
-
-                """
-
-
-                update =  "UPDATE Student SET login_date=%s WHERE name=%s"
-                val = (date, current_name)
-                cursor.execute(update, val)
-                update = "UPDATE Student SET login_time=%s WHERE name=%s"
-                val = (current_time, current_name)
-                cursor.execute(update, val)
+                loginHistUpdate =  "INSERT INTO login_hist(UserID, login_time, logout_time) VALUES(%s, now(), now())" % (result[0][0])
+                cursor.execute(loginHistUpdate)
                 myconn.commit()
-               
-                hello = ("Hello ", current_name, "You did attendance today")
-                print(hello)
-                engine.say(hello)
 
 
         # If the face is unrecognized
