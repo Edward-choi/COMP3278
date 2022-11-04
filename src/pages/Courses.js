@@ -32,10 +32,12 @@ function Courses() {
   }, [filterState, searchText]);
 
   const handleSearch = (event) => {
+    event.preventDefault();
     setSearchText(event.target.value);
   };
 
   const handleFilterChange = (prop) => (event) => {
+    event.preventDefault();
     setFilter({ ...filterState, [prop]: event.target.value });
   };
   const clearFilter = (prop) => {

@@ -157,6 +157,7 @@ const MainContent = ({ children }) => {
   React.useEffect(() => {
     const timer = () => {
       dispatch({ duration: state.duration + 1 });
+      localStorage.setItem("duration", state.duration);
     };
     const id = setInterval(timer, 1000);
     return () => clearInterval(id);

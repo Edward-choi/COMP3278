@@ -42,6 +42,7 @@ const StyledTab = styled(Tab)(({ theme }) => ({
 }));
 
 export default function Course() {
+  const navigator = useNavigate();
   const { id, academic_year } = useParams();
   const [course, setCourse] = React.useState(null);
   const [tab, setTab] = React.useState(0);
@@ -75,6 +76,7 @@ export default function Course() {
   };
 
   const handleSearch = (prop) => (event) => {
+    event.preventDefault();
     const value = event.target.value;
     const search = value.toLowerCase().replace(/\W/g, "");
     const hasMatch = (text) => {
@@ -120,6 +122,7 @@ export default function Course() {
   };
 
   const handleFilterChange = (prop) => (event) => {
+    event.preventDefault();
     const value = event.target.value;
     switch (prop) {
       case "message":
@@ -189,7 +192,11 @@ export default function Course() {
     <MainContent>
       <div style={{ position: "relative" }}>
         <Box sx={{ position: "absolute", left: -52 }}>
-          <IconButton aria-label="Return" size="large">
+          <IconButton
+            aria-label="Return"
+            size="large"
+            onClick={() => navigator(-1)}
+          >
             <Icons.ReturnIcon />
           </IconButton>
         </Box>

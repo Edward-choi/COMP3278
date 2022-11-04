@@ -48,6 +48,7 @@ function Register() {
   };
 
   const handleChange = (prop) => (event) => {
+    event.preventDefault();
     let fieldValidationErrors = values.formErrors;
     let emailValid = values.emailValid;
     let passwordValid = values.passwordValid;
@@ -94,6 +95,7 @@ function Register() {
   };
 
   const handleAgree = (event) => {
+    event.preventDefault();
     setAgree(event.target.checked);
   };
 

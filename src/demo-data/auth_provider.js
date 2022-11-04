@@ -12,7 +12,8 @@ const defaultAuthState = {
   token: "",
   user: defaultUserState,
   loginAt: new Date(),
-  duration: 0,
+  duration: parseInt(localStorage.getItem("duration") ?? "0"),
+  stars: JSON.parse(localStorage.getItem("stars") || "[]"),
 };
 
 const authContext = React.createContext(defaultAuthState);
