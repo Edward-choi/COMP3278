@@ -12,8 +12,10 @@ import PySimpleGUI as sg
 myconn = mysql.connector.connect(host="localhost", user="root", passwd="jamesmysql", database="facerecognition")
 date = datetime.utcnow()
 now = datetime.now()
+weekday = datetime.today().weekday()
 current_time = now.strftime("%H:%M:%S")
-cursor = myconn.cursor()
+currentTimeDelta = datetime.now().hour*3600 + datetime.now().minute*60 + datetime.now().second
+cursor = myconn.cursor(buffered = True)
 
 
 #2 Load recognize and read label from model
@@ -96,9 +98,24 @@ while True:
 
             # If the student's information is found in the database
             else:
+                #update login history
                 loginHistUpdate =  "INSERT INTO login_hist(UserID, login_time, logout_time) VALUES(%s, now(), now())" % (result[0][0])
                 cursor.execute(loginHistUpdate)
                 myconn.commit()
+
+                #find class within one hour
+                select = "SELECT classID FROM students_take_classes where userID = %s" % result[0][0]
+                getStudentTakesClassesID = cursor.execute(select)
+                StudentTakesClassesID = cursor.fetchall()
+                print(StudentTakesClassesID)
+                for i in range(len(StudentTakesClassesID)):
+                    select = "SELECT * FROM class_time WHERE classID = %s AND day_of_week = %s" % (StudentTakesClassesID[i][0], weekday)
+                    getClassTime = cursor.execute(select)
+                    classTime = cursor.fetchall()
+                    #print(classTime)
+                    if (len(StudentTakesClassesID) > 0):
+                        for j in classTime:
+                            if (j[1] - currentTimeDelta <= 3600 and j[1] - currentTimeDelta >= 0): print(j)
 
 
         # If the face is unrecognized
