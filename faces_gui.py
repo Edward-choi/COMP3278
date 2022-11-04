@@ -12,9 +12,12 @@ import PySimpleGUI as sg
 myconn = mysql.connector.connect(host="localhost", user="root", passwd="jamesmysql", database="facerecognition")
 date = datetime.utcnow()
 now = datetime.now()
-weekday = datetime.today().weekday()
+weekday = datetime.today().weekday() #used in class_time
+weekOfTheYear = datetime.today().isocalendar().week #used in information
 current_time = now.strftime("%H:%M:%S")
 currentTimeDelta = datetime.now().hour*3600 + datetime.now().minute*60 + datetime.now().second
+classWithinHour = None
+classWithinHourInfo = None
 cursor = myconn.cursor(buffered = True)
 
 
@@ -108,14 +111,21 @@ while True:
                 getStudentTakesClassesID = cursor.execute(select)
                 StudentTakesClassesID = cursor.fetchall()
                 print(StudentTakesClassesID)
-                for i in range(len(StudentTakesClassesID)):
-                    select = "SELECT * FROM class_time WHERE classID = %s AND day_of_week = %s" % (StudentTakesClassesID[i][0], weekday)
-                    getClassTime = cursor.execute(select)
-                    classTime = cursor.fetchall()
-                    #print(classTime)
-                    if (len(StudentTakesClassesID) > 0):
-                        for j in classTime:
-                            if (j[1] - currentTimeDelta <= 3600 and j[1] - currentTimeDelta >= 0): print(j)
+                select = "SELECT * FROM class_time WHERE day_of_week = %s" % weekday
+                getClassTime = cursor.execute(select)
+                classTime = cursor.fetchall()
+                print(classTime)
+                for i in range(len(StudentTakesClassesID)):    
+                    if (len(classTime) > 0):
+                        for j in range (len(classTime)):
+                            if (StudentTakesClassesID[i][0] == classTime[j][0] and classTime[j][2].total_seconds() - currentTimeDelta <= 3600 and classTime[j][2].total_seconds() - currentTimeDelta >= 0): 
+                                classWithinHour = classTime[j] #get the class within 1 hour
+                                # get info of the class within hour
+                                select = "SELECT * FROM information WHERE classID = %s AND week = %s" % (classWithinHour[0], weekOfTheYear)
+                                getClassWithinHourInfo = cursor.execute(select)
+                                classWithinHourInfo = cursor.fetchall()
+                                #print(classWithinHour)
+                                #print(classWithinHourInfo)
 
 
         # If the face is unrecognized
