@@ -11,8 +11,7 @@ const courses = [
     courseId: "COMP3278",
     courseName: "Introduction to Database Management System",
     lecturer: "Dr. Ping Luo",
-    description:
-      "This course studies the principles, design, administration, and implementation of database management systems. Topics include: entity-relationship model, relational model, relational algebra, database design and normalization, database query languages, indexing schemes, integrity and concurrency control.",
+    desc: "This course studies the principles, design, administration, and implementation of database management systems. Topics include: entity-relationship model, relational model, relational algebra, database design and normalization, database query languages, indexing schemes, integrity and concurrency control.",
     preRequisites: [],
     startOn: new Date(year, 8, 1),
     endOn: new Date(year, 11, 30),
@@ -33,8 +32,7 @@ const courses = [
     courseId: "COMP3330",
     courseName: "Interactive Mobile Application Design and Programming",
     lecturer: "Chim T W",
-    description:
-      "This course introduces the techniques for developing interactive mobile applications on Android platform. Topics include user interface design, graphics, parallel computing, database, network, multimedia, sensors and location service. Trends and tools for developing applications on various mobile platforms are also discussed. Students participate in both individual assignments and group projects to practice ideation, reading, writing, coding and presentation skills. ",
+    desc: "This course introduces the techniques for developing interactive mobile applications on Android platform. Topics include user interface design, graphics, parallel computing, database, network, multimedia, sensors and location service. Trends and tools for developing applications on various mobile platforms are also discussed. Students participate in both individual assignments and group projects to practice ideation, reading, writing, coding and presentation skills. ",
     preRequisites: ["COMP2396"],
     startOn: new Date(year, 8, 1),
     endOn: new Date(year, 11, 30),
@@ -67,7 +65,7 @@ const generateCourseInformation = (weekday) => {
         }
       : null;
   var materials = [];
-  const length = Math.random() % 9;
+  const length = Math.floor(Math.random() * 9);
   let i = 0;
   for (i = 0; i < length; i++) {
     materials[i] = {
@@ -75,7 +73,7 @@ const generateCourseInformation = (weekday) => {
     };
   }
   var messages = [];
-  const messageLength = Math.random() % 2;
+  const messageLength = Math.floor(Math.random() * 2);
   for (i = 0; i < messageLength; i++) {
     messages[i] = {
       subject: "Update Tutorial Schedule",
@@ -100,7 +98,7 @@ export default courses
     });
     return info.map(({ ...i }) => {
       const result = { ...i, ...restArgs };
-      console.log(result);
+
       return result;
     });
   })

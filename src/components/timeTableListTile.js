@@ -16,7 +16,12 @@ const ListTile = styled("div", {
   alignSelf: "stretch",
   flexGrow: 1,
   ...(active && {
-    backgroundColor: ` rgba(67, 109, 255, 0.05)`,
+    backgroundColor: ` rgba(67, 109, 255, 0.1)`,
+  }),
+  ...(!active && {
+    "&:hover": {
+      backgroundColor: ` rgba(67, 109, 255, 0.05)`,
+    },
   }),
   "& path": {
     fill: theme.palette.neutral.medium,
@@ -93,15 +98,15 @@ function TimetableListTile({
       <Stack
         spacing={3}
         direction="column"
-        sx={{ alignSelf: "stretch", flexGrow: 1 }}
+        sx={{ alignSelf: "stretch", flexGrow: 1, justifyContent: "flex-start" }}
       >
         <div className="header">
           <div className="title">
             {courseId} -- {courseName}
           </div>
           <Stack spacing={2} direction="row">
-            {materials && <Icons.StickyNoteIcon />}
-            {messages && <Icons.MessageIcon />}
+            {materials && materials.length > 0 && <Icons.StickyNoteIcon />}
+            {messages && messages.length > 0 && <Icons.MessageIcon />}
           </Stack>
           <Stack
             spacing={2}

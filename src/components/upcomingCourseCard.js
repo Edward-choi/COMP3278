@@ -1,13 +1,22 @@
 import * as React from "react";
 import { styled } from "@mui/material/styles";
-import { Box, Stack, useTheme, useMediaQuery } from "@mui/material";
+import {
+  Box,
+  Stack,
+  useTheme,
+  useMediaQuery,
+  Collapse,
+  Button,
+} from "@mui/material";
 import StyledButton from "./button";
 import Icons from "./icons";
 import MessageCard from "./messageCard";
 
-const CourseCard = styled("div")(({ theme }) => ({
+const CourseCard = styled("div", {
+  shouldForwardProp: (prop) => prop !== "disableElevation",
+})(({ theme, disableElevation }) => ({
   backgroundColor: "#FFF",
-  boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.15)",
+  boxShadow: disableElevation ? "none" : "0px 4px 8px rgba(0, 0, 0, 0.15)",
   borderRadius: theme.spacing(3),
   display: "flex",
   flexDirection: "column",
@@ -82,11 +91,14 @@ function UpcomingCourseCard({
     materials,
     messages,
   },
+  disableElevation,
 }) {
   const theme = useTheme();
   const isSmallOrLess = useMediaQuery(theme.breakpoints.up("sm"));
   const ref = React.useRef(null);
   const [width, setWidth] = React.useState(0);
+  const [expandDesc, setExpand] = React.useState(false);
+
   React.useLayoutEffect(() => {
     setWidth(ref.current.offsetWidth);
   }, [ref.current]);
@@ -107,11 +119,37 @@ function UpcomingCourseCard({
     return "";
   };
 
+  const toggleExpand = () => {
+    setExpand((prev) => !prev);
+  };
+
   const renderDesc = () => {
     return (
-      <Box sx={{ fontSize: 12, color: "neutral.medium", lineHeight: 18 }}>
-        {desc}
-      </Box>
+      <Stack
+        spacing={4}
+        direction="column"
+        sx={{
+          fontSize: 12,
+          color: "neutral.medium",
+          lineHeight: 1.8,
+          alignItems: "flex-end",
+        }}
+      >
+        <Collapse in={expandDesc} collapsedSize={40}>
+          {desc}
+        </Collapse>
+        <Button
+          variant="text"
+          endIcon={
+            expandDesc ? <Icons.ChevronUpIcon /> : <Icons.ChevronDownIcon />
+          }
+          onClick={() => toggleExpand()}
+          size="small"
+          sx={{ color: "neutral.medium", textTransform: "none" }}
+        >
+          Show {expandDesc ? "less" : "more"}
+        </Button>
+      </Stack>
     );
   };
 
@@ -203,7 +241,7 @@ function UpcomingCourseCard({
   };
 
   const renderMaterials = () => {
-    var maxLength = Math.floor(width / 88);
+    var maxLength = Math.floor(width / 88) - 1;
     var croppedMaterials = materials.slice(0, maxLength);
 
     return (
@@ -309,7 +347,7 @@ function UpcomingCourseCard({
   };
 
   return (
-    <CourseCard>
+    <CourseCard disableElevation={disableElevation}>
       <Stack spacing={2} direction="column" width={"100%"}>
         <Box sx={{ color: "neutral.medium", fontSize: 14 }}>
           {renderTimeRangeString()}

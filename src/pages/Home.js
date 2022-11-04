@@ -6,6 +6,8 @@ import { styled } from "@mui/material/styles";
 import UpcomingCourseCard from "../components/upcomingCourseCard";
 import TimetableListTile from "../components/timeTableListTile";
 import { default as courses } from "../demo-data/this-week-courses";
+import ClickableImg from "../assets/images/clickable.png";
+import HaveBreakImg from "../assets/images/haveBreak.png";
 
 const Timetable = styled("div")(({ theme }) => ({
   display: "flex",
@@ -14,12 +16,58 @@ const Timetable = styled("div")(({ theme }) => ({
   gap: theme.spacing(9),
   alignSelf: "stretch",
   [theme.breakpoints.up("md")]: {
-    maxWidth: "50%",
+    minWidth: "50%",
+    maxWidth: "60%",
   },
   [theme.breakpoints.down("md")]: {
     width: "100%",
   },
 }));
+
+const TimetableContainer = styled("div")(({ theme }) => ({
+  padding: `${theme.spacing(3)} 0`,
+  display: "flex",
+  flexDirection: "row",
+  alignSelf: "stretch",
+  maxWidth: "100%",
+  overflowX: "hidden",
+  position: "relative",
+
+  [theme.breakpoints.down("md")]: {
+    justifyContent: "center",
+    "& .courseCardContainer": {
+      backgroundColor: "#FFF",
+      maxWidth: "85%",
+      flexShrink: 1,
+      flexGrow: 1,
+      position: "absolute",
+      top: "0",
+      right: "0",
+      height: "100%",
+      boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.15)",
+    },
+  },
+
+  [theme.breakpoints.up("md")]: {
+    "& .courseCardContainer": {
+      maxWidth: "50%",
+    },
+  },
+}));
+
+const formatDateHeader = (date) => {
+  const today = new Date();
+
+  const diffDays = moment(date).diff(today, "days");
+  switch (diffDays) {
+    case 0:
+      return `Today ${moment(date).format("D.M")}`;
+    case 1:
+      return `Tomorrow ${moment(date).format("D.M")}`;
+    default:
+      return `${moment(date).format("dddd D.M")}`;
+  }
+};
 
 function Home() {
   const [user, setUser] = React.useState({
@@ -28,51 +76,136 @@ function Home() {
   });
 
   const [selectedCourse, setCourse] = React.useState();
-  const selectCourse = (index) => {
-    setCourse(index);
+
+  const onClickCourseList = (course) => {
+    if (course != selectedCourse) setCourse(course);
+    else setCourse(null);
   };
-  let upcomingCourse = {
-    courseId: "COMP3278",
-    courseName: "Introduction to Database Management System",
-    lecturer: "Dr. Ping Luo",
-    startAt: new Date(2022, 10, 3, 13, 30, 0),
-    endAt: new Date(2022, 10, 3, 15, 30, 0),
-    venue: "Meng Wah Complex MWT2",
-    zoom: {
-      link: "https://hku.zoom.us/j/96226740999?pwd=ZER1UUdxSVVhQzNXbXFkUDd3WjRBdz09",
-      meetingId: "21lalf;ksa?123",
-    },
-    materials: [
-      {
-        link: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions",
-      },
-      {
-        link: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions",
-      },
-      {
-        link: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions",
-      },
-      {
-        link: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions",
-      },
-    ],
-    messages: [
-      {
-        subject: "Update Tutorial Schedule",
-        from: "Dr. Chan",
-        sendAt: new Date(2022, 10, 2, 12, 32, 12),
-        content: "Bla bal",
-      },
-    ],
-    courseNumber: 4,
-  };
+
   const renderUpcomingCourse = () => {
     return (
       <Stack spacing={1} direction="column" sx={{ mb: 12 }}>
         <h2 style={{ fontWeight: 600 }}>Upcoming Course</h2>
-        <UpcomingCourseCard course={upcomingCourse} />
+        <UpcomingCourseCard course={courses[0]} />
       </Stack>
     );
+  };
+
+  const thisWeekCourses = () => {
+    let events = new Map();
+
+    courses.forEach((course) => {
+      const cDate = new Date(course.date);
+      const date = new Date(cDate.getTime());
+      date.setHours(0, 0, 0, 0);
+
+      events.has(date) ? events[date]?.add(course) : (events[date] = [course]);
+    });
+
+    let orderedEvents = {};
+    Object.keys(events)
+      ?.sort((a, b) => new Date(a) - new Date(b))
+      ?.forEach((key) => (orderedEvents[key] = events[key]));
+
+    return orderedEvents;
+  };
+
+  const renderSelectedCourse = () => {
+    if (selectedCourse !== undefined && selectedCourse !== null) {
+      return (
+        <div className="courseCardContainer">
+          <UpcomingCourseCard disableElevation course={selectedCourse} />
+        </div>
+      );
+    } else {
+      return (
+        <Box
+          sx={{
+            position: "relative",
+            alignSelf: "stretch",
+            width: "100%",
+            maxWidth: "40%",
+            display: { sm: "none", md: "flex" },
+          }}
+        >
+          <Stack
+            spacing={6}
+            direction="column"
+            sx={{
+              textAlign: "center",
+              alignItems: "center",
+              position: "absolute",
+              top: "25%",
+              left: "25%",
+            }}
+          >
+            <img
+              src={ClickableImg}
+              alt="Click"
+              style={{ maxWidth: 187, height: "auto" }}
+            />
+            <h4>Click course to view the detail</h4>
+          </Stack>
+        </Box>
+      );
+    }
+  };
+
+  const renderTimetable = () => {
+    if (thisWeekCourses() && thisWeekCourses().size !== 0) {
+      return (
+        <TimetableContainer>
+          <Timetable>
+            {Object.keys(thisWeekCourses())?.map((date, index) => {
+              return (
+                <Stack spacing={9} direction="column" key={date}>
+                  <h3>{formatDateHeader(date)}</h3>
+                  {thisWeekCourses()[date]?.map((course) => (
+                    <TimetableListTile
+                      key={`${index} ${course.courseId}`}
+                      course={course}
+                      selectCourse={() => onClickCourseList(course)}
+                      active={course == selectedCourse}
+                    />
+                  ))}
+                </Stack>
+              );
+            })}
+          </Timetable>
+          <Divider
+            orientation="vertical"
+            flexItem
+            sx={{ display: { xs: "none", md: "block" }, mx: 3 }}
+          />
+          {renderSelectedCourse()}
+        </TimetableContainer>
+      );
+    } else {
+      return (
+        <Stack
+          spacing={3}
+          direction="column"
+          sx={{
+            py: 19,
+            alignItems: "center",
+            justifyContent: "center",
+            alignSelf: "stretch",
+            textAlign: "center",
+            color: "neutral.medium",
+          }}
+        >
+          <img
+            src={HaveBreakImg}
+            alt="Have a Break!"
+            style={{ height: 188, width: "auto", marginBottom: 12 }}
+          />
+          <h3>No Lectures or Tutorials This Week</h3>
+          <Box sx={{ fontSize: 12, color: "neutral.mild" }}>
+            Rest is as important as working hard.
+          </Box>
+        </Stack>
+      );
+    }
   };
 
   return (
@@ -93,33 +226,10 @@ function Home() {
             <p>Elapsed staying time:</p>
           </Box>
         </Stack>
-        {upcomingCourse && renderUpcomingCourse()}
+        {courses && courses[0] && renderUpcomingCourse()}
         <Stack spacing={4} direction="column">
           <h2 style={{ fontWeight: 600 }}>Timetable</h2>
-          <Box
-            sx={{
-              py: 3,
-              display: "flex",
-              flexDirection: "row",
-              justifyContent: { xs: "center", md: "left" },
-            }}
-          >
-            <Timetable>
-              {courses?.map((course, index) => (
-                <TimetableListTile
-                  key={index}
-                  course={course}
-                  selectCourse={() => setCourse(index)}
-                  active={index == selectedCourse}
-                />
-              ))}
-            </Timetable>
-            <Divider
-              orientation="vertical"
-              flexItem
-              sx={{ display: { xs: "none", md: "block" }, mx: 3 }}
-            />
-          </Box>
+          {renderTimetable()}
         </Stack>
       </MainContent>
     </div>
