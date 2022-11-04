@@ -78,7 +78,7 @@ function Home() {
   const [selectedCourse, setCourse] = React.useState();
 
   const onClickCourseList = (course) => {
-    if (course != selectedCourse) setCourse(course);
+    if (course !== selectedCourse) setCourse(course);
     else setCourse(null);
   };
 
@@ -98,14 +98,20 @@ function Home() {
       const cDate = new Date(course.date);
       const date = new Date(cDate.getTime());
       date.setHours(0, 0, 0, 0);
-
-      events.has(date) ? events[date]?.add(course) : (events[date] = [course]);
+      const sDate = date.getTime();
+      events.has(sDate)
+        ? events.set(
+            sDate,
+            [...events.get(sDate), course].sort((a, b) => a.startAt - b.startAt)
+          )
+        : events.set(sDate, [course]);
     });
+    let orderedEvents = new Map();
+    const dates = Array.from(events.keys());
 
-    let orderedEvents = {};
-    Object.keys(events)
-      ?.sort((a, b) => new Date(a) - new Date(b))
-      ?.forEach((key) => (orderedEvents[key] = events[key]));
+    dates
+      ?.sort((a, b) => a - b)
+      ?.forEach((key) => orderedEvents.set(key, events.get(key)));
 
     return orderedEvents;
   };
@@ -152,22 +158,29 @@ function Home() {
   };
 
   const renderTimetable = () => {
-    if (thisWeekCourses() && thisWeekCourses().size !== 0) {
+    if (thisWeekCourses() && thisWeekCourses().size > 0) {
       return (
         <TimetableContainer>
           <Timetable>
-            {Object.keys(thisWeekCourses())?.map((date, index) => {
+            {Array.from(thisWeekCourses().keys())?.map((date, index) => {
               return (
-                <Stack spacing={9} direction="column" key={date}>
+                <Stack
+                  spacing={9}
+                  direction="column"
+                  key={date}
+                  sx={{ width: "100%" }}
+                >
                   <h3>{formatDateHeader(date)}</h3>
-                  {thisWeekCourses()[date]?.map((course) => (
-                    <TimetableListTile
-                      key={`${index} ${course.courseId}`}
-                      course={course}
-                      selectCourse={() => onClickCourseList(course)}
-                      active={course == selectedCourse}
-                    />
-                  ))}
+                  {thisWeekCourses()
+                    .get(date)
+                    ?.map((course) => (
+                      <TimetableListTile
+                        key={`${index} ${course.courseId}`}
+                        course={course}
+                        selectCourse={() => onClickCourseList(course)}
+                        active={course === selectedCourse}
+                      />
+                    ))}
                 </Stack>
               );
             })}
@@ -228,7 +241,7 @@ function Home() {
         </Stack>
         {courses && courses[0] && renderUpcomingCourse()}
         <Stack spacing={4} direction="column">
-          <h2 style={{ fontWeight: 600 }}>Timetable</h2>
+          <h2>Timetable</h2>
           {renderTimetable()}
         </Stack>
       </MainContent>

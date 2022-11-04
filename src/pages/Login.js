@@ -21,29 +21,6 @@ import BannerImg from "../assets/images/login.png";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import StyledButton from "../components/button";
 
-const TextFormField = styled(FormControl)(({ theme }) => ({
-  "label + &": {
-    marginTop: theme.spacing(3),
-  },
-  "& .MuiInputBase-input": {
-    borderRadius: 4,
-    position: "relative",
-    backgroundColor: theme.palette.mode === "light" ? "#fcfcfb" : "#2b2b2b",
-    border: "1px solid #ced4da",
-    fontSize: 16,
-    width: "auto",
-    padding: "10px 12px",
-    transition: theme.transitions.create([
-      "border-color",
-      "background-color",
-      "box-shadow",
-    ]),
-    "&:focus": {
-      borderColor: theme.palette.primary.main,
-    },
-  },
-}));
-
 function Login() {
   const [values, setValues] = React.useState({
     email: "",

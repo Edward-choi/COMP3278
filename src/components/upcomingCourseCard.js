@@ -100,7 +100,7 @@ function UpcomingCourseCard({
   const [expandDesc, setExpand] = React.useState(false);
 
   React.useLayoutEffect(() => {
-    setWidth(ref.current.offsetWidth);
+    setWidth(ref?.current?.offsetWidth ?? 0);
   }, [ref.current]);
 
   const sendCopyToEmail = () => {};
@@ -370,7 +370,7 @@ function UpcomingCourseCard({
             startIcon={<Icons.EmailIcon />}
             onClick={() => sendCopyToEmail()}
           >
-            {isSmallOrLess && "Send Copy"}
+            {isSmallOrLess && "Send"}
           </StyledButton>
         </Box>
         {desc && desc.length > 0 && renderDesc()}

@@ -8,6 +8,7 @@ const StyledButton = styled(Button, {
     prop !== "variant" &&
     prop !== "icon",
 })(({ theme, size, fullWidth, variant, icon }) => ({
+  minWidth: "auto",
   textTransform: "none",
   fontWeight: "bold",
   fontFamily: "Poppins",
@@ -41,6 +42,7 @@ const StyledButton = styled(Button, {
         ? theme.palette.neutral.lightest
         : theme.palette.primary.light,
   },
+  "& .MuiButton-startIcon": { marginRight: theme.spacing(2) },
   ...(size === "large" && {
     [theme.breakpoints.up("lg")]: { minWidth: "380px" },
   }),
