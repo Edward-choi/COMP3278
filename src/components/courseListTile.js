@@ -11,6 +11,7 @@ import {
 import { styled } from "@mui/material/styles";
 import Icons from "../components/icons";
 import StyledButton from "./button";
+import { useGlobalState } from "../demo-data/auth_provider";
 
 const StyledCourseListTile = styled(ListItem)(({ theme }) => ({
   padding: 0,
@@ -19,7 +20,6 @@ const StyledCourseListTile = styled(ListItem)(({ theme }) => ({
     flexDirection: "row",
     alignItems: "center",
     alignSelf: "stretch",
-    justifyContent: "space-between",
     color: theme.palette.neutral.darkest,
   },
 }));
@@ -47,12 +47,41 @@ const LabelItem = styled("div")(({ theme }) => ({
 export default function CourseListTile({
   course: { courseId, courseName, academicYear, lecturer },
 }) {
+  const [state, dispatch] = useGlobalState();
+  const [star, setStar] = React.useState(false);
   const theme = useTheme();
   const isSmallOrLess = useMediaQuery(theme.breakpoints.down("md"));
+
+  React.useEffect(() => {
+    setStar(
+      state.stars.indexOf({
+        courseId: courseId,
+        academicYear: academicYear,
+      }) !== -1
+    );
+  }, []);
+
+  const stared = () => {
+    setStar((prev) => !prev);
+    if (star)
+      dispatch({
+        stars: [
+          ...state.stars,
+          { courseId: courseId, academicYear: academicYear },
+        ],
+      });
+    else
+      dispatch({
+        stars: state.stars.filter(
+          (obj) =>
+            obj.courseId === courseId && obj.academicYear === academicYear
+        ),
+      });
+  };
   return (
     <StyledCourseListTile>
       <ListItemButton
-        sx={{ borderRadius: 2, padding: 4 }}
+        sx={{ borderRadius: 2, py: { xs: 3, sm: 4, md: 6 } }}
         component={Link}
         to={`/courses/${courseId}/${academicYear}`}
       >
@@ -61,15 +90,6 @@ export default function CourseListTile({
             <h4 style={{ fontWeight: 600 }}>
               {courseId} {courseName}
             </h4>
-            <StyledButton
-              variant="contained"
-              size={isSmallOrLess ? "small" : "medium"}
-              startIcon={<Icons.StarEmptyIcon />}
-            >
-              <Box sx={{ display: { xs: "none", md: "inline-flex" } }}>
-                Star
-              </Box>
-            </StyledButton>
           </div>
           <Stack
             spacing={{ xs: 2, md: 4 }}
@@ -91,6 +111,14 @@ export default function CourseListTile({
           </Stack>
         </Stack>
       </ListItemButton>
+      <StyledButton
+        variant="contained"
+        size={isSmallOrLess ? "small" : "medium"}
+        onClick={() => stared()}
+        startIcon={!star ? <Icons.StarEmptyIcon /> : <Icons.StarFillIcon />}
+      >
+        <Box sx={{ display: { xs: "none", md: "inline-flex" } }}>Star</Box>
+      </StyledButton>
     </StyledCourseListTile>
   );
 }
