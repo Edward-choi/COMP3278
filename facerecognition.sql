@@ -57,7 +57,7 @@ CREATE TABLE `Classes` (
 );
 
 CREATE TABLE `Login_Hist` (
-    `loginID` Int,
+    `loginID` Int NOT NULL auto_increment,
     `UserID` Int NOT NULL,
     `login_time` DATETIME NOT NULL,
     `logout_time` DATETIME NOT NULL,
