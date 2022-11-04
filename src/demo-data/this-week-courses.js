@@ -1,4 +1,3 @@
-import { AssessmentRounded } from "@mui/icons-material";
 import { courses } from "./courses";
 const today = new Date();
 

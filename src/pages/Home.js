@@ -8,6 +8,7 @@ import TimetableListTile from "../components/timeTableListTile";
 import { default as courses } from "../demo-data/this-week-courses";
 import ClickableImg from "../assets/images/clickable.png";
 import HaveBreakImg from "../assets/images/haveBreak.png";
+import { useGlobalState } from "../demo-data/auth_provider";
 
 const Timetable = styled("div")(({ theme }) => ({
   display: "flex",
@@ -66,22 +67,10 @@ const formatDateHeader = (date) => {
   } else {
     return `${moment(date).format("dddd D.M")}`;
   }
-  // switch (diffDays) {
-  //   case 0:
-  //     return `Today ${moment(date).format("D.M")}`;
-  //   case 1:
-  //     return `Tomorrow ${moment(date).format("D.M")}`;
-  //   default:
-  //     return `${moment(date).format("dddd D.M")}`;
-  // }
 };
 
 function Home() {
-  const [user, setUser] = React.useState({
-    name: "",
-    loginAt: Date.now(),
-  });
-
+  const [state, dispatch] = useGlobalState();
   const [selectedCourse, setCourse] = React.useState();
 
   const onClickCourseList = (course) => {
@@ -232,7 +221,9 @@ function Home() {
     <div>
       <MainContent>
         <Stack spacing={1} direction="column" marginBottom={10}>
-          <h3 style={{ margin: 0 }}>Welcome Back {user.name}!</h3>
+          <h3 style={{ margin: 0 }}>
+            Welcome Back {state.user.firstName} {state.user.lastName}!
+          </h3>
           <Box
             sx={{
               display: "inline-flex",
@@ -241,9 +232,12 @@ function Home() {
             }}
           >
             <p>
-              Login Time: {moment(user.loginAt).format("DD-MM-yy HH:mm:ss")}
+              Login Time: {moment(state.loginAt).format("DD-MM-yy HH:mm:ss")}
             </p>
-            <p>Elapsed staying time:</p>
+            <p>
+              Elapsed staying time:
+              {moment.utc(state.duration * 1000).format("HH:mm:ss")}
+            </p>
           </Box>
         </Stack>
         {courses && courses[0] && renderUpcomingCourse()}

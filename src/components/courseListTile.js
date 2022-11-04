@@ -1,4 +1,3 @@
-import MainContent from "../shared/MainContent";
 import * as React from "react";
 import {
   Box,

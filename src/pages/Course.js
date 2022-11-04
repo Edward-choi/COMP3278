@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import MainContent from "../shared/MainContent";
 import { courses } from "../demo-data/courses";
 import { styled } from "@mui/material/styles";
+import moment from "moment";
 import {
   Stack,
   Box,
@@ -12,12 +13,14 @@ import {
   Tab,
   Divider,
   Grid,
-  List,
   Collapse,
   Button,
 } from "@mui/material";
 import Icons from "../components/icons";
 import DropdownButton from "../components/dropdownButton";
+import { courseMaterials, courseMessages } from "../demo-data/course-details";
+import MessageCard from "../components/messageCard";
+import LectureListTile from "../components/lectureListTile";
 
 function TabPanel({ children, value, index, ...other }) {
   return (
@@ -40,13 +43,15 @@ const StyledTab = styled(Tab)(({ theme }) => ({
 
 export default function Course() {
   const { id, academic_year } = useParams();
-  const [course, setCourse] = React.useState();
+  const [course, setCourse] = React.useState(null);
   const [tab, setTab] = React.useState(0);
-  const [messageSortAsc, setMessageSortAsc] = React.useState(-1);
+  const [messageSortAsc, setMessageSortAsc] = React.useState(1);
   const [messageSearch, setMessageSearch] = React.useState("");
-  const [courseSortAsc, setCourseSortAsc] = React.useState(-1);
-  const [courseSearch, setCourseSearch] = React.useState("");
+  const [courseSortAsc, setCourseSortAsc] = React.useState(1);
+  const [lectureSearch, setLectureSearch] = React.useState("");
   const [expandDesc, setExpand] = React.useState(true);
+  const [messages, setMessages] = React.useState([]);
+  const [info, setMaterials] = React.useState([]);
 
   React.useEffect(() => {
     const fetchCourse = async () => {
@@ -56,12 +61,13 @@ export default function Course() {
             c.courseId === id && c.academicYear.toString() === academic_year
         );
         setCourse(result);
+        setMessages(courseMessages(result));
+        setMaterials(courseMaterials(result));
       } catch (e) {
         console.warn(e);
       }
     };
     fetchCourse();
-    console.log(course);
   }, []);
 
   const handleTabChange = (event, newValue) => {
@@ -70,12 +76,43 @@ export default function Course() {
 
   const handleSearch = (prop) => (event) => {
     const value = event.target.value;
+    const search = value.toLowerCase().replace(/\W/g, "");
+    const hasMatch = (text) => {
+      const copy = (
+        text instanceof Date ? text.toDateString() : text?.toString() ?? ""
+      )
+        .toLowerCase()
+        .replace(/\W/g, "");
+
+      return copy.indexOf(search) !== -1;
+    };
     switch (prop) {
       case "message":
         setMessageSearch(value);
+        const messageCopies = courseMessages(course);
+        setMessages(
+          messageCopies
+            ?.filter((msg) => Object.values(msg).some((it) => hasMatch(it)))
+            .sort((a, b) => moment(a.sendAt).diff(b.sendAt) * messageSortAsc)
+        );
         break;
       case "course":
-        setCourseSearch(value);
+        setLectureSearch(value);
+        const materialCopies = courseMaterials(course);
+        setMaterials(
+          materialCopies
+            ?.filter((it) => {
+              return (
+                (it.zoom &&
+                  Object.values(it.zoom).some((elem) => hasMatch(elem))) ||
+                it.materials.some((obj) =>
+                  Object.values(obj).some((elem) => hasMatch(elem))
+                ) ||
+                hasMatch(it.date)
+              );
+            })
+            .sort((a, b) => moment(a.date).diff(b.date) * courseSortAsc)
+        );
         break;
       default:
         break;
@@ -87,9 +124,16 @@ export default function Course() {
     switch (prop) {
       case "message":
         setMessageSortAsc(value);
+        setMessages((prev) =>
+          prev.sort((a, b) => moment(a.sendAt).diff(b.sendAt) * value)
+        );
+
         break;
       case "course":
         setCourseSortAsc(value);
+        setMaterials((prev) =>
+          prev.sort((a, b) => moment(a.date).diff(b.date) * value)
+        );
         break;
       default:
         break;
@@ -152,6 +196,9 @@ export default function Course() {
         {course && (
           <Box sx={{ display: "flex", flexDirection: "column" }}>
             <Box sx={{ mt: 16, mb: 8 }}>
+              <p>
+                {course.academicYear}-{course.academicYear + 1}
+              </p>
               <h2>
                 {course.courseId} {course.courseName}
               </h2>
@@ -227,6 +274,15 @@ export default function Course() {
                     />
                   </Grid>
                 </Grid>
+                <Stack
+                  spacing={{ xs: 4, md: 6 }}
+                  direction="column"
+                  sx={{ mt: 8 }}
+                >
+                  {messages.map((message, index) => (
+                    <MessageCard key={`m${index}`} message={message} />
+                  ))}
+                </Stack>
               </Box>
             </TabPanel>
             <TabPanel value={tab} index={2}>
@@ -241,7 +297,7 @@ export default function Course() {
                       variant="outlined"
                       fullWidth
                       placeholder="Find a lecture or tutorial..."
-                      value={courseSearch}
+                      value={lectureSearch}
                       onChange={handleSearch("course")}
                     />
                   </Grid>
@@ -260,6 +316,17 @@ export default function Course() {
                   </Grid>
                 </Grid>
               </Box>
+              <Stack direction="column" sx={{ mt: 8 }}>
+                {info.map((it, index) => (
+                  <LectureListTile
+                    key={`l${index}`}
+                    number={it.courseNumber}
+                    date={it.date}
+                    materials={it.materials}
+                    zoom={it.zoom}
+                  />
+                ))}
+              </Stack>
             </TabPanel>
           </Box>
         )}

@@ -1,5 +1,6 @@
 import * as React from "react";
 import { styled } from "@mui/material/styles";
+import { useGlobalState } from "../demo-data/auth_provider";
 import { Link, useLocation } from "react-router-dom";
 
 import {
@@ -151,9 +152,15 @@ const MainContent = ({ children }) => {
   const location = useLocation();
   const page = location.pathname;
   const [open, setOpen] = React.useState(drawerOpen);
+  const [state, dispatch] = useGlobalState();
+
   React.useEffect(() => {
-    console.log(page);
-  }, [page]);
+    const timer = () => {
+      dispatch({ duration: state.duration + 1 });
+    };
+    const id = setInterval(timer, 1000);
+    return () => clearInterval(id);
+  }, [state.duration]);
 
   return (
     <Box sx={{ display: "flex" }}>
@@ -193,12 +200,11 @@ const MainContent = ({ children }) => {
                 }
                 sx={{
                   justifyContent: open ? "initial" : "center",
-                  bgcolor:
-                    item.to === "/"
-                      ? page === "/"
-                      : page.startsWith(item.to)
-                      ? "action.soft"
-                      : "background",
+                  bgcolor: (
+                    item.to === "/" ? page === "/" : page.startsWith(item.to)
+                  )
+                    ? "action.soft"
+                    : "background",
                 }}
                 component={Link}
                 to={item.to}
