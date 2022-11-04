@@ -3,9 +3,7 @@ import { styled } from "@mui/material/styles";
 import Icons from "./icons";
 import { Box, Stack, IconButton, Collapse } from "@mui/material";
 
-const Accordion = styled("div", {
-  shouldForwardProp: (prop) => prop !== "active",
-})(({ theme, active }) => ({
+const Accordion = styled("div")(({ theme }) => ({
   background: `rgba(255, 255, 255, 0.8)`,
   color: theme.palette.neutral.darkest,
 

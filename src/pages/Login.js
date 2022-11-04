@@ -92,12 +92,7 @@ function Login() {
         <div className="form-container">
           <h1>Login</h1>
 
-          <StyledButton
-            fullWidth
-            color="primary"
-            variant="contained"
-            disableElevation
-          >
+          <StyledButton fullWidth color="primary" variant="contained">
             Facial Login
           </StyledButton>
           <Divider sx={{ my: 12 }}>
@@ -180,12 +175,7 @@ function Login() {
           </div>
 
           <Stack direction="column" spacing={3} mt={12}>
-            <StyledButton
-              fullWidth
-              color="primary"
-              variant="outlined"
-              disableElevation
-            >
+            <StyledButton color="primary" variant="outlined" fullWidth>
               Login
             </StyledButton>
             <Stack spacing={2} direction="row">

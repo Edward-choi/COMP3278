@@ -7,6 +7,7 @@ import {
   useMediaQuery,
   Collapse,
   Button,
+  Link,
 } from "@mui/material";
 import StyledButton from "./button";
 import Icons from "./icons";
@@ -81,7 +82,8 @@ const MaterialCard = styled("div")(({ theme }) => ({
 // message: {subject: string, content:string, from: string(teacher's name), date: dateTime}
 function UpcomingCourseCard({
   course: {
-    courseId, // required for routing to CourseDetailPage
+    courseId,
+    academicYear, // required for routing to CourseDetailPage
     courseName, // string
     startAt, // time
     endAt, // time
@@ -262,7 +264,6 @@ function UpcomingCourseCard({
             variant="outlined"
             startIcon={<Icons.DownloadIcon />}
             onClick={() => downloadAll()}
-            icon={true}
           >
             {isSmallOrLess && "Download All"}
           </StyledButton>
@@ -364,9 +365,14 @@ function UpcomingCourseCard({
             alignSelf: "stretch",
           }}
         >
-          <h4 style={{ padding: "8px 0px", display: "flex", flexGrow: 1 }}>
-            {courseId}--{courseName}
-          </h4>
+          <Link
+            href={`courses/${courseId}/${academicYear}`}
+            sx={{ textDecoration: "none", color: "neutral.darkest" }}
+          >
+            <h4 style={{ padding: "8px 0px", display: "flex", flexGrow: 1 }}>
+              {courseId}--{courseName}
+            </h4>
+          </Link>
           <StyledButton
             size="small"
             variant="contained"

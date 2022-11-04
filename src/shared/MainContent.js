@@ -151,6 +151,9 @@ const MainContent = ({ children }) => {
   const location = useLocation();
   const page = location.pathname;
   const [open, setOpen] = React.useState(drawerOpen);
+  React.useEffect(() => {
+    console.log(page);
+  }, [page]);
 
   return (
     <Box sx={{ display: "flex" }}>
@@ -185,10 +188,17 @@ const MainContent = ({ children }) => {
               sx={{ display: "block", borderRadius: 4 }}
             >
               <DrawerItem
-                selected={page === item.to}
+                selected={
+                  item.to === "/" ? page === "/" : page.startsWith(item.to)
+                }
                 sx={{
                   justifyContent: open ? "initial" : "center",
-                  bgcolor: page === item.to ? "action.soft" : "background",
+                  bgcolor:
+                    item.to === "/"
+                      ? page === "/"
+                      : page.startsWith(item.to)
+                      ? "action.soft"
+                      : "background",
                 }}
                 component={Link}
                 to={item.to}

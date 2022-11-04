@@ -46,59 +46,63 @@ function Courses() {
       <MainContent>
         <Stack spacing={1} direction="column">
           <h2>Current Courses</h2>
-          <Grid
-            container
-            spacing={{ xs: 3, md: 6 }}
-            columns={{ xs: 4, sm: 8, md: 12 }}
-          >
-            {courses.map((course, index) => (
-              <Grid item xs={2} sm={4} md={4} key={index}>
-                <CourseCard course={course} />
-              </Grid>
-            ))}
-          </Grid>
+          <Box sx={{ flexGrow: 1 }}>
+            <Grid
+              container
+              spacing={{ xs: 3, md: 6 }}
+              columns={{ xs: 4, sm: 8, md: 12 }}
+            >
+              {courses.map((course, index) => (
+                <Grid item xs={2} sm={4} md={4} key={index}>
+                  <CourseCard course={course} />
+                </Grid>
+              ))}
+            </Grid>
+          </Box>
         </Stack>
         <Stack spacing={1} direction="column" sx={{ mt: 16 }}>
           <h2>Enrolled Courses</h2>
-          <Grid container spacing={{ xs: 2, md: 4 }}>
-            <Grid item xs={12} md={9}>
-              <TextField
-                variant="outlined"
-                fullWidth
-                placeholder="Find a course..."
-                value={searchText}
-                onChange={handleSearch}
-              />
+          <Box sx={{ flexGrow: 1 }}>
+            <Grid container spacing={{ xs: 2, md: 4 }}>
+              <Grid item xs={12} md={9}>
+                <TextField
+                  variant="outlined"
+                  fullWidth
+                  placeholder="Find a course..."
+                  value={searchText}
+                  onChange={handleSearch}
+                />
+              </Grid>
+              <Grid item xs={12} md={3}>
+                <Stack spacing={2} direction="row">
+                  <DropdownButton
+                    fullWidth={true}
+                    value={filterState.state}
+                    label="State"
+                    items={["All", "In progress", "Future", "Past"]}
+                    handleChange={handleFilterChange("state")}
+                    clearSelect={() => clearFilter("state")}
+                  />
+                  <DropdownButton
+                    fullWidth={true}
+                    value={filterState.type}
+                    label="Type"
+                    items={["All", "Regular", "Common Core"]}
+                    handleChange={handleFilterChange("type")}
+                    clearSelect={() => clearFilter("type")}
+                  />
+                  <DropdownButton
+                    fullWidth={true}
+                    value={filterState.sort}
+                    label="Sort"
+                    items={["All", "Star", "Last Accessed", "Name"]}
+                    handleChange={handleFilterChange("sort")}
+                    clearSelect={() => clearFilter("sort")}
+                  />
+                </Stack>
+              </Grid>
             </Grid>
-            <Grid item xs={12} md={3}>
-              <Stack spacing={2} direction="row">
-                <DropdownButton
-                  fullWidth={true}
-                  value={filterState.state}
-                  label="State"
-                  items={["All", "In progress", "Future", "Past"]}
-                  handleChange={handleFilterChange("state")}
-                  clearSelect={() => clearFilter("state")}
-                />
-                <DropdownButton
-                  fullWidth={true}
-                  value={filterState.type}
-                  label="Type"
-                  items={["All", "Regular", "Common Core"]}
-                  handleChange={handleFilterChange("type")}
-                  clearSelect={() => clearFilter("type")}
-                />
-                <DropdownButton
-                  fullWidth={true}
-                  value={filterState.sort}
-                  label="Sort"
-                  items={["All", "Star", "Last Accessed", "Name"]}
-                  handleChange={handleFilterChange("sort")}
-                  clearSelect={() => clearFilter("sort")}
-                />
-              </Stack>
-            </Grid>
-          </Grid>
+          </Box>
           <List>
             {filteredCourses.map((course, index) => (
               <Stack key={index} direction="column">

@@ -4,10 +4,10 @@ import {
   Box,
   Stack,
   ListItem,
-  ListItemText,
   ListItemButton,
   useTheme,
   useMediaQuery,
+  Link,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import Icons from "../components/icons";
@@ -52,7 +52,11 @@ export default function CourseListTile({
   const isSmallOrLess = useMediaQuery(theme.breakpoints.down("md"));
   return (
     <StyledCourseListTile>
-      <ListItemButton sx={{ borderRadius: 2, padding: 4 }}>
+      <ListItemButton
+        sx={{ borderRadius: 2, padding: 4 }}
+        component={Link}
+        to={`/courses/${courseId}/${academicYear}`}
+      >
         <Stack spacing={3} direction="column" width="100%">
           <div className="courseListTileHeader">
             <h4 style={{ fontWeight: 600 }}>

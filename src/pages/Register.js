@@ -257,7 +257,6 @@ function Register() {
                 fullWidth={true}
                 color="primary"
                 variant="contained"
-                disableElevation
                 onClick={() => nextStep()}
               >
                 Continue
@@ -324,12 +323,11 @@ function Register() {
                 direction="column"
                 sx={{ mt: 24, display: "inline-flex" }}
               >
-                <StyledButton variant="contained" disableElevation size="large">
+                <StyledButton variant="contained" size="large">
                   I'm Ready To Smile
                 </StyledButton>
                 <StyledButton
                   variant="outlined"
-                  disableElevation
                   component={Link}
                   to="/login"
                   size="large"

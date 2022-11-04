@@ -4,6 +4,7 @@ import {
   CardMedia,
   CardActionArea,
   Box,
+  Link,
 } from "@mui/material";
 
 export default function CourseCard({
@@ -32,17 +33,24 @@ export default function CourseCard({
         boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.15)",
       }}
     >
-      <CardActionArea sx={{ height: "100%" }}>
-        {renderBanner()}
-        <CardContent>
-          <Box sx={{ fontSize: 12, color: "neutral.mild", mb: 1 }}>
-            {academicYear}-{academicYear + 1}
-          </Box>
-          <Box sx={{ fontSize: 14, color: "neutral.darkest", fontWeight: 550 }}>
-            {courseId} {courseName}
-          </Box>
-        </CardContent>
-      </CardActionArea>
+      <Link
+        href={`courses/${courseId}/${academicYear}`}
+        sx={{ textDecoration: "none" }}
+      >
+        <CardActionArea sx={{ height: "100%" }}>
+          {renderBanner()}
+          <CardContent>
+            <Box sx={{ fontSize: 12, color: "neutral.mild", mb: 1 }}>
+              {academicYear}-{academicYear + 1}
+            </Box>
+            <Box
+              sx={{ fontSize: 14, color: "neutral.darkest", fontWeight: 550 }}
+            >
+              {courseId} {courseName}
+            </Box>
+          </CardContent>
+        </CardActionArea>
+      </Link>
     </Card>
   );
 }

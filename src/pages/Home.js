@@ -56,17 +56,24 @@ const TimetableContainer = styled("div")(({ theme }) => ({
 }));
 
 const formatDateHeader = (date) => {
-  const today = new Date();
+  const today = new Date().setHours(0, 0, 0, 0);
+  const diffHours = moment.duration(date - today).asHours();
 
-  const diffDays = moment(date).diff(today, "days");
-  switch (diffDays) {
-    case 0:
-      return `Today ${moment(date).format("D.M")}`;
-    case 1:
-      return `Tomorrow ${moment(date).format("D.M")}`;
-    default:
-      return `${moment(date).format("dddd D.M")}`;
+  if (diffHours >= 0 && diffHours <= 24) {
+    return `Today ${moment(date).format("D.M")}`;
+  } else if (diffHours > 24 && diffHours < 48) {
+    return `Tomorrow ${moment(date).format("D.M")}`;
+  } else {
+    return `${moment(date).format("dddd D.M")}`;
   }
+  // switch (diffDays) {
+  //   case 0:
+  //     return `Today ${moment(date).format("D.M")}`;
+  //   case 1:
+  //     return `Tomorrow ${moment(date).format("D.M")}`;
+  //   default:
+  //     return `${moment(date).format("dddd D.M")}`;
+  // }
 };
 
 function Home() {
