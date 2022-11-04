@@ -80,7 +80,7 @@ while True:
             cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), (2))
 
             # Find the student information in the database.
-            select = "SELECT name, year, major, login_time FROM (SELECT users.userID, name, year, major FROM users JOIN students ON students.userID = users.userID) AS A JOIN login_hist ON A.userID = login_hist.userID WHERE name='%s'" % (name)
+            select = "SELECT users.userID, name, year, major FROM users JOIN students ON students.userID = users.userID WHERE name='%s'" % (name)
             name = cursor.execute(select)
             result = cursor.fetchall()
             # print(result)
