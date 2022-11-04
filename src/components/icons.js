@@ -13,6 +13,7 @@ import { ReactComponent as CrossIcon } from "../assets/icons/cross.svg";
 import { ReactComponent as DownloadIcon } from "../assets/icons/download.svg";
 import { ReactComponent as EmailIcon } from "../assets/icons/email.svg";
 import { ReactComponent as FaceIcon } from "../assets/icons/happy_face.svg";
+import { ReactComponent as HistoryIcon } from "../assets/icons/history-outlined.svg";
 import { ReactComponent as LinkOnIcon } from "../assets/icons/link-on.svg";
 import { ReactComponent as LinkIcon } from "../assets/icons/link.svg";
 import { ReactComponent as LocationFillIcon } from "../assets/icons/location-fill.svg";
@@ -28,6 +29,7 @@ import { ReactComponent as StarEmptyIcon } from "../assets/icons/star-outlined.s
 import { ReactComponent as StickyNoteIcon } from "../assets/icons/sticky-note.svg";
 import { ReactComponent as TickIcon } from "../assets/icons/tick.svg";
 import { ReactComponent as AvatarIcon } from "../assets/icons/user-avatar.svg";
+import { ReactComponent as UserIcon } from "../assets/icons/user-outlined.svg";
 import { ReactComponent as WarningFillIcon } from "../assets/icons/warning-filled.svg";
 import { ReactComponent as WarningOutlinedIcon } from "../assets/icons/warning-outlined.svg";
 import { ReactComponent as DocIcon } from "../assets/icons/documents/doc.svg";
@@ -49,6 +51,7 @@ export default {
   DownloadIcon,
   EmailIcon,
   FaceIcon,
+  HistoryIcon,
   LinkOnIcon,
   LinkIcon,
   LocationFillIcon,
@@ -64,6 +67,7 @@ export default {
   StickyNoteIcon,
   TickIcon,
   AvatarIcon,
+  UserIcon,
   WarningFillIcon,
   WarningOutlinedIcon,
   DocIcon,

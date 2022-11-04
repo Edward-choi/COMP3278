@@ -46,7 +46,7 @@ const StyledButton = styled(Button, {
   ...(size === "large" && {
     [theme.breakpoints.up("lg")]: { minWidth: "380px" },
   }),
-  [theme.breakpoints.down("sm")]: {
+  [theme.breakpoints.down("md")]: {
     "& .MuiButton-startIcon": { margin: 0 },
   },
   "& .MuiButton-startIcon path": {
