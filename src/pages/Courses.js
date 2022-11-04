@@ -13,6 +13,28 @@ function Courses() {
     type: "",
     sort: "",
   });
+  const [searchText, setSearchText] = React.useState("");
+  const [filteredCourses, setFilteredCourses] = React.useState(courses);
+
+  React.useEffect(() => {
+    setFilteredCourses((prev) => {
+      const courseCopies = courses;
+      return courseCopies?.filter((course) => {
+        const search = searchText.toLowerCase().replace(/\W/g, "");
+        let result = false;
+        for (const key in course) {
+          const value = course[key].toString().toLowerCase().replace(/\W/g, "");
+          result = result || value.indexOf(search) !== -1;
+        }
+        return result;
+      });
+    });
+  }, [filterState, searchText]);
+
+  const handleSearch = (event) => {
+    setSearchText(event.target.value);
+  };
+
   const handleFilterChange = (prop) => (event) => {
     setFilter({ ...filterState, [prop]: event.target.value });
   };
@@ -44,6 +66,8 @@ function Courses() {
                 variant="outlined"
                 fullWidth
                 placeholder="Find a course..."
+                value={searchText}
+                onChange={handleSearch}
               />
             </Grid>
             <Grid item xs={12} md={3}>
@@ -76,7 +100,7 @@ function Courses() {
             </Grid>
           </Grid>
           <List>
-            {courses.map((course, index) => (
+            {filteredCourses.map((course, index) => (
               <Stack key={index} direction="column">
                 <CourseListTile course={course} />
                 <Divider />

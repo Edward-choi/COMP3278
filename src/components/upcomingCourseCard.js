@@ -297,7 +297,10 @@ function UpcomingCourseCard({
                   break;
               }
 
-              if (index < maxLength - 1) {
+              if (
+                index < maxLength - 1 ||
+                (index === maxLength - 1 && maxLength >= materials.length)
+              ) {
                 return (
                   <a
                     href={m.link}

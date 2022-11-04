@@ -5,7 +5,7 @@ const today = new Date();
 const generateCourseInformation = (weekday) => {
   const date = new Date();
   const startDate = new Date(
-    date.setDate(date.getDate() + ((date.getDay() - weekday + 1) % 7) || 0)
+    date.setDate(date.getDate() + ((7 + (weekday - date.getDay())) % 7) || 0)
   );
 
   const venue = weekday % 2 ? "Meng Wah Complex MWT2" : "Chong Yue Ming CYYP2";

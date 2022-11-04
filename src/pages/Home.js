@@ -95,9 +95,9 @@ function Home() {
     let events = new Map();
 
     courses.forEach((course) => {
-      const cDate = new Date(course.date);
-      const date = new Date(cDate.getTime());
+      const date = new Date(course.date);
       date.setHours(0, 0, 0, 0);
+
       const sDate = date.getTime();
       events.has(sDate)
         ? events.set(

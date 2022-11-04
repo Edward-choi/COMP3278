@@ -8,6 +8,7 @@ import Login from "./pages/Login";
 import Courses from "./pages/Courses";
 import Timetable from "./pages/Timetable";
 import Register from "./pages/Register";
+import Course from "./pages/Course";
 
 import { CssBaseline, ThemeProvider, createTheme } from "@mui/material";
 
@@ -49,6 +50,7 @@ function App() {
         <Route path="/timetable" element={<Timetable />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/course/:id/:academic_year" element={<Course />} />
       </Routes>
     </ThemeProvider>
   );
