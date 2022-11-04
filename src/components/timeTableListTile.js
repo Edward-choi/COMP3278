@@ -15,21 +15,23 @@ const ListTile = styled("div", {
   borderRadius: theme.spacing(1),
   alignSelf: "stretch",
   flexGrow: 1,
+  cursor: "pointer",
   ...(active && {
-    backgroundColor: ` rgba(67, 109, 255, 0.1)`,
+    backgroundColor: theme.palette.action.medium,
   }),
   ...(!active && {
     "&:hover": {
-      backgroundColor: ` rgba(67, 109, 255, 0.05)`,
+      backgroundColor: theme.palette.action.soft,
     },
   }),
   "& path": {
     fill: theme.palette.neutral.medium,
   },
   "& .startTime": {
-    width: 100,
+    width: theme.breakpoints.up("md") ? 100 : theme.spacing(10),
     color: theme.palette.neutral.medium,
     fontSize: 14,
+    flexShrink: 0,
   },
   "& .header": {
     display: "flex",
@@ -95,7 +97,7 @@ function TimetableListTile({
     }
   };
   return (
-    <ListTile active={active} onClick={selectCourse}>
+    <ListTile active={active} onClick={selectCourse} role="button">
       <div className="startTime">{renderStartAt()}</div>
       <Stack
         spacing={3}

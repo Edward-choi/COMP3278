@@ -131,7 +131,7 @@ function Home() {
             alignSelf: "stretch",
             width: "100%",
             maxWidth: "40%",
-            display: { sm: "none", md: "flex" },
+            display: { xs: "none", md: "flex" },
           }}
         >
           <Stack
