@@ -191,7 +191,7 @@ def train():
     
 def login():
     # 1 Create database connection
-    myconn = mysql.connector.connect(host="localhost", user="root", passwd="root", database="COMP3278", port="8889")
+    myconn = mysql.connector.connect(host="localhost", user="root", passwd="root", database="facerecognition", port="8889")
     date = datetime.utcnow()
     now = datetime.now()
     current_time = now.strftime("%H:%M:%S")
