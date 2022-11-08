@@ -192,3 +192,7 @@ tr.MuiTableRow-root.css-1vtj80e-MuiTableRow-root {
     position: relative;
   }
 }
+
+.videoCapture {
+  filter: brightness(50%);
+}

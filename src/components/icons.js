@@ -35,6 +35,9 @@ import { ReactComponent as WarningOutlinedIcon } from "../assets/icons/warning-o
 import { ReactComponent as DocIcon } from "../assets/icons/documents/doc.svg";
 import { ReactComponent as PdfIcon } from "../assets/icons/documents/pdf.svg";
 import { ReactComponent as PptIcon } from "../assets/icons/documents/ppt.svg";
+import { ReactComponent as RegisteredIcon } from "../assets/icons/registered.svg";
+import { ReactComponent as GreenTickIcon } from "../assets/icons/greenTick.svg";
+import { ReactComponent as RedCrossIcon } from "../assets/icons/redCross.svg";
 export default {
   HomeIcon,
   CourseIcon,
@@ -73,4 +76,7 @@ export default {
   DocIcon,
   PdfIcon,
   PptIcon,
+  RegisteredIcon,
+  GreenTickIcon,
+  RedCrossIcon,
 };

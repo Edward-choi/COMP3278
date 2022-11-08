@@ -12,6 +12,8 @@ import Course from "./pages/Course";
 
 import { CssBaseline, ThemeProvider, createTheme } from "@mui/material";
 import { AuthStateProvider } from "./demo-data/auth_provider";
+import FaceRecognitionRegister from "./pages/FaceRecognitionRegister";
+import FaceRecognitionLogin from "./pages/FaceRecognitionLogin";
 
 function App() {
   return (
@@ -53,6 +55,8 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/courses/:id/:academic_year" element={<Course />} />
+          <Route path="/faceRecognitionRegister/:name" element={<FaceRecognitionRegister />} />
+          <Route path="/faceRecognitionLogin" element={<FaceRecognitionLogin />} />
         </Routes>
       </ThemeProvider>
     </AuthStateProvider>

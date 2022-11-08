@@ -325,7 +325,7 @@ function Register() {
                 direction="column"
                 sx={{ mt: 24, display: "inline-flex" }}
               >
-                <StyledButton variant="contained" size="large">
+                <StyledButton variant="contained" size="large" component={Link} to={"/faceRecognitionRegister/" + values.firstName}>
                   I'm Ready To Smile
                 </StyledButton>
                 <StyledButton
