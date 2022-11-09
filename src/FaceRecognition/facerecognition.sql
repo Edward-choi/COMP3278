@@ -59,8 +59,8 @@ CREATE TABLE `Classes` (
 CREATE TABLE `Login_Hist` (
     `loginID` Int NOT NULL auto_increment,
     `UserID` Int NOT NULL,
-    `login_time` DATETIME NOT NULL,
-    `logout_time` DATETIME NOT NULL,
+    `login_time` DATETIME,
+    `logout_time` DATETIME,
     PRIMARY KEY (`loginID`),
     FOREIGN KEY (`UserID`) REFERENCES Users(`UserID`)
 );
