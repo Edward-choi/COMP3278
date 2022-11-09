@@ -11,11 +11,15 @@ import mysql.connector
 import pyttsx3
 from datetime import datetime
 
-local_path = 'src/FaceRecognition'
-app = Flask(__name__, template_folder=local_path)
+dir = 'src/FaceRecognition'
+app = Flask(__name__, template_folder=dir)
 CORS(app)
-faceCascade = cv2.CascadeClassifier(local_path + '/haarcascade/haarcascade_frontalface_default.xml')
+faceCascade = cv2.CascadeClassifier(dir + '/haarcascade/haarcascade_frontalface_default.xml')
 
+local_path = os.path.expanduser('~')
+sqluser  = {'/Users/edwardchoi': 'root'}
+sqlpwd  = {'/Users/edwardchoi': 'root'}
+sqlport  = {'/Users/edwardchoi': '8889'}
 def capture_by_frames(user_name):
     global video_capture
     global registration
@@ -25,8 +29,8 @@ def capture_by_frames(user_name):
     start = False
     video_capture = cv2.VideoCapture(0)
     NUM_IMGS = 100
-    if not os.path.exists(local_path + '/data/{}'.format(user_name)):
-        os.mkdir(local_path + '/data/{}'.format(user_name))
+    if not os.path.exists(dir + '/data/{}'.format(user_name)):
+        os.mkdir(dir + '/data/{}'.format(user_name))
 
     cnt = 1
     font = cv2.FONT_HERSHEY_SIMPLEX
@@ -68,7 +72,7 @@ def capture_by_frames(user_name):
         # Display the resulting frame
 #        cv2.imshow('Video', frame)
         # Store the captured images in `data/Jack`
-        cv2.imwrite((local_path + '/data/{}/{}{:03d}.jpg').format(user_name, user_name, cnt), frame)
+        cv2.imwrite((dir + '/data/{}/{}{:03d}.jpg').format(user_name, user_name, cnt), frame)
         cnt += 1
         ret, buffer = cv2.imencode('.jpg', frame)
         frame = buffer.tobytes()
@@ -84,7 +88,7 @@ def capture_by_frames(user_name):
 #    while True:
 #        success, frame = camera.read()  # read the camera frame
 #        detector = cv2.CascadeClassifier(
-#            local_path + '/haarcascade/haarcascade_frontalface_default.xml')
+#            dir + '/haarcascade/haarcascade_frontalface_default.xml')
 #        faces = detector.detectMultiScale(frame, 1.5, 3)
 #        # Draw the rectangle around each face
 #        for (x, y, w, h) in faces:
@@ -182,16 +186,16 @@ def train():
     # labels.pickle store the dict of labels.
     # {name: id}
     # id starts from 0
-    with open(local_path + '/labels.pickle', "wb") as f:
+    with open(dir + '/labels.pickle', "wb") as f:
         pickle.dump(label_ids, f)
 
     # Train the recognizer and save the trained model.
     recognizer.train(x_train, np.array(y_label))
-    recognizer.save(local_path + '/train.yml')
+    recognizer.save(dir + '/train.yml')
     
 def login():
     # 1 Create database connection
-    myconn = mysql.connector.connect(host="localhost", user="root", passwd="root", database="facerecognition")
+    myconn = mysql.connector.connect(host="localhost", user=sqluser[local_path], passwd=sqlpwd[local_path], database="facerecognition", port=sqlport[local_path])
     date = datetime.utcnow()
     now = datetime.now()
     weekday = datetime.today().weekday() #used in class_time
@@ -214,10 +218,10 @@ def login():
 
     #2 Load recognize and read label from model
     recognizer = cv2.face.LBPHFaceRecognizer_create()
-    recognizer.read(local_path + '/train.yml')
+    recognizer.read(dir + '/train.yml')
 
     labels = {"person_name": 1}
-    with open(local_path + '/labels.pickle', "rb") as f:
+    with open(dir + '/labels.pickle', "rb") as f:
         labels = pickle.load(f)
         labels = {v: k for k, v in labels.items()}
     print(labels)
@@ -339,7 +343,7 @@ def login():
                 print(hello)
                 engine.say(hello)
                 # engine.runAndWait()
-#        cv2.imwrite(local_path + '/data/temp/000.jpg', frame)
+#        cv2.imwrite(dir + '/data/temp/000.jpg', frame)
         k = cv2.waitKey(20) & 0xff
         if k == ord('q'):
             break
