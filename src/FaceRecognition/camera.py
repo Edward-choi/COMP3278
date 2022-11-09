@@ -191,11 +191,18 @@ def train():
     
 def login():
     # 1 Create database connection
-    myconn = mysql.connector.connect(host="localhost", user="root", passwd="root", database="facerecognition", port="8889")
+    myconn = mysql.connector.connect(host="localhost", user="root", passwd="jamesmysql", database="facerecognition")
     date = datetime.utcnow()
     now = datetime.now()
+    weekday = datetime.today().weekday() #used in class_time
+    weekOfTheYear = datetime.today().isocalendar().week #used in information
     current_time = now.strftime("%H:%M:%S")
-    cursor = myconn.cursor()
+    currentTimeDelta = datetime.now().hour*3600 + datetime.now().minute*60 + datetime.now().second
+    cursor = myconn.cursor(buffered = True)
+
+    classWithinHour = None
+    classWithinHourInfo = None
+    timetable = None
     
     global verified
     verified = False
@@ -251,7 +258,7 @@ def login():
 #                cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), (2))
 
                 # Find the student's information in the database.
-                select = "SELECT student_id, name, DAY(login_date), MONTH(login_date), YEAR(login_date) FROM Student WHERE name='%s'" % (name)
+                select = "SELECT users.userID, name, year, major FROM users JOIN students ON students.userID = users.userID WHERE name='%s'" % (name)
                 name = cursor.execute(select)
                 result = cursor.fetchall()
                 # print(result)
@@ -266,15 +273,45 @@ def login():
 
                 # If the student's information is found in the database
                 else:
-                    """
-                    Implement useful functions here.
-                    Check the course and classroom for the student.
-                        If the student has class room within one hour, the corresponding course materials
-                            will be presented in the GUI.
-                        if the student does not have class at the moment, the GUI presents a personal class
-                            timetable for the student.
+                    #update login history
+                    loginHistUpdate =  "INSERT INTO login_hist(UserID, login_time, logout_time) VALUES(%s, now(), now())" % (result[0][0])
+                    cursor.execute(loginHistUpdate)
+                    myconn.commit()
 
-                    """
+                    # Find class within one hour.
+                    select = "SELECT classID FROM students_take_classes where userID = %s" % result[0][0]
+                    getStudentTakesClassesID = cursor.execute(select)
+                    StudentTakesClassesID = cursor.fetchall()
+                    print(StudentTakesClassesID)
+                    select = "SELECT * FROM class_time WHERE day_of_week = %s" % weekday
+                    getClassTime = cursor.execute(select)
+                    classTime = cursor.fetchall()
+                    print(classTime)
+                    for i in range(len(StudentTakesClassesID)):    
+                        if (len(classTime) > 0):
+                            for j in range (len(classTime)):
+                                if (StudentTakesClassesID[i][0] == classTime[j][0] and classTime[j][2].total_seconds() - currentTimeDelta <= 3600 and classTime[j][2].total_seconds() - currentTimeDelta >= 0): 
+                                    classWithinHour = classTime[j] #Get the class within 1 hour.
+                                    # Get info of the class within hour.
+                                    select = "SELECT * FROM information WHERE classID = %s AND week = %s" % (classWithinHour[0], weekOfTheYear)
+                                    getClassWithinHourInfo = cursor.execute(select)
+                                    classWithinHourInfo = cursor.fetchall()
+                                    #print(classWithinHour)
+                                    #print(classWithinHourInfo)
+                    
+                    #Get timetable order by weekday and class start time.
+                    tempWHERE = "classID = "
+                    for i in range(len(StudentTakesClassesID)):
+                        temp = StudentTakesClassesID[i][0]
+                        tempWHERE = tempWHERE + str(temp)
+                        if (i < len(StudentTakesClassesID) - 1):
+                            tempWHERE = tempWHERE + " OR classID = "
+                    select = "SELECT * FROM class_time WHERE %s" % tempWHERE
+                    getTimetable = cursor.execute(select)
+                    timetable = cursor.fetchall()
+                    timetable = sorted(timetable, key = lambda x: (x[1], x[2]))
+                    #print(timetable)
+
                     # Update the data in database
                     update =  "UPDATE Student SET login_date=%s WHERE name=%s"
                     val = (date, current_name)
