@@ -105,7 +105,9 @@ export default function CourseListTile({
             {academicYear && (
               <LabelItem>
                 <Icons.HistoryIcon />
-                {`${academicYear} - ${academicYear + 1}`}
+                {academicYear % 2 == 0
+                  ? `${academicYear}-${academicYear + 1}`
+                  : `${academicYear - 1}-${academicYear}`}
               </LabelItem>
             )}
           </Stack>

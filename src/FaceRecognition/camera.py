@@ -11,6 +11,8 @@ import mysql.connector
 import pyttsx3
 from datetime import datetime
 
+# Please modify to your mysql password
+password = "root"
 local_path = 'src/FaceRecognition'
 app = Flask(__name__, template_folder=local_path)
 CORS(app)
@@ -191,7 +193,7 @@ def train():
     
 def login():
     # 1 Create database connection
-    myconn = mysql.connector.connect(host="localhost", user="root", passwd="root", database="facerecognition")
+    myconn = mysql.connector.connect(host="localhost", user="root", passwd=password, database="facerecognition")
     date = datetime.utcnow()
     now = datetime.now()
     weekday = datetime.today().weekday() #used in class_time
