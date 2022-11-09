@@ -1,12 +1,10 @@
 from flask import Flask, render_template, Response, jsonify
 import cv2
 import os
-import sys
 import numpy as np
 from PIL import Image
 import pickle
 from flask_cors import CORS
-import urllib
 import mysql.connector
 import pyttsx3
 from datetime import datetime
