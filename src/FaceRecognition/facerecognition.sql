@@ -22,29 +22,76 @@ SET time_zone = "+00:00";
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `Student`
---
-DROP TABLE IF EXISTS `Student`;
 
-# Create TABLE 'Student'
-CREATE TABLE `Student` (
-  `student_id` int NOT NULL,
-  `name` varchar(50) NOT NULL,
-  `login_time` time NOT NULL,
-  `login_date` date NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+-- Create table structures
+CREATE TABLE `Users` (
+    `UserID` Int,
+    PRIMARY KEY (`UserID`)
+);
 
-LOCK TABLES `Student` WRITE;
-/*!40000 ALTER TABLE `Student` DISABLE KEYS */;
-INSERT INTO `Student` VALUES (1, "JACK", NOW(), '2021-01-20');
-/*!40000 ALTER TABLE `Student` ENABLE KEYS */;
-UNLOCK TABLES;
+CREATE TABLE `Students` (
+    `UserID` Int,
+    `name` VARCHAR(100) NOT NULL,
+    `year` Int NOT NULL,
+    `major` VARCHAR(100),
+    PRIMARY KEY (`UserID`),
+    FOREIGN KEY (`UserID`) REFERENCES `Users`(`UserID`)
+);
 
+CREATE TABLE `Teachers` (
+    `UserID` Int,
+    `name` VARCHAR(100) NOT NULL,
+    `faculty` VARCHAR(100) NOT NULL,
+    `department` VARCHAR(100) NOT NULL,
+    PRIMARY KEY (`UserID`),
+    FOREIGN KEY (`UserID`) REFERENCES `Users`(`UserID`)
+);
 
-# Create TABLE 'Course'
-# Create TABLE 'Classroom'
-# Create other TABLE...
+CREATE TABLE `Classes` (
+    `ClassID` Int,
+    `UserID` Int NOT NULL,
+    `course_name` VARCHAR(100) NOT NULL,
+    `semester` Int NOT NULL,
+    PRIMARY KEY (`ClassID`),
+    FOREIGN KEY (`UserID`) REFERENCES `Teachers`(`UserID`)
+);
+
+CREATE TABLE `Login_Hist` (
+    `loginID` Int NOT NULL auto_increment,
+    `UserID` Int NOT NULL,
+    `login_time` DATETIME NOT NULL,
+    `logout_time` DATETIME NOT NULL,
+    PRIMARY KEY (`loginID`),
+    FOREIGN KEY (`UserID`) REFERENCES Users(`UserID`)
+);
+
+CREATE TABLE `Students_Take_Classes` (
+    `UserID` Int,
+    `ClassID` Int,
+    PRIMARY KEY (`UserID`, `ClassID`),
+    FOREIGN KEY (`UserID`) REFERENCES `Students`(`UserID`),
+    FOREIGN KEY (`ClassID`) REFERENCES `Classes`(`ClassID`)
+);
+
+CREATE TABLE `Class_Time` (
+    `ClassID` Int,
+    `day_of_week` Int,
+    `start_time` TIME,
+    `end_time` TIME,
+    PRIMARY KEY (`ClassID`, `day_of_week`, `start_time`, `end_time`),
+    FOREIGN KEY (`ClassID`) REFERENCES `Classes`(`ClassID`)
+);
+
+CREATE TABLE `Information` (
+    `ClassID` Int,
+    `Week` Int,
+    `classroom_address` VARCHAR(100),
+    `teacher_message` VARCHAR(200),
+    `link_of_zoom` VARCHAR(200),
+    `link_of_lecture_notes` VARCHAR(200),
+    PRIMARY KEY (`ClassID`, `Week`),
+    FOREIGN KEY (`ClassID`) REFERENCES `Classes`(`ClassID`)
+);
 
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
