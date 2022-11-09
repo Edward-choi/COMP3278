@@ -34,6 +34,7 @@ CREATE TABLE `Students` (
     `name` VARCHAR(100) NOT NULL,
     `year` Int NOT NULL,
     `major` VARCHAR(100),
+    `email` VARCHAR(100),
     PRIMARY KEY (`UserID`),
     FOREIGN KEY (`UserID`) REFERENCES `Users`(`UserID`)
 );
