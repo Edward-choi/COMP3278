@@ -41,7 +41,9 @@ export default function CourseCard({
           {renderBanner()}
           <CardContent>
             <Box sx={{ fontSize: 12, color: "neutral.mild", mb: 1 }}>
-              {academicYear}-{academicYear + 1}
+              {academicYear % 2 == 0
+                ? `${academicYear}-${academicYear + 1}`
+                : `${academicYear - 1}-${academicYear}`}
             </Box>
             <Box
               sx={{ fontSize: 14, color: "neutral.darkest", fontWeight: 550 }}

@@ -204,7 +204,9 @@ export default function Course() {
           <Box sx={{ display: "flex", flexDirection: "column" }}>
             <Box sx={{ mt: 16, mb: 8 }}>
               <p>
-                {course.academicYear}-{course.academicYear + 1}
+                {course.academicYear % 2 == 0
+                  ? `${course.academicYear}-${course.academicYear + 1}`
+                  : `${course.academicYear - 1}-${course.academicYear}`}
               </p>
               <h2>
                 {course.courseId} {course.courseName}

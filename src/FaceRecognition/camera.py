@@ -56,7 +56,7 @@ def capture_by_frames(user_name):
         )
 
         # Draw a rectangle around the faces
-        
+
         for (x, y, w, h) in faces:
             cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
@@ -67,7 +67,7 @@ def capture_by_frames(user_name):
 #                    fontScale,
 #                    fontColor,
 #                    lineType)
-        
+
 
         # Display the resulting frame
 #        cv2.imshow('Video', frame)
@@ -83,7 +83,7 @@ def capture_by_frames(user_name):
     if video_capture.isOpened():
         video_capture.release()
     registration = True
-    
+
     train()
 #    while True:
 #        success, frame = camera.read()  # read the camera frame
@@ -116,7 +116,7 @@ def registered():
         })
     response.headers.add("Access-Control-Allow-Origin", "*")
     return response
-    
+
 @app.route('/verified')
 def verified():
     try:
@@ -138,7 +138,7 @@ def verified():
 @app.route('/video_capture/<name>')
 def video_capture(name):
     return Response(capture_by_frames(name), mimetype='multipart/x-mixed-replace; boundary=frame')
-    
+
 @app.route('/login_verification')
 def login_verification():
     return Response(login(), mimetype='multipart/x-mixed-replace; boundary=frame')
@@ -192,7 +192,7 @@ def train():
     # Train the recognizer and save the trained model.
     recognizer.train(x_train, np.array(y_label))
     recognizer.save(dir + '/train.yml')
-    
+
 def login():
     # 1 Create database connection
     myconn = mysql.connector.connect(host="localhost", user=sqluser[local_path], passwd=sqlpwd[local_path], database="facerecognition", port=sqlport[local_path])
@@ -207,7 +207,7 @@ def login():
     classWithinHour = None
     classWithinHourInfo = None
     timetable = None
-    
+
     global verified
     verified = False
     global current_name
@@ -239,7 +239,7 @@ def login():
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         faces = faceCascade.detectMultiScale(gray, scaleFactor=1.2, minNeighbors=5)
         verificationStart = True
-        
+
         for (x, y, w, h) in faces:
             print(x, w, y, h)
             roi_gray = gray[y:y + h, x:x + w]
@@ -291,10 +291,10 @@ def login():
                     getClassTime = cursor.execute(select)
                     classTime = cursor.fetchall()
                     print(classTime)
-                    for i in range(len(StudentTakesClassesID)):    
+                    for i in range(len(StudentTakesClassesID)):
                         if (len(classTime) > 0):
                             for j in range (len(classTime)):
-                                if (StudentTakesClassesID[i][0] == classTime[j][0] and classTime[j][2].total_seconds() - currentTimeDelta <= 3600 and classTime[j][2].total_seconds() - currentTimeDelta >= 0): 
+                                if (StudentTakesClassesID[i][0] == classTime[j][0] and classTime[j][2].total_seconds() - currentTimeDelta <= 3600 and classTime[j][2].total_seconds() - currentTimeDelta >= 0):
                                     classWithinHour = classTime[j] #Get the class within 1 hour.
                                     # Get info of the class within hour.
                                     select = "SELECT * FROM information WHERE classID = %s AND week = %s" % (classWithinHour[0], weekOfTheYear)
@@ -302,7 +302,7 @@ def login():
                                     classWithinHourInfo = cursor.fetchall()
                                     #print(classWithinHour)
                                     #print(classWithinHourInfo)
-                    
+
                     #Get timetable order by weekday and class start time.
                     tempWHERE = "classID = "
                     for i in range(len(StudentTakesClassesID)):
@@ -324,7 +324,7 @@ def login():
                     val = (current_time, current_name)
                     cursor.execute(update, val)
                     myconn.commit()
-                   
+
                     hello = ("Hello ", current_name, "You did attendance today")
                     print(hello)
                     engine.say(hello)
@@ -351,11 +351,10 @@ def login():
         frame = buffer.tobytes()
         yield (b'--frame\r\n'
             b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
-            
+
     cap.release()
     cv2.destroyAllWindows()
 
 if __name__ == '__main__':
     app.secret_key = os.urandom(24)
     app.run(debug=True, use_reloader=False, port=8000)
-
