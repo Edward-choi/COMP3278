@@ -191,7 +191,7 @@ def train():
     
 def login():
     # 1 Create database connection
-    myconn = mysql.connector.connect(host="localhost", user="root", passwd="jamesmysql", database="facerecognition")
+    myconn = mysql.connector.connect(host="localhost", user="root", passwd="root", database="facerecognition")
     date = datetime.utcnow()
     now = datetime.now()
     weekday = datetime.today().weekday() #used in class_time
