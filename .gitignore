@@ -2,3 +2,5 @@ node_modules
 build
 .env
 .env.test
+src/FaceRecognition/data/*
+src/FaceRecognition/*.yml

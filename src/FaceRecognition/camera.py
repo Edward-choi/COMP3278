@@ -15,9 +15,9 @@ CORS(app)
 faceCascade = cv2.CascadeClassifier(dir + '/haarcascade/haarcascade_frontalface_default.xml')
 
 local_path = os.path.expanduser('~')
-sqluser  = {'/Users/edwardchoi': 'root'}
-sqlpwd  = {'/Users/edwardchoi': 'root'}
-sqlport  = {'/Users/edwardchoi': '8889'}
+sqluser  = {'/Users/edwardchoi': 'root',"/Users/hiumanchau":"root"}
+sqlpwd  = {'/Users/edwardchoi': 'root', "/Users/hiumanchau":"chin124328"}
+sqlport  = {'/Users/edwardchoi': '8889','/Users/hiumanchau': '3306'}
 def capture_by_frames(user_name):
     global video_capture
     global registration
@@ -193,6 +193,7 @@ def train():
 
 def login():
     # 1 Create database connection
+    print("local path",local_path)
     myconn = mysql.connector.connect(host="localhost", user=sqluser[local_path], passwd=sqlpwd[local_path], database="facerecognition", port=sqlport[local_path])
     date = datetime.utcnow()
     now = datetime.now()
@@ -260,7 +261,7 @@ def login():
 #                cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), (2))
 
                 # Find the student's information in the database.
-                select = "SELECT users.userID, name, year, major FROM users JOIN students ON students.userID = users.userID WHERE name='%s'" % (name)
+                select = "SELECT users.user_id, users.name, year, major FROM users JOIN students ON students.user_id = users.user_id WHERE name='%s'" % (name)
                 name = cursor.execute(select)
                 result = cursor.fetchall()
                 # print(result)
@@ -276,12 +277,12 @@ def login():
                 # If the student's information is found in the database
                 else:
                     #update login history
-                    loginHistUpdate =  "INSERT INTO login_hist(UserID, login_time, logout_time) VALUES(%s, now(), now())" % (result[0][0])
+                    loginHistUpdate =  "INSERT INTO login_hist(user_id, login_time, logout_time) VALUES(%s, now(), now())" % (result[0][0])
                     cursor.execute(loginHistUpdate)
                     myconn.commit()
 
                     # Find class within one hour.
-                    select = "SELECT classID FROM students_take_classes where userID = %s" % result[0][0]
+                    select = "SELECT class_id FROM students_take_classes where user_id = %s" % result[0][0]
                     getStudentTakesClassesID = cursor.execute(select)
                     StudentTakesClassesID = cursor.fetchall()
                     print(StudentTakesClassesID)
@@ -295,19 +296,19 @@ def login():
                                 if (StudentTakesClassesID[i][0] == classTime[j][0] and classTime[j][2].total_seconds() - currentTimeDelta <= 3600 and classTime[j][2].total_seconds() - currentTimeDelta >= 0):
                                     classWithinHour = classTime[j] #Get the class within 1 hour.
                                     # Get info of the class within hour.
-                                    select = "SELECT * FROM information WHERE classID = %s AND week = %s" % (classWithinHour[0], weekOfTheYear)
+                                    select = "SELECT * FROM information WHERE class_id = %s AND week = %s" % (classWithinHour[0], weekOfTheYear)
                                     getClassWithinHourInfo = cursor.execute(select)
                                     classWithinHourInfo = cursor.fetchall()
                                     #print(classWithinHour)
                                     #print(classWithinHourInfo)
 
                     #Get timetable order by weekday and class start time.
-                    tempWHERE = "classID = "
+                    tempWHERE = "class_id = "
                     for i in range(len(StudentTakesClassesID)):
                         temp = StudentTakesClassesID[i][0]
                         tempWHERE = tempWHERE + str(temp)
                         if (i < len(StudentTakesClassesID) - 1):
-                            tempWHERE = tempWHERE + " OR classID = "
+                            tempWHERE = tempWHERE + " OR class_id = "
                     select = "SELECT * FROM class_time WHERE %s" % tempWHERE
                     getTimetable = cursor.execute(select)
                     timetable = cursor.fetchall()

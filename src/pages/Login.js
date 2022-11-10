@@ -91,7 +91,13 @@ function Login() {
         <div className="form-container">
           <h1>Login</h1>
 
-          <StyledButton fullWidth color="primary" variant="contained" component={Link} to={"/faceRecognitionLogin"}>
+          <StyledButton
+            fullWidth
+            color="primary"
+            variant="contained"
+            component={Link}
+            to={"/faceRecognitionLogin/"}
+          >
             Facial Login
           </StyledButton>
           <Divider sx={{ my: 12 }}>

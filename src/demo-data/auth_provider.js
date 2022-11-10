@@ -1,7 +1,7 @@
 import React from "react";
 
 const defaultUserState = {
-  userId: "",
+  user_id: "",
   firstName: "",
   lastName: "",
   email: "",

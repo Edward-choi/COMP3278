@@ -90,7 +90,7 @@ while True:
             cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), (2))
 
             # Find the student information in the database.
-            select = "SELECT users.userID, name, year, major FROM users JOIN students ON students.userID = users.userID WHERE name='%s'" % (name)
+            select = "SELECT users.user_id, name, year, major FROM users JOIN students ON students.user_id = users.user_id WHERE name='%s'" % (name)
             name = cursor.execute(select)
             result = cursor.fetchall()
             # print(result)
@@ -107,12 +107,12 @@ while True:
             # If the student's information is found in the database
             else:
                 #update login history
-                loginHistUpdate =  "INSERT INTO login_hist(UserID, login_time, logout_time) VALUES(%s, now(), now())" % (result[0][0])
+                loginHistUpdate =  "INSERT INTO login_hist(user_id, login_time, logout_time) VALUES(%s, now(), now())" % (result[0][0])
                 cursor.execute(loginHistUpdate)
                 myconn.commit()
 
                 #find class within one hour
-                select = "SELECT classID FROM students_take_classes where userID = %s" % result[0][0]
+                select = "SELECT class_id FROM students_take_classes where user_id = %s" % result[0][0]
                 getStudentTakesClassesID = cursor.execute(select)
                 StudentTakesClassesID = cursor.fetchall()
                 print(StudentTakesClassesID)
@@ -126,19 +126,19 @@ while True:
                             if (StudentTakesClassesID[i][0] == classTime[j][0] and classTime[j][2].total_seconds() - currentTimeDelta <= 3600 and classTime[j][2].total_seconds() - currentTimeDelta >= 0): 
                                 classWithinHour = classTime[j] #get the class within 1 hour
                                 # get info of the class within hour
-                                select = "SELECT * FROM information WHERE classID = %s AND week = %s" % (classWithinHour[0], weekOfTheYear)
+                                select = "SELECT * FROM information WHERE class_id = %s AND week = %s" % (classWithinHour[0], weekOfTheYear)
                                 getClassWithinHourInfo = cursor.execute(select)
                                 classWithinHourInfo = cursor.fetchall()
                                 #print(classWithinHour)
                                 #print(classWithinHourInfo)
                 
                 #get timetable order by weekday and class start time
-                tempWHERE = "classID = "
+                tempWHERE = "class_id = "
                 for i in range(len(StudentTakesClassesID)):
                     temp = StudentTakesClassesID[i][0]
                     tempWHERE = tempWHERE + str(temp)
                     if (i < len(StudentTakesClassesID) - 1):
-                        tempWHERE = tempWHERE + " OR classID = "
+                        tempWHERE = tempWHERE + " OR class_id = "
                 select = "SELECT * FROM class_time WHERE %s" % tempWHERE
                 getTimetable = cursor.execute(select)
                 timetable = cursor.fetchall()
