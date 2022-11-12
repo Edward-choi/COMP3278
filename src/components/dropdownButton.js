@@ -19,7 +19,12 @@ export default function DropdownButton({
   return (
     <FormControl fullWidth={fullWidth} sx={{ minWidth: 80 }}>
       {label && <InputLabel>{label}</InputLabel>}
-      <Select value={value} label={label} onChange={handleChange}>
+      <Select
+        value={value}
+        label={label}
+        onChange={handleChange}
+        defaultValue={"" || 0}
+      >
         <Box
           sx={{
             display: "flex",
@@ -40,7 +45,7 @@ export default function DropdownButton({
         {items &&
           items.length > 0 &&
           items.map((it) => (
-            <MenuItem key={it.value || it} value={it.value || it}>
+            <MenuItem key={`m${it.value}` || it} value={it.value || it}>
               {it.text || it}
             </MenuItem>
           ))}

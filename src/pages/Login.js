@@ -17,7 +17,7 @@ import {
   Checkbox,
 } from "@mui/material";
 import BannerImg from "../assets/images/login.png";
-import { MoodBadSharp, Visibility, VisibilityOff } from "@mui/icons-material";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 import StyledButton from "../components/button";
 import axios from "axios";
 import { useGlobalState } from "../demo-data/auth_provider";

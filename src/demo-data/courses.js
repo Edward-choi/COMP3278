@@ -5,11 +5,12 @@ let year = today.getFullYear();
 
 export const courses = [
   {
-    courseCode: "COMP3278",
-    courseName: "Introduction to Database Management System",
-    academicYear: year,
+    course_code: "COMP3278",
+    course_name: "Introduction to Database Management System",
+    academic_year: year,
     lecturer: "Dr. Ping Luo",
-    desc: "This course studies the principles, design, administration, and implementation of database management systems. Topics include: entity-relationship model, relational model, relational algebra, database design and normalization, database query languages, indexing schemes, integrity and concurrency control.",
+    description:
+      "This course studies the principles, design, administration, and implementation of database management systems. Topics include: entity-relationship model, relational model, relational algebra, database design and normalization, database query languages, indexing schemes, integrity and concurrency control.",
     preRequisites: [],
     startOn: new Date(year, 8, 1),
     endOn: new Date(year, 11, 30),
@@ -27,11 +28,12 @@ export const courses = [
     ],
   },
   {
-    courseCode: "COMP3330",
-    courseName: "Interactive Mobile Application Design and Programming",
-    academicYear: year,
+    course_code: "COMP3330",
+    course_name: "Interactive Mobile Application Design and Programming",
+    academic_year: year,
     lecturer: "Chim T W",
-    desc: "This course introduces the techniques for developing interactive mobile applications on Android platform. Topics include user interface design, graphics, parallel computing, database, network, multimedia, sensors and location service. Trends and tools for developing applications on various mobile platforms are also discussed. Students participate in both individual assignments and group projects to practice ideation, reading, writing, coding and presentation skills. ",
+    description:
+      "This course introduces the techniques for developing interactive mobile applications on Android platform. Topics include user interface design, graphics, parallel computing, database, network, multimedia, sensors and location service. Trends and tools for developing applications on various mobile platforms are also discussed. Students participate in both individual assignments and group projects to practice ideation, reading, writing, coding and presentation skills. ",
     preRequisites: ["COMP2396"],
     startOn: new Date(year, 8, 1),
     endOn: new Date(year, 11, 30),
@@ -49,11 +51,12 @@ export const courses = [
     ],
   },
   {
-    courseCode: "COMP3297",
-    courseName: "Software Development",
-    academicYear: year,
+    course_code: "COMP3297",
+    course_name: "Software Development",
+    academic_year: year,
     lecturer: "Chim T W",
-    desc: "This course introduces the techniques for developing interactive mobile applications on Android platform. Topics include user interface design, graphics, parallel computing, database, network, multimedia, sensors and location service. Trends and tools for developing applications on various mobile platforms are also discussed. Students participate in both individual assignments and group projects to practice ideation, reading, writing, coding and presentation skills. ",
+    description:
+      "This course introduces the techniques for developing interactive mobile applications on Android platform. Topics include user interface design, graphics, parallel computing, database, network, multimedia, sensors and location service. Trends and tools for developing applications on various mobile platforms are also discussed. Students participate in both individual assignments and group projects to practice ideation, reading, writing, coding and presentation skills.",
     preRequisites: ["COMP2396"],
     startOn: new Date(year, 8, 1),
     endOn: new Date(year, 11, 30),

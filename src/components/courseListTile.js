@@ -45,7 +45,7 @@ const LabelItem = styled("div")(({ theme }) => ({
 }));
 
 export default function CourseListTile({
-  course: { courseCode, courseName, academicYear, lecturer },
+  course: { class_id, course_code, course_name, academic_year, lecturer },
 }) {
   const [state, dispatch] = useGlobalState();
   const [star, setStar] = React.useState(false);
@@ -53,42 +53,34 @@ export default function CourseListTile({
   const isSmallOrLess = useMediaQuery(theme.breakpoints.down("md"));
 
   React.useEffect(() => {
-    setStar(
-      state.stars.indexOf({
-        courseCode: courseCode,
-        academicYear: academicYear,
-      }) !== -1
-    );
+    setStar(state.stars.indexOf(class_id) !== -1);
   }, []);
 
-  const stared = () => {
+  const stared = (event) => {
+    event.preventDefault();
     setStar((prev) => !prev);
-    if (star)
+
+    if (!star) {
       dispatch({
-        stars: [
-          ...state.stars,
-          { courseCode: courseCode, academicYear: academicYear },
-        ],
+        stars: [...state.stars, class_id],
       });
-    else
+    } else {
       dispatch({
-        stars: state.stars.filter(
-          (obj) =>
-            obj.courseCode === courseCode && obj.academicYear === academicYear
-        ),
+        stars: state.stars.filter((obj) => obj != class_id),
       });
+    }
   };
   return (
     <StyledCourseListTile>
       <ListItemButton
         sx={{ borderRadius: 2, py: { xs: 3, sm: 4, md: 6 } }}
         component={Link}
-        to={`/courses/${courseCode}/${academicYear}`}
+        to={`/courses/${course_code}/${academic_year}`}
       >
         <Stack spacing={3} direction="column" width="100%">
           <div className="courseListTileHeader">
             <h4 style={{ fontWeight: 600 }}>
-              {courseCode} {courseName}
+              {course_code} {course_name}
             </h4>
           </div>
           <Stack
@@ -102,12 +94,12 @@ export default function CourseListTile({
                 {lecturer}
               </LabelItem>
             )}
-            {academicYear && (
+            {academic_year && (
               <LabelItem>
                 <Icons.HistoryIcon />
-                {academicYear % 2 == 0
-                  ? `${academicYear}-${academicYear + 1}`
-                  : `${academicYear - 1}-${academicYear}`}
+                {academic_year % 2 == 0
+                  ? `${academic_year}-${academic_year + 1}`
+                  : `${academic_year - 1}-${academic_year}`}
               </LabelItem>
             )}
           </Stack>
@@ -116,7 +108,7 @@ export default function CourseListTile({
       <StyledButton
         variant="contained"
         size={isSmallOrLess ? "small" : "medium"}
-        onClick={() => stared()}
+        onClick={stared}
         startIcon={!star ? <Icons.StarEmptyIcon /> : <Icons.StarFillIcon />}
       >
         <Box sx={{ display: { xs: "none", md: "inline-flex" } }}>Star</Box>

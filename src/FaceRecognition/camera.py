@@ -13,8 +13,9 @@ from flask_jwt_extended import create_access_token,get_jwt,get_jwt_identity, \
 
 dir = 'src/FaceRecognition'
 app = Flask(__name__, template_folder=dir)
-app.config['CORS_HEADERS'] = 'Content-Type'
 cors = CORS(app, supports_credentials=True)
+app.config['CORS_HEADERS'] = 'Content-Type'
+
 app.config["JWT_SECRET_KEY"] = "super-secret"
 jwt = JWTManager(app)
 faceCascade = cv2.CascadeClassifier(dir + '/haarcascade/haarcascade_frontalface_default.xml')
@@ -33,7 +34,7 @@ weekday = datetime.today().weekday() #used in class_time
 weekOfTheYear = datetime.today().isocalendar().week #used in information
 current_time = now.strftime("%H:%M:%S")
 currentTimeDelta = datetime.now().hour*3600 + datetime.now().minute*60 + datetime.now().second
-cursor = myconn.cursor(buffered = True , dictionary=True)
+cursor = myconn.cursor(buffered = True , dictionary = True)
 
 class JSONResponse(Response):
      default_mimetype = 'application/json'
@@ -113,15 +114,19 @@ def capture_by_frames(user_name):
     train()
 
 
-@app.route('/registration/<email>')
+@app.route('/registration/<email>', strict_slashes=False)
+@cross_origin(supports_credentials=True)
 def checkEmail(email):
     cursor.execute(f"SELECT email FROM Users WHERE email = '{email}'")
     myconn.commit()
     result = cursor.fetchone()
-    return jsonify(result = result != None)
+    response = make_response({"result":result != None})
+    response.headers.add("Access-Control-Allow-Origin", "*")
+    return response
     
 
 @app.route('/registration', methods = ["POST", "GET"], strict_slashes=False)
+@cross_origin(supports_credentials=True)
 def registration():
     if request.method == 'POST':
         val = request.get_json()
@@ -146,7 +151,8 @@ def createStudent(major, year):
     myconn.commit()
     result = cursor.fetchone()
     student_id = result.get('user_id')
-    createStudent = "INSERT INTO STUDENTS(user_id, year, major) VALUES(%d, %d, '%s')" % (student_id, year, major)
+    cursor.execute(f"ALTER TABLE Students AUTO_INCREMENT = {student_id}")
+    createStudent = "INSERT INTO STUDENTS(year, major) VALUES(%d, '%s')" % (year, major)
     cursor.execute(createStudent)
     myconn.commit()
 
@@ -393,6 +399,75 @@ def logoutHistUpdate(user_id):
     logoutHistUpdate = "UPDATE login_hist SET logout_time = now() WHERE user_id = '%s'" % (user_id)
     cursor.execute(logoutHistUpdate)
     myconn.commit()
+
+@app.route("/courses", methods=["GET"])
+def getClasses():
+    user_id = request.args.get('user_id')
+    
+    searchClasses = f"SELECT Classes.class_id, T.first_name, T.last_name, course_code, course_name, academic_year, description FROM Classes JOIN Students_Take_Classes ON user_id = {user_id}, ( select first_name, last_name, teacher_id from Users JOIN teachers on user_id = teacher_id) T WHERE T.teacher_id = Classes.teacher_id GROUP BY Classes.class_id"
+    cursor.execute(searchClasses)
+    myconn.commit()
+    enrollments = cursor.fetchall()
+    
+    res = []
+    for row in enrollments:
+        name = f"Dr. {row.get('last_name')}, {row.get('first_name')}"
+        if "last_name"in row: del row["last_name"]
+        if "first_name" in row: del row["first_name"]
+        row["lecturer"] = name
+        res.append(row)
+    return jsonify(res)
+
+@app.route("/current_courses", methods=["GET"], strict_slashes=False)
+def getCurrentClasses():
+    user_id = request.args.get('user_id')
+    
+    searchClasses = f"SELECT Classes.class_id, T.first_name, T.last_name, course_code, course_name, academic_year, description FROM Classes JOIN Students_Take_Classes ON user_id = {user_id}, ( select first_name, last_name, teacher_id from Users JOIN teachers on user_id = teacher_id) T WHERE T.teacher_id = Classes.teacher_id AND academic_year = YEAR(now()) GROUP BY Classes.class_id"
+    cursor.execute(searchClasses)
+    myconn.commit()
+    enrollments = cursor.fetchall()
+    
+    res = []
+    for row in enrollments:
+        name = f"Dr. {row.get('last_name')}, {row.get('first_name')}"
+        if "last_name"in row: del row["last_name"]
+        if "first_name" in row: del row["first_name"]
+        row["lecturer"] = name
+        res.append(row)
+    return jsonify(res)
+
+
+@app.route("/filter_courses", methods=["GET"])
+def getFilteredClasses():
+    user_id = request.args.get("user_id")
+    search = request.args.get("search")
+    filter = request.args.get("filter")
+    order = request.args.get("order")
+
+    search = f"'%{search}%'"
+
+    nullSafety = "T.last_name is NULL OR description is NULL"
+    conditions = f"(T.first_name LIKE {search} OR T.last_name LIKE {search} OR course_code LIKE {search} OR course_name LIKE {search} OR CAST(academic_year as CHAR(50)) LIKE {search} OR {nullSafety})"
+    if(filter is not None and len(filter)>0):
+        conditions += f'AND {filter}'
+    if(order is  None):
+        order = ""
+    else:
+        order = f"ORDER BY {order}"
+    filterClasses = f"SELECT Classes.class_id, T.first_name, T.last_name, course_code, course_name, academic_year, description FROM Classes JOIN Students_Take_Classes ON user_id = {user_id}, ( select first_name, last_name, teacher_id from Users JOIN teachers on user_id = teacher_id) T WHERE T.teacher_id = Classes.teacher_id AND {conditions} GROUP BY Classes.class_id {order} "
+ 
+    cursor.execute(filterClasses)
+    myconn.commit()
+    courses = cursor.fetchall()
+    res = []
+    for row in courses:
+        name = f"Dr. {row.get('last_name')}, {row.get('first_name')}"
+        if "last_name"in row: del row["last_name"]
+        if "first_name" in row: del row["first_name"]
+        row["lecturer"] = name
+        res.append(row)
+    return jsonify(res)
+
 
 def findClassWithinHour():
     studentInfo = getStudentInfo()

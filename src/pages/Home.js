@@ -171,7 +171,7 @@ function Home() {
                     .get(date)
                     ?.map((course) => (
                       <TimetableListTile
-                        key={`${index} ${course.courseCode}`}
+                        key={`${index} ${course.course_code}`}
                         course={course}
                         selectCourse={() => onClickCourseList(course)}
                         active={course === selectedCourse}
@@ -222,7 +222,7 @@ function Home() {
       <MainContent>
         <Stack spacing={1} direction="column" marginBottom={10}>
           <h3 style={{ margin: 0 }}>
-            Welcome Back {state.user.firstName} {state.user.lastName}!
+            Welcome Back {state.user.first_name} {state.user.last_name}!
           </h3>
           <Box
             sx={{

@@ -59,7 +59,7 @@ export default function Course() {
       try {
         const result = courses.find(
           (c) =>
-            c.courseCode === id && c.academicYear.toString() === academic_year
+            c.course_code === id && c.academic_year.toString() === academic_year
         );
         setCourse(result);
         setMessages(courseMessages(result));
@@ -172,7 +172,7 @@ export default function Course() {
         }}
       >
         <Collapse in={expandDesc} collapsedSize={40}>
-          {course.desc}
+          {course.description}
         </Collapse>
         <Button
           variant="text"
@@ -204,12 +204,12 @@ export default function Course() {
           <Box sx={{ display: "flex", flexDirection: "column" }}>
             <Box sx={{ mt: 16, mb: 8 }}>
               <p>
-                {course.academicYear % 2 == 0
-                  ? `${course.academicYear}-${course.academicYear + 1}`
-                  : `${course.academicYear - 1}-${course.academicYear}`}
+                {course.academic_year % 2 == 0
+                  ? `${course.academic_year}-${course.academic_year + 1}`
+                  : `${course.academic_year - 1}-${course.academic_year}`}
               </p>
               <h2>
-                {course.courseCode} {course.courseName}
+                {course.course_code} {course.course_name}
               </h2>
             </Box>
 
@@ -313,7 +313,7 @@ export default function Course() {
                   <Grid item xs={2} sm={2} md={1}>
                     <DropdownButton
                       fullWidth={true}
-                      value={courseSortAsc}
+                      value={courseSortAsc.name}
                       label="Sort"
                       items={[
                         { value: -1, text: "Newest" },

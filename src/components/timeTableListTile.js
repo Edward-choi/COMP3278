@@ -72,8 +72,8 @@ const ListTile = styled("div", {
 
 function TimetableListTile({
   course: {
-    courseCode,
-    courseName,
+    course_code,
+    course_name,
     lecturer,
     venue,
     courseNumber,
@@ -106,7 +106,7 @@ function TimetableListTile({
       >
         <div className="header">
           <div className="title">
-            {courseCode} -- {courseName}
+            {course_code} -- {course_name}
           </div>
           <Stack spacing={2} direction="row">
             {materials && materials.length > 0 && <Icons.StickyNoteIcon />}

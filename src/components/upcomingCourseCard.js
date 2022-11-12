@@ -82,13 +82,13 @@ const MaterialCard = styled("div")(({ theme }) => ({
 // message: {subject: string, content:string, from: string(teacher's name), date: dateTime}
 function UpcomingCourseCard({
   course: {
-    courseCode,
-    academicYear, // required for routing to CourseDetailPage
-    courseName, // string
+    course_code,
+    academic_year, // required for routing to CourseDetailPage
+    course_name, // string
     startAt, // time
     endAt, // time
     venue, // string
-    desc, // string
+    description, // string
     zoom,
     materials,
     messages,
@@ -138,7 +138,7 @@ function UpcomingCourseCard({
         }}
       >
         <Collapse in={expandDesc} collapsedSize={40}>
-          {desc}
+          {description}
         </Collapse>
         <Button
           variant="text"
@@ -367,11 +367,11 @@ function UpcomingCourseCard({
           }}
         >
           <Link
-            href={`courses/${courseCode}/${academicYear}`}
+            href={`courses/${course_code}/${academic_year}`}
             sx={{ textDecoration: "none", color: "neutral.darkest" }}
           >
             <h4 style={{ padding: "8px 0px", display: "flex", flexGrow: 1 }}>
-              {courseCode}--{courseName}
+              {course_code}--{course_name}
             </h4>
           </Link>
           <StyledButton
@@ -383,7 +383,7 @@ function UpcomingCourseCard({
             {isSmallOrLess && "Send"}
           </StyledButton>
         </Box>
-        {desc && desc.length > 0 && renderDesc()}
+        {description && description.length > 0 && renderDesc()}
       </Stack>
       <Stack spacing={6} direction="column" sx={{ alignSelf: "stretch" }}>
         {venue && renderAddress()}

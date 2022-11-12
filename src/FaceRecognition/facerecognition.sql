@@ -34,18 +34,18 @@ CREATE TABLE IF NOT EXISTS `Users` (
     UNIQUE(`email`)
 );
 CREATE TABLE IF NOT EXISTS `Students` (
-    `user_id` Int UNSIGNED,
+    `user_id` Int UNSIGNED AUTO_INCREMENT,
     `year` Int UNSIGNED NOT NULL,
     `major` VARCHAR(100),
     PRIMARY KEY (`user_id`),
     FOREIGN KEY (`user_id`) REFERENCES `Users`(`user_id`)
 );
 CREATE TABLE IF NOT EXISTS `Teachers` (
-    `user_id` Int UNSIGNED,
+    `teacher_id` Int UNSIGNED,
     `faculty` VARCHAR(100) NOT NULL,
     `department` VARCHAR(100) NOT NULL,
-    PRIMARY KEY (`user_id`),
-    FOREIGN KEY (`user_id`) REFERENCES `Users`(`user_id`)
+    PRIMARY KEY (`teacher_id`),
+    FOREIGN KEY (`teacher_id`) REFERENCES `Users`(`user_id`)
 );
 CREATE TABLE IF NOT EXISTS `Classes` (
     `class_id` Int UNSIGNED AUTO_INCREMENT,
@@ -55,7 +55,8 @@ CREATE TABLE IF NOT EXISTS `Classes` (
     `academic_year` INT UNSIGNED NOT NULL COMMENT "first semester if academic_year is even;seoncd semester if academic_year is odd;",
     `description` VARCHAR(255),
     PRIMARY KEY (`class_id`),
-    FOREIGN KEY (`teacher_id`) REFERENCES `Teachers`(`user_id`)
+    UNIQUE unique_index (`course_code`, `academic_year`),
+    FOREIGN KEY (`teacher_id`) REFERENCES `Teachers`(`teacher_id`)
 );
 CREATE TABLE IF NOT EXISTS `Login_Hist` (
     `user_id` Int UNSIGNED NOT NULL,
@@ -87,6 +88,7 @@ CREATE TABLE IF NOT EXISTS `Class_Time` (
 );
 CREATE TABLE IF NOT EXISTS `Information` (
     `class_id` Int UNSIGNED,
+    `date` DATE,
     `course_number` Int,
     `classroom_address` VARCHAR(100),
     PRIMARY KEY (`class_id`, `course_number`),
@@ -102,7 +104,7 @@ CREATE TABLE IF NOT EXISTS `TeacherMessage`(
     `from_id` INT UNSIGNED NOT NULL,
     PRIMARY KEY(`class_id`, `course_number`, `message_id`),
     CONSTRAINT teacher_message_fk FOREIGN KEY (`class_id`, `course_number`) REFERENCES Information(`class_id`, `course_number`),
-    FOREIGN KEY(`from_id`) REFERENCES Teachers(`user_id`)
+    FOREIGN KEY(`from_id`) REFERENCES Teachers(`teacher_id`)
 );
 CREATE TABLE IF NOT EXISTS `CourseMaterial`(
     `class_id` INT UNSIGNED NOT NULL,

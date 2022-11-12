@@ -3,8 +3,8 @@ import React, { useEffect } from "react";
 
 const defaultUserState = {
   user_id: "",
-  firstName: "",
-  lastName: "",
+  first_name: "",
+  last_name: "",
   email: "",
   password: "",
 };

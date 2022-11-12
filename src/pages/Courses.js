@@ -1,48 +1,137 @@
 import MainContent from "../shared/MainContent";
 import * as React from "react";
-import { Box, Stack, Divider, Grid, List, TextField } from "@mui/material";
-import { courses } from "../demo-data/courses";
+import axios from "axios";
+import {
+  Box,
+  Stack,
+  Divider,
+  Grid,
+  List,
+  TextField,
+  CircularProgress,
+} from "@mui/material";
 import CourseCard from "../components/courseCard";
-
+import { useGlobalState } from "../demo-data/auth_provider";
 import CourseListTile from "../components/courseListTile";
 import DropdownButton from "../components/dropdownButton";
 
 function Courses() {
-  const [filterState, setFilter] = React.useState({
-    state: "",
-    type: "",
-    sort: "",
-  });
+  const [filterState, setFilter] = React.useState(1);
+  const [sortBy, setSortBy] = React.useState(1);
   const [searchText, setSearchText] = React.useState("");
-  const [filteredCourses, setFilteredCourses] = React.useState(courses);
+  const [currentCourses, setCurrentCourse] = React.useState([]);
+  const [filteredCourses, setFilteredCourses] = React.useState([]);
+  const [state, dispatch] = useGlobalState();
+
+  const filterMenu = [
+    { query: "", text: "All" },
+    {
+      query:
+        state.stars.length > 0
+          ? `Classes.class_id IN (${state.stars.join(",")})`
+          : "",
+      text: "Star",
+    },
+    { query: "academic_year = YEAR(now())", text: "In progress" },
+    { query: "academic_year > YEAR(now())", text: "Future" },
+    { query: "academic_year < YEAR(now())", text: "Past" },
+  ];
+  const sortByMenu = [
+    { query: "academic_year", order: 0, text: "All" },
+    { query: "academic_year", order: -1, text: "Academic year" },
+    { query: "course_code", order: 1, text: "Course code" },
+    { query: "course_name", order: 1, text: "Course name" },
+  ];
 
   React.useEffect(() => {
-    setFilteredCourses((prev) => {
-      const courseCopies = courses;
-      return courseCopies?.filter((course) => {
-        const search = searchText.toLowerCase().replace(/\W/g, "");
-        let result = false;
-        for (const key in course) {
-          const value = course[key].toString().toLowerCase().replace(/\W/g, "");
-          result = result || value.indexOf(search) !== -1;
-        }
-        return result;
-      });
-    });
-  }, [filterState, searchText]);
+    const fetchCourses = async () => {
+      try {
+        const current_courses = (await getCurrentCourses()).data;
+        const courses = (await getCourses()).data;
+        setCurrentCourse(current_courses);
+        setFilteredCourses(courses);
+      } catch (e) {
+        console.log(e);
+      }
+    };
+    fetchCourses();
+  }, []);
 
-  const handleSearch = (event) => {
+  const getCurrentCourses = async () => {
+    const res = await axios.get("http://127.0.0.1:5000/current_courses", {
+      params: { user_id: state.user.user_id },
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+      },
+    });
+    return res;
+  };
+
+  const getCourses = async () => {
+    const res = await axios.get(`http://127.0.0.1:5000/courses`, {
+      params: { user_id: state.user.user_id },
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+      },
+    });
+    return res;
+  };
+
+  const getFilterCourses = async (search, filter, order) => {
+    const res = await axios.get("http://127.0.0.1:5000/filter_courses", {
+      params: {
+        user_id: state.user.user_id,
+        search: search,
+        filter: filter,
+        order: order,
+      },
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+      },
+    });
+    return res;
+  };
+
+  const handleSearch = async (event) => {
     event.preventDefault();
     setSearchText(event.target.value);
+    try {
+      const res = (await getFilterCourses(searchText)).data;
+      setFilteredCourses(res);
+    } catch (error) {}
   };
 
-  const handleFilterChange = (prop) => (event) => {
+  const handleFilterChange = async (event) => {
     event.preventDefault();
-    setFilter({ ...filterState, [prop]: event.target.value });
+    setFilter(event.target.value);
+    let query = filterMenu[event.target.value - 1].query;
+    try {
+      const res = (await getFilterCourses(searchText, query)).data;
+      setFilteredCourses(res);
+    } catch (error) {}
+  };
+  const handleSortChange = async (event) => {
+    let value = event.target.value;
+    // let oldSort = state.sortBy;
+    setSortBy(value);
+    let index = value - 1;
+    // let factor = value == oldSort ? -1 : 1;
+
+    let order = (sortByMenu[index].query +=
+      sortByMenu[index] > 0 ? " ASC" : " DESC");
+    try {
+      const res = (await getFilterCourses(searchText, null, order)).data;
+      setFilteredCourses(res);
+    } catch (error) {}
   };
   const clearFilter = (prop) => {
-    setFilter({ ...filterState, [prop]: "" });
+    if (prop == "state") setFilter(1);
+    else if (prop == "sort") setSortBy(1);
   };
+
   return (
     <div>
       <MainContent>
@@ -54,7 +143,7 @@ function Courses() {
               spacing={{ xs: 3, md: 6 }}
               columns={{ xs: 4, sm: 8, md: 12 }}
             >
-              {courses.map((course, index) => (
+              {currentCourses.map((course, index) => (
                 <Grid item xs={2} sm={4} md={4} key={index}>
                   <CourseCard course={course} />
                 </Grid>
@@ -79,26 +168,32 @@ function Courses() {
                 <Stack spacing={2} direction="row">
                   <DropdownButton
                     fullWidth={true}
-                    value={filterState.state}
+                    value={filterState}
                     label="State"
-                    items={["All", "In progress", "Future", "Past"]}
-                    handleChange={handleFilterChange("state")}
+                    items={filterMenu.map((obj, index) => ({
+                      value: index + 1,
+                      text: obj.text,
+                    }))}
+                    handleChange={handleFilterChange}
                     clearSelect={() => clearFilter("state")}
                   />
-                  <DropdownButton
+                  {/* <DropdownButton
                     fullWidth={true}
                     value={filterState.type}
                     label="Type"
                     items={["All", "Regular", "Common Core"]}
                     handleChange={handleFilterChange("type")}
                     clearSelect={() => clearFilter("type")}
-                  />
+                  /> */}
                   <DropdownButton
                     fullWidth={true}
-                    value={filterState.sort}
+                    value={sortBy}
                     label="Sort"
-                    items={["All", "Star", "Last Accessed", "Name"]}
-                    handleChange={handleFilterChange("sort")}
+                    items={sortByMenu.map((obj, index) => ({
+                      value: index + 1,
+                      text: obj.text,
+                    }))}
+                    handleChange={handleSortChange}
                     clearSelect={() => clearFilter("sort")}
                   />
                 </Stack>

@@ -90,7 +90,12 @@ function Register() {
   };
 
   const checkEmail = async (email) => {
-    const res = await axios.get(`http://127.0.0.1:5000/registration/${email}`);
+    const res = await axios.get(`http://127.0.0.1:5000/registration/${email}`, {
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+      },
+    });
     return await res.data.result;
   };
 
