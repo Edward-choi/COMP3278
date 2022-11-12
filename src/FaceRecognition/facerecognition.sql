@@ -21,10 +21,13 @@ SET time_zone = "+00:00";
 --
 
 -- --------------------------------------------------------
+CREATE DATABASE IF NOT EXISTS `facerecognition`;
+USE `facerecognition`;
 -- Create table structures
 CREATE TABLE IF NOT EXISTS `Users` (
     `user_id` Int UNSIGNED AUTO_INCREMENT,
-    `name` VARCHAR(100) NOT NULL,
+    `first_name` VARCHAR(100) NOT NULL,
+    `last_name` VARCHAR(100),
     `email` VARCHAR(255) NOT NULL,
     `password` VARCHAR(100) NOT NULL,
     PRIMARY KEY (`user_id`),
@@ -84,39 +87,39 @@ CREATE TABLE IF NOT EXISTS `Class_Time` (
 );
 CREATE TABLE IF NOT EXISTS `Information` (
     `class_id` Int UNSIGNED,
-    `week` Int,
+    `course_number` Int,
     `classroom_address` VARCHAR(100),
-    PRIMARY KEY (`class_id`, `week`),
+    PRIMARY KEY (`class_id`, `course_number`),
     FOREIGN KEY (`class_id`) REFERENCES `Classes`(`class_id`)
 );
 CREATE TABLE IF NOT EXISTS `TeacherMessage`(
     `class_id` INT UNSIGNED NOT NULL,
-    `week` INT NOT NULL,
+    `course_number` INT NOT NULL,
     `message_id` INT UNSIGNED NOT NULL,
     `sendAt` DATETIME NOT NULL,
     `subject` VARCHAR(100) NOT NULL,
     `content` VARCHAR(255) NOT NULL,
     `from_id` INT UNSIGNED NOT NULL,
-    PRIMARY KEY(`class_id`, `week`, `message_id`),
-    CONSTRAINT teacher_message_fk FOREIGN KEY (`class_id`, `week`) REFERENCES Information(`class_id`, `week`),
+    PRIMARY KEY(`class_id`, `course_number`, `message_id`),
+    CONSTRAINT teacher_message_fk FOREIGN KEY (`class_id`, `course_number`) REFERENCES Information(`class_id`, `course_number`),
     FOREIGN KEY(`from_id`) REFERENCES Teachers(`user_id`)
 );
 CREATE TABLE IF NOT EXISTS `CourseMaterial`(
     `class_id` INT UNSIGNED NOT NULL,
-    `week` INT NOT NULL,
+    `course_number` INT NOT NULL,
     `file_link` VARCHAR(255) NOT NULL,
     `file_name` VARCHAR(100) NOT NULL,
-    PRIMARY KEY(`class_id`, `week`, `file_link`),
-    CONSTRAINT course_material_fk FOREIGN KEY (`class_id`, `week`) REFERENCES Information(`class_id`, `week`)
+    PRIMARY KEY(`class_id`, `course_number`, `file_link`),
+    CONSTRAINT course_material_fk FOREIGN KEY (`class_id`, `course_number`) REFERENCES Information(`class_id`, `course_number`)
 );
 CREATE TABLE IF NOT EXISTS `ZoomLink`(
     `class_id` INT UNSIGNED NOT NULL,
-    `week` INT NOT NULL,
+    `course_number` INT NOT NULL,
     `link` VARCHAR(255) NOT NULL,
     `meeting_id` VARCHAR(100),
     `passcode` VARCHAR(100),
-    PRIMARY KEY(`class_id`, `week`, `link`),
-    CONSTRAINT zoom_link_fk FOREIGN KEY (`class_id`, `week`) REFERENCES Information(`class_id`, `week`)
+    PRIMARY KEY(`class_id`, `course_number`, `link`),
+    CONSTRAINT zoom_link_fk FOREIGN KEY (`class_id`, `course_number`) REFERENCES Information(`class_id`, `course_number`)
 );
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */
 ;

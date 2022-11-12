@@ -100,6 +100,7 @@ function Login() {
     try {
       let res = await createToken();
       dispatch({ token: res.access_token, user: res.user });
+
       console.log(state.user);
       navigate("/");
     } catch (e) {

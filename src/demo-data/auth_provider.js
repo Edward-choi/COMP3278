@@ -1,18 +1,20 @@
-import React from "react";
+import { duration } from "@mui/material";
+import React, { useEffect } from "react";
 
 const defaultUserState = {
   user_id: "",
-  name: "",
+  firstName: "",
+  lastName: "",
   email: "",
   password: "",
 };
 
 const defaultAuthState = {
-  token: "",
-  user: defaultUserState,
-  loginAt: new Date(),
-  duration: parseInt(localStorage.getItem("duration") ?? "0"),
-  stars: JSON.parse(localStorage.getItem("stars") || "[]"),
+  token: JSON.parse(localStorage.getItem("state"))?.token ?? "",
+  user: JSON.parse(localStorage.getItem("state"))?.user ?? defaultUserState,
+  loginAt: JSON.parse(localStorage.getItem("state"))?.loginAt ?? Date.now(),
+  duration: JSON.parse(localStorage.getItem("state"))?.duration ?? 0,
+  stars: JSON.parse(localStorage.getItem("state"))?.stars ?? [],
 };
 
 const authContext = React.createContext(defaultAuthState);
@@ -23,6 +25,9 @@ export const AuthStateProvider = ({ children }) => {
     (state, newValue) => ({ ...state, ...newValue }),
     defaultAuthState
   );
+  useEffect(() => {
+    localStorage.setItem("state", JSON.stringify(state));
+  }, [state]);
   return (
     <authContext.Provider value={state}>
       <dispatchContext.Provider value={dispatch}>

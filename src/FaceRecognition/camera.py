@@ -125,18 +125,19 @@ def checkEmail(email):
 def registration():
     if request.method == 'POST':
         val = request.get_json()
-        name = val["name"]
+        firstName = val["firstName"]
+        lastName = val["lastName"]
         email = val["email"]
         password = val["password"]
         major = val["major"]
         year = val["year"]
-        createAccount(name, email, password)
+        createAccount(firstName, lastName, email, password)
         createStudent(major, year)
         return jsonify(result=True)
     return jsonify(result=False)
 
-def createAccount(name, email,password):
-    createUser = "INSERT INTO Users(name, email, password) VALUES('%s', '%s', '%s')" % (name, email, password)
+def createAccount(firstName, lastName,email,password):
+    createUser = "INSERT INTO Users(first_name, last_name, email, password) VALUES('%s','%s', '%s', '%s')" % (firstName, lastName,email, password)
     cursor.execute(createUser)
     
 
@@ -350,7 +351,7 @@ def createToken():
         val = request.get_json()
         email = val["email"]
         password = val["password"]
-        searchUser = f"SELECT user_id, name, email, password FROM users WHERE email = '{email}' AND password = '{password}'"
+        searchUser = f"SELECT user_id, first_name, last_name, email, password FROM users WHERE email = '{email}' AND password = '{password}'"
         cursor.execute(searchUser)
         myconn.commit()
         result = cursor.fetchone()
@@ -374,7 +375,7 @@ def logout():
     return response
 
 def getStudentInfo(user_id):
-    select = "SELECT students.user_id, name, year, major, email FROM users JOIN students ON students.user_id = users.user_id WHERE students.user_id='%s'" % (user_id)
+    select = "SELECT students.user_id, first_name, last_name, year, major, email FROM users JOIN students ON students.user_id = users.user_id WHERE students.user_id='%s'" % (user_id)
     cursor.execute(select)
     result = cursor.fetchone()
     return result

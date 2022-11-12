@@ -96,9 +96,8 @@ function Register() {
 
   const register = async () => {
     let body = {
-      name: `${values.firstName}${
-        values.lastName.length > 0 ? ` ${values.lastName}` : ""
-      }`,
+      firstName: values.firstName,
+      lastName: values.lastName,
       email: values.email,
       password: values.password,
       year: values.year,

@@ -155,16 +155,13 @@ const MainContent = ({ children }) => {
   const [open, setOpen] = React.useState(drawerOpen);
   const [state, dispatch] = useGlobalState();
 
-  const hasJWT = () => {
-    return state.token && state.token.length > 0;
-  };
+  const hasJWT = state.token && state.token.length > 0;
 
   const logout = (event) => {
     axios
       .post("http://127.0.0.1:5000/logout", { user_id: state.user.user_id })
       .then((res) => {
         dispatch({ duration: 0, user: null, token: "" });
-        localStorage.setItem("duration", state.duration);
       })
       .catch((e) => {});
   };
@@ -172,13 +169,12 @@ const MainContent = ({ children }) => {
   React.useEffect(() => {
     const timer = () => {
       dispatch({ duration: state.duration + 1 });
-      localStorage.setItem("duration", state.duration);
     };
     const id = setInterval(timer, 1000);
     return () => clearInterval(id);
   }, [state.duration]);
 
-  return hasJWT() ? (
+  return hasJWT ? (
     <Box sx={{ display: "flex" }}>
       <Drawer variant="permanent" open={open}>
         <DrawerHeader>
