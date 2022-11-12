@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "../style.css";
 
 import {
@@ -17,8 +17,10 @@ import {
   Checkbox,
 } from "@mui/material";
 import BannerImg from "../assets/images/login.png";
-import { Visibility, VisibilityOff } from "@mui/icons-material";
+import { MoodBadSharp, Visibility, VisibilityOff } from "@mui/icons-material";
 import StyledButton from "../components/button";
+import axios from "axios";
+import { useGlobalState } from "../demo-data/auth_provider";
 
 function Login() {
   const [values, setValues] = React.useState({
@@ -31,7 +33,9 @@ function Login() {
   });
 
   const [rememberPassword, setRemember] = React.useState(true);
+  const [state, dispatch] = useGlobalState();
 
+  let navigate = useNavigate();
   const handleChange = (prop) => (event) => {
     let fieldValidationErrors = values.formErrors;
     let emailValid = values.emailValid;
@@ -72,6 +76,66 @@ function Login() {
 
   const handleRemember = (event) => {
     setRemember(event.target.checked);
+  };
+
+  const login = async (event) => {
+    let formValidationErrors = values.formErrors;
+    if (values.email.length <= 0) {
+      formValidationErrors.email = "email cannot be empty";
+      setValues({
+        ...values,
+        emailValid: false,
+        formErrors: formValidationErrors,
+      });
+    }
+    if (values.password.length <= 0) {
+      formValidationErrors.password = "password cannot be empty";
+      setValues({
+        ...values,
+        passwordValid: false,
+        formErrors: formValidationErrors,
+      });
+    }
+    if (!values.passwordValid && !values.emailValid) return;
+    try {
+      let res = await createToken();
+      dispatch({ token: res.access_token, user: res.user });
+      console.log(state.user);
+      navigate("/");
+    } catch (e) {
+      handleAPIError(e);
+      formValidationErrors.email = e.response?.data?.msg ?? "wrong email";
+      formValidationErrors.password = e.response?.data?.msg ?? "wrong password";
+      setValues({
+        ...values,
+        emailValid: false,
+        passwordValid: false,
+        formErrors: formValidationErrors,
+      });
+    }
+  };
+
+  const createToken = async () => {
+    let data = {
+      email: values.email,
+      password: values.password,
+    };
+    const res = await axios.post("http://127.0.0.1:5000/login", data, {
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+      },
+    });
+    return await res.data;
+  };
+
+  const handleAPIError = (error) => {
+    if (error.response) {
+      console.log("error");
+      console.log(error.response);
+      console.log(error.response.status);
+      console.log(error.response.headers);
+    }
   };
 
   return (
@@ -180,7 +244,12 @@ function Login() {
           </div>
 
           <Stack direction="column" spacing={3} mt={12}>
-            <StyledButton color="primary" variant="outlined" fullWidth>
+            <StyledButton
+              color="primary"
+              variant="outlined"
+              fullWidth
+              onClick={login}
+            >
               Login
             </StyledButton>
             <Stack spacing={2} direction="row">

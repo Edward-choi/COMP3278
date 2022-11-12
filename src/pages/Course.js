@@ -59,7 +59,7 @@ export default function Course() {
       try {
         const result = courses.find(
           (c) =>
-            c.courseId === id && c.academicYear.toString() === academic_year
+            c.courseCode === id && c.academicYear.toString() === academic_year
         );
         setCourse(result);
         setMessages(courseMessages(result));
@@ -209,7 +209,7 @@ export default function Course() {
                   : `${course.academicYear - 1}-${course.academicYear}`}
               </p>
               <h2>
-                {course.courseId} {course.courseName}
+                {course.courseCode} {course.courseName}
               </h2>
             </Box>
 

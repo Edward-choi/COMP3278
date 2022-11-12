@@ -1,7 +1,7 @@
 import * as React from "react";
 import { styled } from "@mui/material/styles";
 import { useGlobalState } from "../demo-data/auth_provider";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, Navigate } from "react-router-dom";
 
 import {
   Box,
@@ -19,6 +19,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 
 import NavIcons from "../components/icons";
+import axios from "axios";
 
 const drawerWidth = 260;
 
@@ -154,6 +155,20 @@ const MainContent = ({ children }) => {
   const [open, setOpen] = React.useState(drawerOpen);
   const [state, dispatch] = useGlobalState();
 
+  const hasJWT = () => {
+    return state.token && state.token.length > 0;
+  };
+
+  const logout = (event) => {
+    axios
+      .post("http://127.0.0.1:5000/logout", { user_id: state.user.user_id })
+      .then((res) => {
+        dispatch({ duration: 0, user: null, token: "" });
+        localStorage.setItem("duration", state.duration);
+      })
+      .catch((e) => {});
+  };
+
   React.useEffect(() => {
     const timer = () => {
       dispatch({ duration: state.duration + 1 });
@@ -163,7 +178,7 @@ const MainContent = ({ children }) => {
     return () => clearInterval(id);
   }, [state.duration]);
 
-  return (
+  return hasJWT() ? (
     <Box sx={{ display: "flex" }}>
       <Drawer variant="permanent" open={open}>
         <DrawerHeader>
@@ -239,6 +254,7 @@ const MainContent = ({ children }) => {
               }}
               component={Link}
               to="/login"
+              onClick={logout}
             >
               <ListItemIcon
                 sx={{
@@ -256,6 +272,8 @@ const MainContent = ({ children }) => {
       </Drawer>
       <Main open={open}>{children}</Main>
     </Box>
+  ) : (
+    <Navigate to="/login" />
   );
 };
 

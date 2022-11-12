@@ -2,8 +2,7 @@ import React from "react";
 
 const defaultUserState = {
   user_id: "",
-  firstName: "",
-  lastName: "",
+  name: "",
   email: "",
   password: "",
 };

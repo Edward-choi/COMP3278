@@ -1,17 +1,22 @@
-from flask import Flask, render_template, Response, jsonify
+from flask import Flask, render_template, Response, request, jsonify, make_response
 import cv2
 import os
 import numpy as np
 from PIL import Image
 import pickle
-from flask_cors import CORS
+from flask_cors import CORS, cross_origin
 import mysql.connector
 import pyttsx3
-from datetime import datetime
+from datetime import datetime, timedelta
+from flask_jwt_extended import create_access_token,get_jwt,get_jwt_identity, \
+                               unset_jwt_cookies, jwt_required, JWTManager
 
 dir = 'src/FaceRecognition'
 app = Flask(__name__, template_folder=dir)
-CORS(app)
+app.config['CORS_HEADERS'] = 'Content-Type'
+cors = CORS(app, supports_credentials=True)
+app.config["JWT_SECRET_KEY"] = "super-secret"
+jwt = JWTManager(app)
 faceCascade = cv2.CascadeClassifier(dir + '/haarcascade/haarcascade_frontalface_default.xml')
 
 local_path = os.path.expanduser('~')
@@ -28,8 +33,18 @@ weekday = datetime.today().weekday() #used in class_time
 weekOfTheYear = datetime.today().isocalendar().week #used in information
 current_time = now.strftime("%H:%M:%S")
 currentTimeDelta = datetime.now().hour*3600 + datetime.now().minute*60 + datetime.now().second
-cursor = myconn.cursor(buffered = True)
+cursor = myconn.cursor(buffered = True , dictionary=True)
 
+class JSONResponse(Response):
+     default_mimetype = 'application/json'
+
+     @classmethod
+     def force_type(cls,response,environ=None):
+         if isinstance(response,dict):
+             response = jsonify(response)
+         return super(JSONResponse,cls).force_type(response,environ)
+
+app.response_class = JSONResponse
 
 def capture_by_frames(user_name):
     global video_capture
@@ -96,22 +111,45 @@ def capture_by_frames(user_name):
     registration = True
 
     train()
-#    while True:
-#        success, frame = camera.read()  # read the camera frame
-#        detector = cv2.CascadeClassifier(
-#            dir + '/haarcascade/haarcascade_frontalface_default.xml')
-#        faces = detector.detectMultiScale(frame, 1.5, 3)
-#        # Draw the rectangle around each face
-#        for (x, y, w, h) in faces:
-#            cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 3)
-#
-#
-#        ret, buffer = cv2.imencode('.jpg', frame)
-#        frame = buffer.tobytes()
-#        yield (b'--frame\r\n'
-#            b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
-@app.route('/registered')
+
+@app.route('/registration/<email>')
+def checkEmail(email):
+    cursor.execute(f"SELECT email FROM Users WHERE email = '{email}'")
+    myconn.commit()
+    result = cursor.fetchone()
+    return jsonify(result = result != None)
+    
+
+@app.route('/registration', methods = ["POST", "GET"], strict_slashes=False)
+def registration():
+    if request.method == 'POST':
+        val = request.get_json()
+        name = val["name"]
+        email = val["email"]
+        password = val["password"]
+        major = val["major"]
+        year = val["year"]
+        createAccount(name, email, password)
+        createStudent(major, year)
+        return jsonify(result=True)
+    return jsonify(result=False)
+
+def createAccount(name, email,password):
+    createUser = "INSERT INTO Users(name, email, password) VALUES('%s', '%s', '%s')" % (name, email, password)
+    cursor.execute(createUser)
+    
+
+def createStudent(major, year):
+    cursor.execute("SELECT max(user_id) as user_id FROM Users")
+    myconn.commit()
+    result = cursor.fetchone()
+    student_id = result.get('user_id')
+    createStudent = "INSERT INTO STUDENTS(user_id, year, major) VALUES(%d, %d, '%s')" % (student_id, year, major)
+    cursor.execute(createStudent)
+    myconn.commit()
+
+@app.route('/facial_registered')
 def registered():
     try:
         response = jsonify({
@@ -152,7 +190,7 @@ def video_capture(name):
 
 @app.route('/login_verification')
 def login_verification():
-    return Response(login(), mimetype='multipart/x-mixed-replace; boundary=frame')
+    return Response(facialLogin(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 def train():
 
@@ -204,9 +242,8 @@ def train():
     recognizer.train(x_train, np.array(y_label))
     recognizer.save(dir + '/train.yml')
 
-def login():
+def facialLogin():
     
-
     global verified
     verified = False
     global current_name
@@ -304,22 +341,55 @@ def login():
         yield (b'--frame\r\n'
             b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
-def getStudentInfo():
-    select = "SELECT users.user_id, users.name, year, major, email FROM users JOIN students ON students.user_id = users.user_id WHERE name='%s'" % (name)
-    name = cursor.execute(select)
-    result = cursor.fetchall()
-    return result
-    #output array format: [{user_id, null}, {name, null}, {year, null}, ...] studentInfo[n][0] to get value of nth column 
+# Login route with email - this will create JWT token,
+# send user's detail to front-end storage, and update loginHist
+@app.route('/login', methods = ["POST", "GET"], strict_slashes=False)
+@cross_origin(methods=['POST'], supports_credentials=True, headers=['Content-Type', 'Authorization'], origin='http://127.0.0.1:5000')
+def createToken():
+    if request.method == "POST":
+        val = request.get_json()
+        email = val["email"]
+        password = val["password"]
+        searchUser = f"SELECT user_id, name, email, password FROM users WHERE email = '{email}' AND password = '{password}'"
+        cursor.execute(searchUser)
+        myconn.commit()
+        result = cursor.fetchone()
+        if(result == None):
+            return {"msg":"Wrong email or password"}, 401
+        else:
+            access_token = create_access_token(identity=email, expires_delta=timedelta(days=1))
+            resp = make_response( {"access_token":access_token, "user":result})
+            user_id = result.get('user_id')
+            loginHistUpdate(user_id)
+            return resp
 
-def loginHistUpdate():
-    studentInfo = getStudentInfo()
-    loginHistUpdate =  "INSERT INTO login_hist(user_id, login_time) VALUES(%s, now())" % (studentInfo[0][0])
+# Logout route with user_id - this should 
+# 1. unset the JWT token; 2. update loginHist
+@app.route("/logout", methods=["POST"])
+def logout():
+    response = make_response({"msg": "logout successful"})
+    unset_jwt_cookies(response)
+    user_id = request.get_json()["user_id"]
+    logoutHistUpdate(user_id)
+    return response
+
+def getStudentInfo(user_id):
+    select = "SELECT students.user_id, name, year, major, email FROM users JOIN students ON students.user_id = users.user_id WHERE students.user_id='%s'" % (user_id)
+    cursor.execute(select)
+    result = cursor.fetchone()
+    return result
+    #output JSON object format: {user_id:<INT> , name: <String>, ...}
+
+# Given that our SQL only stores one login history per user (user_id as PK)
+# This insert the login_time to login_hist if user hasn't logged before;
+# otherwise update the history
+def loginHistUpdate(user_id):
+    loginHistUpdate =  f"INSERT INTO login_hist(user_id, login_time) VALUES('{user_id}', now()) ON DUPLICATE KEY UPDATE login_time=now()"
     cursor.execute(loginHistUpdate)
     myconn.commit()
 
-def logoutHistUpdate():
-    studentInfo = getStudentInfo()
-    logoutHistUpdate =  "UPDATE login_hist SET logout_time = now() WHERE user_id = %s" % (studentInfo[0][0])
+def logoutHistUpdate(user_id):
+    logoutHistUpdate = "UPDATE login_hist SET logout_time = now() WHERE user_id = '%s'" % (user_id)
     cursor.execute(logoutHistUpdate)
     myconn.commit()
 

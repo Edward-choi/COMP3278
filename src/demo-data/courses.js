@@ -5,7 +5,7 @@ let year = today.getFullYear();
 
 export const courses = [
   {
-    courseId: "COMP3278",
+    courseCode: "COMP3278",
     courseName: "Introduction to Database Management System",
     academicYear: year,
     lecturer: "Dr. Ping Luo",
@@ -27,7 +27,7 @@ export const courses = [
     ],
   },
   {
-    courseId: "COMP3330",
+    courseCode: "COMP3330",
     courseName: "Interactive Mobile Application Design and Programming",
     academicYear: year,
     lecturer: "Chim T W",
@@ -49,7 +49,7 @@ export const courses = [
     ],
   },
   {
-    courseId: "COMP3297",
+    courseCode: "COMP3297",
     courseName: "Software Development",
     academicYear: year,
     lecturer: "Chim T W",

@@ -171,7 +171,7 @@ function Home() {
                     .get(date)
                     ?.map((course) => (
                       <TimetableListTile
-                        key={`${index} ${course.courseId}`}
+                        key={`${index} ${course.courseCode}`}
                         course={course}
                         selectCourse={() => onClickCourseList(course)}
                         active={course === selectedCourse}

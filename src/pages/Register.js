@@ -1,5 +1,6 @@
 import * as React from "react";
 import { Link } from "react-router-dom";
+import axios from "axios";
 
 import {
   Stack,
@@ -31,7 +32,8 @@ function Register() {
     password: "",
     confirmPassword: "",
     showPassword: false,
-    formErrors: { email: "", password: "", confirmPassword: "" },
+    formErrors: { name: "", email: "", password: "", confirmPassword: "" },
+    nameValid: false,
     emailValid: false,
     passwordValid: false,
     confirmPasswordValid: false,
@@ -43,13 +45,91 @@ function Register() {
     setStep(step - 1);
   };
 
-  const nextStep = () => {
-    setStep(step + 1);
+  const nextStep = async (event) => {
+    let formValidationErrors = values.formErrors;
+    if (!values.nameValid) formValidationErrors.name = "name is invalid";
+
+    if (!values.emailValid) formValidationErrors.email = "email is invalid";
+
+    if (!values.passwordValid)
+      formValidationErrors.password = "password is invalid";
+    if (!values.confirmPasswordValid)
+      formValidationErrors.confirmPassword = "confirm password is invalid";
+    setValues({ ...values, formErrors: formValidationErrors });
+    if (
+      !values.nameValid ||
+      !values.emailValid ||
+      !values.passwordValid ||
+      !values.confirmPassword
+    )
+      return;
+
+    let emailRegistered;
+    try {
+      emailRegistered = await checkEmail(values.email);
+    } catch (e) {
+      console.log("error in checking registered email");
+      handleAPIError(e);
+    }
+    if (emailRegistered) {
+      formValidationErrors.email = "email is registered";
+      setValues({
+        ...values,
+        emailValid: false,
+        formErrors: formValidationErrors,
+      });
+      return;
+    } else {
+      try {
+        await register();
+        setStep(step + 1);
+      } catch (e) {
+        handleAPIError(e);
+      }
+    }
+  };
+
+  const checkEmail = async (email) => {
+    const res = await axios.get(`http://127.0.0.1:5000/registration/${email}`);
+    return await res.data.result;
+  };
+
+  const register = async () => {
+    let body = {
+      name: `${values.firstName}${
+        values.lastName.length > 0 ? ` ${values.lastName}` : ""
+      }`,
+      email: values.email,
+      password: values.password,
+      year: values.year,
+      major: values.major,
+    };
+    const result = await axios.post(
+      "http://127.0.0.1:5000/registration",
+      body,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*",
+        },
+      }
+    );
+    return await result.data;
+  };
+
+  const handleAPIError = (error) => {
+    if (error.response) {
+      console.log("error");
+      console.log(error.response);
+      console.log(error.response.status);
+      console.log(error.response.headers);
+    }
   };
 
   const handleChange = (prop) => (event) => {
     event.preventDefault();
     let fieldValidationErrors = values.formErrors;
+    let nameValid = values.name;
     let emailValid = values.emailValid;
     let passwordValid = values.passwordValid;
     let confirmPasswordValid = values.confirmPasswordValid;
@@ -71,13 +151,16 @@ function Register() {
         fieldValidationErrors.confirmPassword = confirmPasswordValid
           ? ""
           : "confirm passwords does not match";
-
+      case "firstName":
+        nameValid = value.length > 0;
+        fieldValidationErrors.name = nameValid ? "" : `${prop} cannot be empty`;
       default:
         break;
     }
     setValues({
       ...values,
       formErrors: fieldValidationErrors,
+      nameValid: nameValid,
       emailValid: emailValid,
       passwordValid: passwordValid,
       confirmPasswordValid: confirmPasswordValid,
@@ -115,6 +198,7 @@ function Register() {
                   onChange={handleChange("firstName")}
                   label="First Name"
                   placeholder="e.g. Alex"
+                  error={!values.nameValid && values.formErrors.name.length > 0}
                 />
                 <TextField
                   fullWidth
@@ -127,7 +211,6 @@ function Register() {
               </Stack>
               <Stack spacing={3} direction={{ xs: "column", sm: "row" }}>
                 <TextField
-                  required
                   fullWidth
                   id="major"
                   value={values.major}
@@ -136,7 +219,6 @@ function Register() {
                   placeholder="Enter your major"
                 />
                 <TextField
-                  required
                   id="year"
                   type="number"
                   value={values.year}
@@ -194,7 +276,8 @@ function Register() {
               <FormControl
                 required
                 error={
-                  !values.passwordValid && values.formErrors.password.length > 0
+                  !values.confirmPasswordValid &&
+                  values.formErrors.confirmPassword.length > 0
                 }
               >
                 <InputLabel htmlFor="confirm-password">
@@ -259,7 +342,7 @@ function Register() {
                 fullWidth={true}
                 color="primary"
                 variant="contained"
-                onClick={() => nextStep()}
+                onClick={nextStep}
               >
                 Continue
               </StyledButton>
@@ -325,7 +408,12 @@ function Register() {
                 direction="column"
                 sx={{ mt: 24, display: "inline-flex" }}
               >
-                <StyledButton variant="contained" size="large" component={Link} to={"/faceRecognitionRegister/" + values.firstName}>
+                <StyledButton
+                  variant="contained"
+                  size="large"
+                  component={Link}
+                  to={"/faceRecognitionRegister/" + values.firstName}
+                >
                   I'm Ready To Smile
                 </StyledButton>
                 <StyledButton

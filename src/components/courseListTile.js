@@ -45,7 +45,7 @@ const LabelItem = styled("div")(({ theme }) => ({
 }));
 
 export default function CourseListTile({
-  course: { courseId, courseName, academicYear, lecturer },
+  course: { courseCode, courseName, academicYear, lecturer },
 }) {
   const [state, dispatch] = useGlobalState();
   const [star, setStar] = React.useState(false);
@@ -55,7 +55,7 @@ export default function CourseListTile({
   React.useEffect(() => {
     setStar(
       state.stars.indexOf({
-        courseId: courseId,
+        courseCode: courseCode,
         academicYear: academicYear,
       }) !== -1
     );
@@ -67,14 +67,14 @@ export default function CourseListTile({
       dispatch({
         stars: [
           ...state.stars,
-          { courseId: courseId, academicYear: academicYear },
+          { courseCode: courseCode, academicYear: academicYear },
         ],
       });
     else
       dispatch({
         stars: state.stars.filter(
           (obj) =>
-            obj.courseId === courseId && obj.academicYear === academicYear
+            obj.courseCode === courseCode && obj.academicYear === academicYear
         ),
       });
   };
@@ -83,12 +83,12 @@ export default function CourseListTile({
       <ListItemButton
         sx={{ borderRadius: 2, py: { xs: 3, sm: 4, md: 6 } }}
         component={Link}
-        to={`/courses/${courseId}/${academicYear}`}
+        to={`/courses/${courseCode}/${academicYear}`}
       >
         <Stack spacing={3} direction="column" width="100%">
           <div className="courseListTileHeader">
             <h4 style={{ fontWeight: 600 }}>
-              {courseId} {courseName}
+              {courseCode} {courseName}
             </h4>
           </div>
           <Stack

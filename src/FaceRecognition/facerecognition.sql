@@ -22,61 +22,56 @@ SET time_zone = "+00:00";
 
 -- --------------------------------------------------------
 -- Create table structures
-CREATE TABLE `Users` (
-    `user_id` Int,
+CREATE TABLE IF NOT EXISTS `Users` (
+    `user_id` Int UNSIGNED AUTO_INCREMENT,
     `name` VARCHAR(100) NOT NULL,
     `email` VARCHAR(255) NOT NULL,
+    `password` VARCHAR(100) NOT NULL,
     PRIMARY KEY (`user_id`),
     UNIQUE(`email`)
 );
-CREATE TABLE `Students` (
-    `user_id` Int,
-    `year` Int NOT NULL,
+CREATE TABLE IF NOT EXISTS `Students` (
+    `user_id` Int UNSIGNED,
+    `year` Int UNSIGNED NOT NULL,
     `major` VARCHAR(100),
     PRIMARY KEY (`user_id`),
     FOREIGN KEY (`user_id`) REFERENCES `Users`(`user_id`)
 );
-CREATE TABLE `Teachers` (
-    `user_id` Int,
+CREATE TABLE IF NOT EXISTS `Teachers` (
+    `user_id` Int UNSIGNED,
     `faculty` VARCHAR(100) NOT NULL,
     `department` VARCHAR(100) NOT NULL,
     PRIMARY KEY (`user_id`),
     FOREIGN KEY (`user_id`) REFERENCES `Users`(`user_id`)
 );
-CREATE TABLE `Classes` (
-    `class_id` Int,
-    `teacher_id` Int NOT NULL,
+CREATE TABLE IF NOT EXISTS `Classes` (
+    `class_id` Int UNSIGNED AUTO_INCREMENT,
+    `teacher_id` Int UNSIGNED NOT NULL,
+    `course_code` VARCHAR(100) NOT NULL,
     `course_name` VARCHAR(100) NOT NULL,
-    `semester` Int NOT NULL,
-    `academic_year` INT NOT NULL,
+    `academic_year` INT UNSIGNED NOT NULL COMMENT "first semester if academic_year is even;seoncd semester if academic_year is odd;",
     `description` VARCHAR(255),
-    PRIMARY KEY (`class_id`, `academic_year`),
-    FOREIGN KEY (`teacher_id`) REFERENCES `Teachers`(`user_id`),
-    CONSTRAINT chk_semester CHECK(
-        semester = 1
-        OR semester = 2
-    )
+    PRIMARY KEY (`class_id`),
+    FOREIGN KEY (`teacher_id`) REFERENCES `Teachers`(`user_id`)
 );
-CREATE TABLE `Login_Hist` (
-    `login_id` Int NOT NULL auto_increment,
-    `user_id` Int NOT NULL,
+CREATE TABLE IF NOT EXISTS `Login_Hist` (
+    `user_id` Int UNSIGNED NOT NULL,
     `login_time` DATETIME NOT NULL,
-    `logout_time` DATETIME NOT NULL,
-    PRIMARY KEY (`user_id`, `login_id`),
+    `logout_time` DATETIME,
+    PRIMARY KEY (`user_id`),
     FOREIGN KEY (`user_id`) REFERENCES Users(`user_id`)
-);
-CREATE TABLE `Students_Take_Classes` (
-    `user_id` Int,
-    `class_id` Int,
-    `year` Int,
-    PRIMARY KEY (`user_id`, `class_id`, `year`),
+) ENGINE = MyISAM;
+CREATE TABLE IF NOT EXISTS `Students_Take_Classes` (
+    `user_id` Int UNSIGNED,
+    `class_id` Int UNSIGNED,
+    `year` Int UNSIGNED,
+    PRIMARY KEY (`user_id`, `class_id`),
     FOREIGN KEY (`user_id`) REFERENCES `Students`(`user_id`),
-    FOREIGN KEY (`class_id`, `year`) REFERENCES `Classes`(`class_id`, `academic_year`)
+    FOREIGN KEY (`class_id`) REFERENCES `Classes`(`class_id`)
 );
-CREATE TABLE `Class_Time` (
-    `class_id` Int,
-    `year` INT,
-    `day_of_week` Int,
+CREATE TABLE IF NOT EXISTS `Class_Time` (
+    `class_id` Int UNSIGNED,
+    `day_of_week` Int UNSIGNED,
     `start_time` TIME,
     `end_time` TIME,
     PRIMARY KEY (
@@ -85,46 +80,43 @@ CREATE TABLE `Class_Time` (
         `start_time`,
         `end_time`
     ),
-    FOREIGN KEY (`class_id`, `year`) REFERENCES `Classes`(`class_id`, `academic_year`)
+    FOREIGN KEY (`class_id`) REFERENCES `Classes`(`class_id`)
 );
-CREATE TABLE `Information` (
-    `class_id` Int,
-    `year` Int,
-    `Week` Int,
+CREATE TABLE IF NOT EXISTS `Information` (
+    `class_id` Int UNSIGNED,
+    `week` Int,
     `classroom_address` VARCHAR(100),
-    PRIMARY KEY (`class_id`, `year`, `Week`),
-    FOREIGN KEY (`class_id`, `year`) REFERENCES `Classes`(`class_id`, `academic_year`)
+    PRIMARY KEY (`class_id`, `week`),
+    FOREIGN KEY (`class_id`) REFERENCES `Classes`(`class_id`)
 );
 CREATE TABLE IF NOT EXISTS `TeacherMessage`(
-    `class_id` INT NOT NULL,
-    `year` INT NOT NULL,
+    `class_id` INT UNSIGNED NOT NULL,
     `week` INT NOT NULL,
-    `message_id` INT NOT NULL,
+    `message_id` INT UNSIGNED NOT NULL,
     `sendAt` DATETIME NOT NULL,
     `subject` VARCHAR(100) NOT NULL,
     `content` VARCHAR(255) NOT NULL,
-    `from_id` INT NOT NULL,
-    PRIMARY KEY(`class_id`, `year`, `week`, `message_id`),
-    CONSTRAINT teacher_message_fk FOREIGN KEY (`class_id`, `year`, `week`) REFERENCES Information(`class_id`, `year`, `Week`)
+    `from_id` INT UNSIGNED NOT NULL,
+    PRIMARY KEY(`class_id`, `week`, `message_id`),
+    CONSTRAINT teacher_message_fk FOREIGN KEY (`class_id`, `week`) REFERENCES Information(`class_id`, `week`),
+    FOREIGN KEY(`from_id`) REFERENCES Teachers(`user_id`)
 );
 CREATE TABLE IF NOT EXISTS `CourseMaterial`(
-    `class_id` INT NOT NULL,
-    `year` INT NOT NULL,
+    `class_id` INT UNSIGNED NOT NULL,
     `week` INT NOT NULL,
     `file_link` VARCHAR(255) NOT NULL,
     `file_name` VARCHAR(100) NOT NULL,
-    PRIMARY KEY(`class_id`, `year`, `week`, `file_link`),
-    CONSTRAINT course_material_fk FOREIGN KEY (`class_id`, `year`, `week`) REFERENCES Information(`class_id`, `year`, `Week`)
+    PRIMARY KEY(`class_id`, `week`, `file_link`),
+    CONSTRAINT course_material_fk FOREIGN KEY (`class_id`, `week`) REFERENCES Information(`class_id`, `week`)
 );
 CREATE TABLE IF NOT EXISTS `ZoomLink`(
-    `class_id` INT NOT NULL,
-    `year` INT NOT NULL,
+    `class_id` INT UNSIGNED NOT NULL,
     `week` INT NOT NULL,
     `link` VARCHAR(255) NOT NULL,
     `meeting_id` VARCHAR(100),
     `passcode` VARCHAR(100),
-    PRIMARY KEY(`class_id`, `year`, `week`, `link`),
-    CONSTRAINT zoom_link_fk FOREIGN KEY (`class_id`, `year`, `week`) REFERENCES Information(`class_id`, `year`, `Week`)
+    PRIMARY KEY(`class_id`, `week`, `link`),
+    CONSTRAINT zoom_link_fk FOREIGN KEY (`class_id`, `week`) REFERENCES Information(`class_id`, `week`)
 );
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */
 ;

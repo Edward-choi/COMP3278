@@ -55,8 +55,14 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/courses/:id/:academic_year" element={<Course />} />
-          <Route path="/faceRecognitionRegister/:name" element={<FaceRecognitionRegister />} />
-          <Route path="/faceRecognitionLogin" element={<FaceRecognitionLogin />} />
+          <Route
+            path="/faceRecognitionRegister/:name"
+            element={<FaceRecognitionRegister />}
+          />
+          <Route
+            path="/faceRecognitionLogin"
+            element={<FaceRecognitionLogin />}
+          />
         </Routes>
       </ThemeProvider>
     </AuthStateProvider>

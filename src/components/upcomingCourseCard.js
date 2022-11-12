@@ -82,7 +82,7 @@ const MaterialCard = styled("div")(({ theme }) => ({
 // message: {subject: string, content:string, from: string(teacher's name), date: dateTime}
 function UpcomingCourseCard({
   course: {
-    courseId,
+    courseCode,
     academicYear, // required for routing to CourseDetailPage
     courseName, // string
     startAt, // time
@@ -367,11 +367,11 @@ function UpcomingCourseCard({
           }}
         >
           <Link
-            href={`courses/${courseId}/${academicYear}`}
+            href={`courses/${courseCode}/${academicYear}`}
             sx={{ textDecoration: "none", color: "neutral.darkest" }}
           >
             <h4 style={{ padding: "8px 0px", display: "flex", flexGrow: 1 }}>
-              {courseId}--{courseName}
+              {courseCode}--{courseName}
             </h4>
           </Link>
           <StyledButton
