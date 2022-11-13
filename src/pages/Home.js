@@ -82,8 +82,10 @@ function Home() {
   const renderUpcomingCourse = async () => {
     try {
       const res = (await fetchUpcomingCourse()).data;
-      console.log(data);
-    } catch (error) {}
+      console.log(res);
+    } catch (error) {
+      console.warn(error);
+    }
     return (
       <Stack spacing={1} direction="column" sx={{ mb: 12 }}>
         <h2 style={{ fontWeight: 600 }}>Upcoming Course</h2>
