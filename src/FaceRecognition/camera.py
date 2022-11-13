@@ -19,9 +19,6 @@ app = Flask(__name__)
 cors = CORS(app, supports_credentials=True)
 app.config['CORS_HEADERS'] = 'Content-Type'
 
-os.environ['EMAIL_USER'] = 'edward68710166@gmail.com'
-os.environ['EMAIL_PASSWORD'] = 'xmqsfgtbfxhgnkmc'
-
 app.config["JWT_SECRET_KEY"] = "super-secret"
 mail_settings = {
     "MAIL_SERVER": 'smtp.gmail.com',
