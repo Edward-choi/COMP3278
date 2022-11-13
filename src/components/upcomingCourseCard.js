@@ -78,13 +78,13 @@ const MaterialCard = styled("div")(({ theme }) => ({
 }));
 
 // zoom :{ link:string , meeting_id:sting, passCode:string },
-// material: {link:string, name:string}
+// material: {file_link:string, file_name:string}
 // message: {subject: string, content:string, from: string(teacher's name), date: dateTime}
 function UpcomingCourseCard({
   course: {
     class_id,
     course_code,
-    academic_year, // required for routing to CourseDetailPage
+    academic_year,
     course_name, // string
     startAt, // time
     endAt, // time
@@ -106,8 +106,12 @@ function UpcomingCourseCard({
     setWidth(ref?.current?.offsetWidth ?? 0);
   }, [ref.current]);
 
-  const sendCopyToEmail = () => {};
-  const downloadAll = () => {};
+  const sendCopyToEmail = (event) => {};
+  const downloadAll = (event) => {
+    materials.forEach((material) =>
+      window.open(material?.file_link || material.link)
+    );
+  };
 
   const renderTimeRangeString = () => {
     if (
@@ -179,17 +183,22 @@ function UpcomingCourseCard({
     let link = zoom.link;
     let meeting_id = zoom.meeting_id;
     let passCode = zoom.passCode;
-    let renderLink, rendermeeting_id, renderPassCode;
+    let renderLink, renderMeetingId, renderPassCode;
 
     if (link !== undefined && link !== null) {
       renderLink = (
-        <a href={link} className="link">
+        <a
+          href={link}
+          className="link"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
           {link}
         </a>
       );
     }
     if (meeting_id !== undefined && meeting_id !== null) {
-      rendermeeting_id = (
+      renderMeetingId = (
         <Box sx={{ fontSize: 12, color: "neutral.medium", lineHeight: 1.8 }}>
           Meeting ID: {meeting_id}
         </Box>
@@ -230,7 +239,7 @@ function UpcomingCourseCard({
           </CourseDetailHeader>
           <CourseContainer>
             {renderLink}
-            {rendermeeting_id}
+            {renderMeetingId}
             {renderPassCode}
           </CourseContainer>
         </Stack>
@@ -264,7 +273,7 @@ function UpcomingCourseCard({
             size="small"
             variant="outlined"
             startIcon={<Icons.DownloadIcon />}
-            onClick={() => downloadAll()}
+            onClick={downloadAll}
           >
             {isSmallOrLess && "Download All"}
           </StyledButton>
@@ -368,7 +377,7 @@ function UpcomingCourseCard({
           }}
         >
           <Link
-            href={`courses/${class_id}/${course_code}/${academic_year}`}
+            href={`courses/${class_id}`}
             sx={{ textDecoration: "none", color: "neutral.darkest" }}
           >
             <h4 style={{ padding: "8px 0px", display: "flex", flexGrow: 1 }}>
@@ -379,7 +388,7 @@ function UpcomingCourseCard({
             size="small"
             variant="contained"
             startIcon={<Icons.EmailIcon />}
-            onClick={() => sendCopyToEmail()}
+            onClick={sendCopyToEmail}
           >
             {isSmallOrLess && "Send"}
           </StyledButton>

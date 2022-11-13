@@ -99,7 +99,11 @@ function Login() {
     if (!values.passwordValid && !values.emailValid) return;
     try {
       let res = await createToken();
-      dispatch({ token: res.access_token, user: res.user });
+      dispatch({
+        token: res.access_token,
+        user: res.user,
+        loginAt: Date.now(),
+      });
 
       console.log(state.user);
       navigate("/");

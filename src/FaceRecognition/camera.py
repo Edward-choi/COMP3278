@@ -532,13 +532,13 @@ def getMessages():
     cursor.execute(searchMsgs)
     myconn.commit()
     result = cursor.fetchall()
-    # print(result)
+    
     for row in result:
         name = f"Dr. {row.get('last_name')}, {row.get('first_name')}"
         if "last_name"in row: del row["last_name"]
         if "first_name" in row: del row["first_name"]
         row["from"]= name
-        # print(row.get("send_at"))
+        
     return jsonify(result)
 
 @app.route("/course_materials", methods=["GET"])
@@ -581,7 +581,7 @@ def getMaterialsAndZooms():
 
 def findClassWithinHour():
     studentInfo = getStudentInfo()
-    select = "SELECT class_id FROM students_take_classes where user_id = %s" % studentInfo[0][0]
+    select = "SELECT class_id FROM students_take_classes where user_id = %s" % studentInfo.get("user_id")
     getStudentTakesClassesID = cursor.execute(select)
     StudentTakesClassesID = cursor.fetchall()
     select = "SELECT * FROM class_time WHERE day_of_week = %s" % weekday
@@ -604,7 +604,7 @@ def findClassWithinHour():
 
 def getTimetable():
     studentInfo = getStudentInfo()
-    select = "SELECT class_id FROM students_take_classes where user_id = %s" % studentInfo[0][0]
+    select = "SELECT class_id FROM students_take_classes where user_id = %s" % studentInfo.get("user_id")
     getStudentTakesClassesID = cursor.execute(select)
     StudentTakesClassesID = cursor.fetchall()
     tempWHERE = "class_id = "

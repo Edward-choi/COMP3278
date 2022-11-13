@@ -161,7 +161,7 @@ const MainContent = ({ children }) => {
     axios
       .post("http://127.0.0.1:5000/logout", { user_id: state.user.user_id })
       .then((res) => {
-        dispatch({ duration: 0, user: null, token: "" });
+        dispatch({ duration: 0, user: null, token: "", loginAt: null });
       })
       .catch((e) => {});
   };
