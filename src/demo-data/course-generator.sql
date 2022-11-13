@@ -86,10 +86,8 @@ INSERT IGNORE INTO TeacherMessage(
 VALUES (
         1,
         FLOOR(1 + RAND() * 20),
-        FLOOR(
-            TIME_TO_SEC('15:00:00') + RAND() * (
-                TIME_TO_SEC(TIMEDIFF('22:00:00', '15:00:00'))
-            )
+        FROM_UNIXTIME(
+            UNIX_TIMESTAMP('2022-09-01 14:53:27') + FLOOR(0 + (RAND() * 63072000))
         ),
         "Update Tutorial Schedule",
         "Bla Bla testing testing 124",
@@ -98,10 +96,8 @@ VALUES (
     (
         1,
         FLOOR(1 + RAND() * 20),
-        FLOOR(
-            TIME_TO_SEC('15:00:00') + RAND() * (
-                TIME_TO_SEC(TIMEDIFF('22:00:00', '15:00:00'))
-            )
+        FROM_UNIXTIME(
+            UNIX_TIMESTAMP('2022-09-01 14:53:27') + FLOOR(0 + (RAND() * 63072000))
         ),
         "Update Tutorial Schedule",
         "Bla Bla testing testing 124",
@@ -110,10 +106,8 @@ VALUES (
     (
         1,
         FLOOR(1 + RAND() * 20),
-        FLOOR(
-            TIME_TO_SEC('15:00:00') + RAND() * (
-                TIME_TO_SEC(TIMEDIFF('22:00:00', '15:00:00'))
-            )
+        FROM_UNIXTIME(
+            UNIX_TIMESTAMP('2022-09-01 14:53:27') + FLOOR(0 + (RAND() * 63072000))
         ),
         "Update Tutorial Schedule",
         "Bla Bla testing testing 124",

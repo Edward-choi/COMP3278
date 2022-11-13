@@ -532,7 +532,7 @@ def getMessages():
     cursor.execute(searchMsgs)
     myconn.commit()
     result = cursor.fetchall()
-    print(result)
+    # print(result)
     for row in result:
         name = f"Dr. {row.get('last_name')}, {row.get('first_name')}"
         if "last_name"in row: del row["last_name"]
