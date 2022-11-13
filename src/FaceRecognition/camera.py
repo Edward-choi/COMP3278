@@ -1,4 +1,5 @@
 from flask import Flask, render_template, Response, request, jsonify, make_response
+import re
 import cv2
 import os
 import numpy as np
@@ -47,6 +48,12 @@ class JSONResponse(Response):
 
 app.response_class = JSONResponse
 
+def find_user_id ():
+    cursor.execute("SELECT max(user_id) as user_id FROM Users")
+    myconn.commit()
+    result = cursor.fetchone()
+    return result.get('user_id')
+
 def capture_by_frames(user_name):
     global video_capture
     global registration
@@ -56,8 +63,8 @@ def capture_by_frames(user_name):
     start = False
     video_capture = cv2.VideoCapture(0)
     NUM_IMGS = 100
-    if not os.path.exists(dir + '/data/{}'.format(user_name)):
-        os.mkdir(dir + '/data/{}'.format(user_name))
+    if not os.path.exists(dir + '/data/{}'.format(str(user_id) + " " + user_name)):
+        os.mkdir(dir + '/data/{}'.format(str(user_id) + " " + user_name))
 
     cnt = 1
     font = cv2.FONT_HERSHEY_SIMPLEX
@@ -99,7 +106,7 @@ def capture_by_frames(user_name):
         # Display the resulting frame
 #        cv2.imshow('Video', frame)
         # Store the captured images in `data/Jack`
-        cv2.imwrite((dir + '/data/{}/{}{:03d}.jpg').format(user_name, user_name, cnt), frame)
+        cv2.imwrite((dir + '/data/{}/{}{:03d}.jpg').format(str(user_id) + " " + user_name, user_name, cnt), frame)
         cnt += 1
         ret, buffer = cv2.imencode('.jpg', frame)
         frame = buffer.tobytes()
@@ -298,14 +305,18 @@ def facialLogin():
                 id = 0
                 id += 1
                 name = labels[id_]
-                current_name = name
+                num_list =  [int(s) for s in re.findall(r'\b\d+\b', name)]
+                user_id = num_list[0]
+                new_string = ''.join(filter(lambda x: not x.isdigit(), name))
+                first_name = new_string.strip()
+                current_name = first_name
                 color = (255, 0, 0)
                 stroke = 2
 #                cv2.putText(frame, name, (x, y), font, 1, color, stroke, cv2.LINE_AA)
 #                cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), (2))
 
                 # Find the student's information in the database.
-                studentInfo = getStudentInfo()
+                studentInfo = getStudentInfo(user_id)
                 # print(result)
                 data = "error"
 
@@ -319,7 +330,7 @@ def facialLogin():
                 # If the student's information is found in the database
                 else:
                     #update login history
-                    loginHistUpdate()
+                    loginHistUpdate(user_id)
 
                     hello = ("Hello ", current_name, "You did attendance today")
                     print(hello)
