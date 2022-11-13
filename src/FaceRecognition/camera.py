@@ -24,7 +24,7 @@ faceCascade = cv2.CascadeClassifier(dir + '/haarcascade/haarcascade_frontalface_
 local_path = os.path.expanduser('~')
 sqluser  = {'/Users/edwardchoi': 'root',"/Users/hiumanchau":"root", '/Users/a85256': "root"}
 sqlpwd  = {'/Users/edwardchoi': 'root', "/Users/hiumanchau":"chin124328", '/Users/a85256': "Yanchiho2001@"}
-sqlport  = {'/Users/edwardchoi': '8889','/Users/hiumanchau': '3306', /Users/a85256': '3306'}
+sqlport  = {'/Users/edwardchoi': '8889','/Users/hiumanchau': '3306', '/Users/a85256': '3306'}
 
 # 1 Create database connection
 print("local path",local_path)
