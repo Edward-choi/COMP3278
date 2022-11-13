@@ -9,6 +9,7 @@ import { default as courses } from "../demo-data/this-week-courses";
 import ClickableImg from "../assets/images/clickable.png";
 import HaveBreakImg from "../assets/images/haveBreak.png";
 import { useGlobalState } from "../demo-data/auth_provider";
+import axios from "axios";
 
 const Timetable = styled("div")(({ theme }) => ({
   display: "flex",
@@ -78,13 +79,30 @@ function Home() {
     else setCourse(null);
   };
 
-  const renderUpcomingCourse = () => {
+  const renderUpcomingCourse = async () => {
+    try {
+      const res = (await fetchUpcomingCourse()).data;
+      console.log(data);
+    } catch (error) {}
     return (
       <Stack spacing={1} direction="column" sx={{ mb: 12 }}>
         <h2 style={{ fontWeight: 600 }}>Upcoming Course</h2>
         <UpcomingCourseCard course={courses[0]} />
       </Stack>
     );
+  };
+
+  const fetchUpcomingCourse = async () => {
+    const res = await axios.get(
+      `http://127.0.0.1:5000/upcoming_course/${state.user_id}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*",
+        },
+      }
+    );
+    return res;
   };
 
   const thisWeekCourses = () => {

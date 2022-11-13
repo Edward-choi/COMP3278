@@ -592,8 +592,9 @@ def getMaterialsAndZooms():
     
     return jsonify(res)
 
-def findClassWithinHour():
-    studentInfo = getStudentInfo()
+@app.route("/upcoming_course/<id>")
+def findClassWithinHour(id):
+    studentInfo = getStudentInfo(id)
     select = "SELECT class_id FROM students_take_classes where user_id = %s" % studentInfo.get("user_id")
     getStudentTakesClassesID = cursor.execute(select)
     StudentTakesClassesID = cursor.fetchall()
@@ -613,6 +614,7 @@ def findClassWithinHour():
                     classWithinHourInfo = cursor.fetchall()
                     return classWithinHourInfo 
                     #classWithinHourInfo[n][0] to get value of nth column
+    return {"msg":"no upcoming course"}, 200
 
 
 def getTimetable():

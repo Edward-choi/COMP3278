@@ -1,14 +1,15 @@
 # Getting Started with COMP3278 Project
 
-1. run `conda create -n face python=3.x` on terminal; where x is last digit of your python version
+1. run `conda create -n face python=3.x` on terminal; where x is last digit of your python version if you haven't created conda
 2. run `conda activate face`  on terminal
-3. run `pip install -r requirements.txt` on terminal
+3. run `pip install -r src/FaceRecognition/requirements.txt` on terminal
 4. run `source <path to FaceRecognition/facerecognition.sql>`  if you don't have tables on sql
-5. run `source <path to demo-data/course-generator.sql>` if you don't have any data in sql.
-6. open another terminal for font-end
-7. run `npm install` or `yarn` on terminal
-8. run `npm start` or `yarn dev` on terminal
-9. DONE, enjoy testing on front-end and back-end
+5. run `flask run` for back-end on terminal;
+6. run `source <path to demo-data/course-generator.sql>` if you don't have any data in sql.
+7. open another terminal for font-end
+8. run `npm install` or `yarn` on terminal
+9. run `npm start` or `yarn dev` on terminal
+10. DONE, enjoy testing on front-end and back-end
 
 ## Available Scripts
 

@@ -6,3 +6,4 @@ pyttsx3
 Pillow
 pysimplegui
 flask-jwt-extended
+flask-mail
