@@ -9,15 +9,31 @@ from flask_cors import CORS, cross_origin
 import mysql.connector
 import pyttsx3
 from datetime import datetime, timedelta
+from flask_mail import Mail, Message
 from flask_jwt_extended import create_access_token,get_jwt,get_jwt_identity, \
                                unset_jwt_cookies, jwt_required, JWTManager
 
 dir = 'src/FaceRecognition'
-app = Flask(__name__, template_folder=dir)
+template = '../templates'
+app = Flask(__name__)
 cors = CORS(app, supports_credentials=True)
 app.config['CORS_HEADERS'] = 'Content-Type'
 
+os.environ['EMAIL_USER'] = 'edward68710166@gmail.com'
+os.environ['EMAIL_PASSWORD'] = 'xmqsfgtbfxhgnkmc'
+
 app.config["JWT_SECRET_KEY"] = "super-secret"
+mail_settings = {
+    "MAIL_SERVER": 'smtp.gmail.com',
+    "MAIL_PORT": 465,
+    "MAIL_USE_TLS": False,
+    "MAIL_USE_SSL": True,
+    "MAIL_USERNAME": os.environ['EMAIL_USER'],
+    "MAIL_PASSWORD": os.environ['EMAIL_PASSWORD']
+}
+app.config.update(mail_settings)
+mail = Mail(app)
+
 jwt = JWTManager(app)
 faceCascade = cv2.CascadeClassifier(dir + '/haarcascade/haarcascade_frontalface_default.xml')
 
@@ -619,9 +635,15 @@ def getTimetable():
     timetable = sorted(timetable, key = lambda x: (x[1], x[2]))
     return timetable
 
-
-    cap.release()
-    cv2.destroyAllWindows()
+@app.route("/sendEmail")
+def sendEmail():
+    with app.app_context():
+        msg = Message(subject="Course information",
+                      sender=app.config.get("MAIL_USERNAME"),
+                      recipients=["u3568441@connect.hku.hk"], # replace with your email for testing
+                      html=render_template('email.html'))
+        mail.send(msg)
+        return "sent"
 
 if __name__ == '__main__':
     app.secret_key = os.urandom(24)
