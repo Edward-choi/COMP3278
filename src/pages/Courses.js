@@ -21,6 +21,7 @@ function Courses() {
   const [searchText, setSearchText] = React.useState("");
   const [currentCourses, setCurrentCourse] = React.useState([]);
   const [filteredCourses, setFilteredCourses] = React.useState([]);
+  const [loading, setLoading] = React.useState(true);
   const [state, dispatch] = useGlobalState();
 
   const filterMenu = [
@@ -45,6 +46,7 @@ function Courses() {
 
   React.useEffect(() => {
     const fetchCourses = async () => {
+      setLoading(true);
       try {
         const current_courses = (await getCurrentCourses()).data;
         const courses = (await getCourses()).data;
@@ -52,6 +54,8 @@ function Courses() {
         setFilteredCourses(courses);
       } catch (e) {
         console.log(e);
+      } finally {
+        setLoading(false);
       }
     };
     fetchCourses();
@@ -99,7 +103,7 @@ function Courses() {
     event.preventDefault();
     setSearchText(event.target.value);
     try {
-      const res = (await getFilterCourses(searchText)).data;
+      const res = (await getFilterCourses(event.target.value)).data;
       setFilteredCourses(res);
     } catch (error) {}
   };
@@ -135,49 +139,57 @@ function Courses() {
   return (
     <div>
       <MainContent>
-        <Stack spacing={1} direction="column">
-          <h2>Current Courses</h2>
-          <Box sx={{ flexGrow: 1 }}>
-            <Grid
-              container
-              spacing={{ xs: 3, md: 6 }}
-              columns={{ xs: 4, sm: 8, md: 12 }}
-            >
-              {currentCourses.map((course, index) => (
-                <Grid item xs={2} sm={4} md={4} key={index}>
-                  <CourseCard course={course} />
+        {!loading ? (
+          <div
+            style={{
+              position: "relative",
+              width: "100%",
+              flexGrow: "1",
+            }}
+          >
+            <Stack spacing={1} direction="column">
+              <h2>Current Courses</h2>
+              <Box sx={{ flexGrow: 1 }}>
+                <Grid
+                  container
+                  spacing={{ xs: 3, md: 6 }}
+                  columns={{ xs: 4, sm: 8, md: 12 }}
+                >
+                  {currentCourses.map((course, index) => (
+                    <Grid item xs={2} sm={4} md={4} key={index}>
+                      <CourseCard course={course} />
+                    </Grid>
+                  ))}
                 </Grid>
-              ))}
-            </Grid>
-          </Box>
-        </Stack>
-        <Stack spacing={1} direction="column" sx={{ mt: 16 }}>
-          <h2>Enrolled Courses</h2>
-          <Box sx={{ flexGrow: 1 }}>
-            <Grid container spacing={{ xs: 2, md: 4 }}>
-              <Grid item xs={12} md={9}>
-                <TextField
-                  variant="outlined"
-                  fullWidth
-                  placeholder="Find a course..."
-                  value={searchText}
-                  onChange={handleSearch}
-                />
-              </Grid>
-              <Grid item xs={12} md={3}>
-                <Stack spacing={2} direction="row">
-                  <DropdownButton
-                    fullWidth={true}
-                    value={filterState}
-                    label="State"
-                    items={filterMenu.map((obj, index) => ({
-                      value: index + 1,
-                      text: obj.text,
-                    }))}
-                    handleChange={handleFilterChange}
-                    clearSelect={() => clearFilter("state")}
-                  />
-                  {/* <DropdownButton
+              </Box>
+            </Stack>
+            <Stack spacing={1} direction="column" sx={{ mt: 16 }}>
+              <h2>Enrolled Courses</h2>
+              <Box sx={{ flexGrow: 1 }}>
+                <Grid container spacing={{ xs: 2, md: 4 }}>
+                  <Grid item xs={12} md={9}>
+                    <TextField
+                      variant="outlined"
+                      fullWidth
+                      placeholder="Find a course..."
+                      value={searchText}
+                      onChange={handleSearch}
+                    />
+                  </Grid>
+                  <Grid item xs={12} md={3}>
+                    <Stack spacing={2} direction="row">
+                      <DropdownButton
+                        fullWidth={true}
+                        value={filterState}
+                        label="State"
+                        items={filterMenu.map((obj, index) => ({
+                          value: index + 1,
+                          text: obj.text,
+                        }))}
+                        handleChange={handleFilterChange}
+                        clearSelect={() => clearFilter("state")}
+                      />
+                      {/* <DropdownButton
                     fullWidth={true}
                     value={filterState.type}
                     label="Type"
@@ -185,30 +197,44 @@ function Courses() {
                     handleChange={handleFilterChange("type")}
                     clearSelect={() => clearFilter("type")}
                   /> */}
-                  <DropdownButton
-                    fullWidth={true}
-                    value={sortBy}
-                    label="Sort"
-                    items={sortByMenu.map((obj, index) => ({
-                      value: index + 1,
-                      text: obj.text,
-                    }))}
-                    handleChange={handleSortChange}
-                    clearSelect={() => clearFilter("sort")}
-                  />
-                </Stack>
-              </Grid>
-            </Grid>
-          </Box>
-          <List>
-            {filteredCourses.map((course, index) => (
-              <Stack key={index} direction="column">
-                <CourseListTile course={course} />
-                <Divider />
-              </Stack>
-            ))}
-          </List>
-        </Stack>
+                      <DropdownButton
+                        fullWidth={true}
+                        value={sortBy}
+                        label="Sort"
+                        items={sortByMenu.map((obj, index) => ({
+                          value: index + 1,
+                          text: obj.text,
+                        }))}
+                        handleChange={handleSortChange}
+                        clearSelect={() => clearFilter("sort")}
+                      />
+                    </Stack>
+                  </Grid>
+                </Grid>
+              </Box>
+              <List>
+                {filteredCourses.map((course, index) => (
+                  <Stack key={index} direction="column">
+                    <CourseListTile course={course} />
+                    <Divider />
+                  </Stack>
+                ))}
+              </List>
+            </Stack>
+          </div>
+        ) : (
+          <div
+            style={{
+              margin: "auto",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              height: "80vh",
+            }}
+          >
+            <CircularProgress size="10rem" />
+          </div>
+        )}
       </MainContent>
     </div>
   );

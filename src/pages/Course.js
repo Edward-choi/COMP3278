@@ -10,10 +10,10 @@ import {
   TextField,
   Tabs,
   Tab,
-  Divider,
   Grid,
   Collapse,
   Button,
+  CircularProgress,
 } from "@mui/material";
 import Icons from "../components/icons";
 import DropdownButton from "../components/dropdownButton";
@@ -53,9 +53,11 @@ export default function Course() {
   const [expandDesc, setExpand] = React.useState(true);
   const [messages, setMessages] = React.useState([]);
   const [info, setMaterials] = React.useState([]);
+  const [loading, setLoading] = React.useState(false);
 
   React.useEffect(() => {
     const fetchCourse = async () => {
+      setLoading(true);
       try {
         const course = (await getCourse()).data;
         const messages = (await filterMessage(messageSearch, messageSortAsc))
@@ -67,6 +69,8 @@ export default function Course() {
         setMaterials(materials);
       } catch (e) {
         console.warn(e);
+      } finally {
+        setLoading(false);
       }
     };
     fetchCourse();
@@ -214,159 +218,174 @@ export default function Course() {
             <Icons.ReturnIcon />
           </IconButton>
         </Box>
-        {course ? (
-          course && (
-            <Box sx={{ display: "flex", flexDirection: "column" }}>
-              <Box sx={{ mt: 16, mb: 8 }}>
-                <p>
-                  {course.academic_year % 2 == 0
-                    ? `${course.academic_year}-${course.academic_year + 1}`
-                    : `${course.academic_year - 1}-${course.academic_year}`}
-                </p>
-                <h2>
-                  {course.course_code} {course.course_name}
-                </h2>
-              </Box>
+        {!loading ? (
+          course ? (
+            course && (
+              <Box sx={{ display: "flex", flexDirection: "column" }}>
+                <Box sx={{ mt: 16, mb: 8 }}>
+                  <p>
+                    {course.academic_year % 2 == 0
+                      ? `${course.academic_year}-${course.academic_year + 1}`
+                      : `${course.academic_year - 1}-${course.academic_year}`}
+                  </p>
+                  <h2>
+                    {course.course_code} {course.course_name}
+                  </h2>
+                </Box>
 
-              <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
-                <Tabs
-                  value={tab}
-                  onChange={handleTabChange}
-                  variant="scrollable"
-                  scrollButtons="auto"
-                  allowScrollButtonsMobile
-                >
-                  <StyledTab label="General" />
-                  <StyledTab label="Announcements" />
-                  <StyledTab label="Lectures & Tutorials" />
-                </Tabs>
-              </Box>
-              <TabPanel value={tab} index={0}>
-                {renderDesc()}
-                <Stack spacing={8} direction="row" sx={{ flexWrap: "wrap" }}>
-                  <Stack
-                    spacing={1}
-                    direction="column"
-                    sx={{
-                      alignItems: "flex-start",
-                      py: "10",
-                      fontSize: { xs: 12, sm: 14 },
-                    }}
+                <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+                  <Tabs
+                    value={tab}
+                    onChange={handleTabChange}
+                    variant="scrollable"
+                    scrollButtons="auto"
+                    allowScrollButtonsMobile
                   >
-                    <Box
+                    <StyledTab label="General" />
+                    <StyledTab label="Announcements" />
+                    <StyledTab label="Lectures & Tutorials" />
+                  </Tabs>
+                </Box>
+                <TabPanel value={tab} index={0}>
+                  {renderDesc()}
+                  <Stack spacing={8} direction="row" sx={{ flexWrap: "wrap" }}>
+                    <Stack
+                      spacing={1}
+                      direction="column"
                       sx={{
-                        fontSize: { xs: 14, sm: 16 },
-                        color: "neutral.darkest",
-                        mb: 1,
+                        alignItems: "flex-start",
+                        py: "10",
+                        fontSize: { xs: 12, sm: 14 },
                       }}
                     >
-                      Course Instructor
-                    </Box>
-                    <Box sx={{ color: "primary.main", fontWeight: 700 }}>
-                      {course.lecturer?.name}
-                    </Box>
-                    {course.lecture?.email}
+                      <Box
+                        sx={{
+                          fontSize: { xs: 14, sm: 16 },
+                          color: "neutral.darkest",
+                          mb: 1,
+                        }}
+                      >
+                        Course Instructor
+                      </Box>
+                      <Box sx={{ color: "primary.main", fontWeight: 700 }}>
+                        {course.lecturer?.name}
+                      </Box>
+                      {course.lecturer?.email}
+                      {course.lecturer?.department}
+                    </Stack>
                   </Stack>
-                </Stack>
-              </TabPanel>
-              <TabPanel value={tab} index={1}>
-                <Box sx={{ flexGrow: 1 }}>
-                  <Grid
-                    container
-                    columns={{ xs: 5, sm: 8, md: 10 }}
-                    spacing={{ xs: 2, md: 4 }}
-                  >
-                    <Grid item xs={3} sm={6} md={9}>
-                      <TextField
-                        variant="outlined"
-                        fullWidth
-                        placeholder="Find a message..."
-                        value={messageSearch}
-                        onChange={handleSearch("message")}
-                      />
+                </TabPanel>
+                <TabPanel value={tab} index={1}>
+                  <Box sx={{ flexGrow: 1 }}>
+                    <Grid
+                      container
+                      columns={{ xs: 5, sm: 8, md: 10 }}
+                      spacing={{ xs: 2, md: 4 }}
+                    >
+                      <Grid item xs={3} sm={6} md={9}>
+                        <TextField
+                          variant="outlined"
+                          fullWidth
+                          placeholder="Find a message..."
+                          value={messageSearch}
+                          onChange={handleSearch("message")}
+                        />
+                      </Grid>
+                      <Grid item xs={2} sm={2} md={1}>
+                        <DropdownButton
+                          fullWidth={true}
+                          value={messageSortAsc}
+                          label="Sort"
+                          items={[
+                            { value: -1, text: "Newest" },
+                            { value: 1, text: "Oldest" },
+                          ]}
+                          handleChange={handleFilterChange("message")}
+                          clearSelect={() => clearFilter("message")}
+                        />
+                      </Grid>
                     </Grid>
-                    <Grid item xs={2} sm={2} md={1}>
-                      <DropdownButton
-                        fullWidth={true}
-                        value={messageSortAsc}
-                        label="Sort"
-                        items={[
-                          { value: -1, text: "Newest" },
-                          { value: 1, text: "Oldest" },
-                        ]}
-                        handleChange={handleFilterChange("message")}
-                        clearSelect={() => clearFilter("message")}
-                      />
+                    <Stack
+                      spacing={{ xs: 4, md: 6 }}
+                      direction="column"
+                      sx={{ mt: 8 }}
+                    >
+                      {messages.map((message, index) => (
+                        <MessageCard key={`m${index}`} message={message} />
+                      ))}
+                    </Stack>
+                  </Box>
+                </TabPanel>
+                <TabPanel value={tab} index={2}>
+                  <Box sx={{ flexGrow: 1 }}>
+                    <Grid
+                      container
+                      columns={{ xs: 5, sm: 8, md: 10 }}
+                      spacing={{ xs: 2, md: 4 }}
+                    >
+                      <Grid item xs={3} sm={6} md={9}>
+                        <TextField
+                          variant="outlined"
+                          fullWidth
+                          placeholder="Find a lecture or tutorial..."
+                          value={lectureSearch}
+                          onChange={handleSearch("course")}
+                        />
+                      </Grid>
+                      <Grid item xs={2} sm={2} md={1}>
+                        <DropdownButton
+                          fullWidth={true}
+                          value={lectureSortAsc}
+                          label="Sort"
+                          items={[
+                            { value: -1, text: "Newest" },
+                            { value: 1, text: "Oldest" },
+                          ]}
+                          handleChange={handleFilterChange("course")}
+                          clearSelect={() => clearFilter("course")}
+                        />
+                      </Grid>
                     </Grid>
-                  </Grid>
-                  <Stack
-                    spacing={{ xs: 4, md: 6 }}
-                    direction="column"
-                    sx={{ mt: 8 }}
-                  >
-                    {messages.map((message, index) => (
-                      <MessageCard key={`m${index}`} message={message} />
+                  </Box>
+                  <Stack direction="column" sx={{ mt: 8 }}>
+                    {info.map((it, index) => (
+                      <LectureListTile
+                        key={`l${index}`}
+                        number={it.course_number}
+                        date={it.date}
+                        materials={it.materials}
+                        zoom={it.zoom}
+                      />
                     ))}
                   </Stack>
-                </Box>
-              </TabPanel>
-              <TabPanel value={tab} index={2}>
-                <Box sx={{ flexGrow: 1 }}>
-                  <Grid
-                    container
-                    columns={{ xs: 5, sm: 8, md: 10 }}
-                    spacing={{ xs: 2, md: 4 }}
-                  >
-                    <Grid item xs={3} sm={6} md={9}>
-                      <TextField
-                        variant="outlined"
-                        fullWidth
-                        placeholder="Find a lecture or tutorial..."
-                        value={lectureSearch}
-                        onChange={handleSearch("course")}
-                      />
-                    </Grid>
-                    <Grid item xs={2} sm={2} md={1}>
-                      <DropdownButton
-                        fullWidth={true}
-                        value={lectureSortAsc}
-                        label="Sort"
-                        items={[
-                          { value: -1, text: "Newest" },
-                          { value: 1, text: "Oldest" },
-                        ]}
-                        handleChange={handleFilterChange("course")}
-                        clearSelect={() => clearFilter("course")}
-                      />
-                    </Grid>
-                  </Grid>
-                </Box>
-                <Stack direction="column" sx={{ mt: 8 }}>
-                  {info.map((it, index) => (
-                    <LectureListTile
-                      key={`l${index}`}
-                      number={it.course_number}
-                      date={it.date}
-                      materials={it.materials}
-                      zoom={it.zoom}
-                    />
-                  ))}
-                </Stack>
-              </TabPanel>
-            </Box>
+                </TabPanel>
+              </Box>
+            )
+          ) : (
+            <Stack
+              direction="column"
+              sx={{
+                mx: "auto",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <img src={CourseErrorImg} alt="Course 404 Not Found" />
+              <h2>Course 404 Not Found</h2>
+            </Stack>
           )
         ) : (
-          <Stack
-            direction="column"
-            sx={{
-              mx: "auto",
-              alignItems: "center",
+          <div
+            style={{
+              margin: "auto",
+              display: "flex",
               justifyContent: "center",
+              alignItems: "center",
+              height: "80vh",
             }}
           >
-            <img src={CourseErrorImg} alt="Course 404 Not Found" />
-            <h2>Course 404 Not Found</h2>
-          </Stack>
+            <CircularProgress size="10rem" />
+          </div>
         )}
       </div>
     </MainContent>

@@ -39,7 +39,6 @@ function MessageCard({ message: { subject, from, send_at, content } }) {
     setActive(!active);
   };
   const renderSendAt = () => {
-    console.log(send_at);
     return new Date(Date.parse(send_at))?.toLocaleString("en-US", {
       weekday: "long",
       year: "numeric",
