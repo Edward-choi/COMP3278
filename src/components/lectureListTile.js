@@ -48,7 +48,7 @@ const StyledLectureListTile = styled("div")(({ theme }) => ({
 export default function LectureListTile({ number, date, materials, zoom }) {
   const renderZoom = () => {
     let link = zoom.link;
-    let meetingId = zoom.meetingId;
+    let meeting_id = zoom.meeting_id;
     let passCode = zoom.passCode;
     let renderLink, renderMeetingId, renderPassCode;
 
@@ -64,27 +64,29 @@ export default function LectureListTile({ number, date, materials, zoom }) {
         </a>
       );
     }
-    if (meetingId !== undefined && meetingId !== null) {
-      renderMeetingId = <div>Meeting ID: {meetingId}</div>;
+    if (meeting_id !== undefined && meeting_id !== null) {
+      renderMeetingId = <div>Meeting ID: {meeting_id}</div>;
     }
     if (passCode !== undefined && passCode !== null) {
       renderPassCode = <div>Password: {passCode}</div>;
     }
 
     return (
-      <div className="detailContainer">
-        <Icons.LinkOnIcon />
-        <Stack spacing={1} direction="column">
-          {renderLink}
-          {renderMeetingId}
-          {renderPassCode}
-        </Stack>
-      </div>
+      link && (
+        <div className="detailContainer">
+          <Icons.LinkOnIcon />
+          <Stack spacing={1} direction="column">
+            {renderLink}
+            {renderMeetingId}
+            {renderPassCode}
+          </Stack>
+        </div>
+      )
     );
   };
 
-  const getExtension = (fileName) => {
-    var parts = fileName.split(".");
+  const getExtension = (file_name) => {
+    var parts = file_name?.split(".");
     return parts[parts.length - 1];
   };
 
@@ -92,11 +94,11 @@ export default function LectureListTile({ number, date, materials, zoom }) {
     return (
       <Stack spacing={1} direction="column">
         {materials.map((m, index) => {
-          let fileName = m.link;
-          if (m.fileName !== undefined && m.fileName !== null) {
-            fileName = m.fileName;
+          let file_name = m.link;
+          if (m.file_name !== undefined && m.file_name !== null) {
+            file_name = m.file_name;
           }
-          const ext = getExtension(fileName);
+          const ext = getExtension(file_name);
           let fileIcon;
           switch (ext) {
             case "pdf":
@@ -123,7 +125,7 @@ export default function LectureListTile({ number, date, materials, zoom }) {
             >
               <div className="detailContainer">
                 {fileIcon}
-                {fileName}
+                {file_name}
               </div>
             </a>
           );

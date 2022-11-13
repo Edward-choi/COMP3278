@@ -27,11 +27,11 @@ export const courseMessages = (course) => {
       return {
         subject: "Update Tutorial Schedule",
         from: "Dr. Chan",
-        sendAt: sDate,
+        send_at: sDate,
         content: "Bla bal testing testing",
       };
     })
-    .sort((a, b) => b.sendAt - a.sendAt);
+    .sort((a, b) => b.send_at - a.send_at);
 };
 
 export const courseMaterials = (course) => {
@@ -43,19 +43,19 @@ export const courseMaterials = (course) => {
   dates.forEach(function (date, index) {
     let len = Math.floor(Math.random() * 3);
     materials.push({
-      courseNumber: index + 1,
+      course_number: index + 1,
       date: date.getTime(),
       zoom:
         len < 1
           ? {
               link: "https://hku.zoom.us/j/96226740999?pwd=ZER1UUdxSVVhQzNXbXFkUDd3WjRBdz09",
-              meetingId: "962 2674 0999",
+              meeting_id: "962 2674 0999",
             }
           : null,
       materials: Array.from({ length: len }, (_) => {
         return {
           link: "https://moodle.hku.hk/pluginfile.php/4050987/mod_resource/content/1/tutorial%202-0%20Project%20Introduction.pdf?forcedownload=1",
-          fileName: "ProjectCodeIntroduction.pdf",
+          file_name: "ProjectCodeIntroduction.pdf",
         };
       }),
     });

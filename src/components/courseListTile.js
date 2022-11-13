@@ -75,7 +75,7 @@ export default function CourseListTile({
       <ListItemButton
         sx={{ borderRadius: 2, py: { xs: 3, sm: 4, md: 6 } }}
         component={Link}
-        to={`/courses/${course_code}/${academic_year}`}
+        to={`/courses/${class_id}`}
       >
         <Stack spacing={3} direction="column" width="100%">
           <div className="courseListTileHeader">

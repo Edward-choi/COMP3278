@@ -77,11 +77,12 @@ const MaterialCard = styled("div")(({ theme }) => ({
   },
 }));
 
-// zoom :{ link:string , meetingId:sting, passCode:string },
+// zoom :{ link:string , meeting_id:sting, passCode:string },
 // material: {link:string, name:string}
 // message: {subject: string, content:string, from: string(teacher's name), date: dateTime}
 function UpcomingCourseCard({
   course: {
+    class_id,
     course_code,
     academic_year, // required for routing to CourseDetailPage
     course_name, // string
@@ -176,9 +177,9 @@ function UpcomingCourseCard({
 
   const renderZoom = () => {
     let link = zoom.link;
-    let meetingId = zoom.meetingId;
+    let meeting_id = zoom.meeting_id;
     let passCode = zoom.passCode;
-    let renderLink, renderMeetingId, renderPassCode;
+    let renderLink, rendermeeting_id, renderPassCode;
 
     if (link !== undefined && link !== null) {
       renderLink = (
@@ -187,10 +188,10 @@ function UpcomingCourseCard({
         </a>
       );
     }
-    if (meetingId !== undefined && meetingId !== null) {
-      renderMeetingId = (
+    if (meeting_id !== undefined && meeting_id !== null) {
+      rendermeeting_id = (
         <Box sx={{ fontSize: 12, color: "neutral.medium", lineHeight: 1.8 }}>
-          Meeting ID: {meetingId}
+          Meeting ID: {meeting_id}
         </Box>
       );
     }
@@ -204,7 +205,7 @@ function UpcomingCourseCard({
     if (
       link !== undefined &&
       link !== null &&
-      (meetingId === undefined || meetingId === null) &&
+      (meeting_id === undefined || meeting_id === null) &&
       (passCode === undefined || passCode === null)
     ) {
       <div
@@ -229,7 +230,7 @@ function UpcomingCourseCard({
           </CourseDetailHeader>
           <CourseContainer>
             {renderLink}
-            {renderMeetingId}
+            {rendermeeting_id}
             {renderPassCode}
           </CourseContainer>
         </Stack>
@@ -237,8 +238,8 @@ function UpcomingCourseCard({
     }
   };
 
-  const getExtension = (fileName) => {
-    var parts = fileName.split(".");
+  const getExtension = (file_name) => {
+    var parts = file_name?.split(".");
     return parts[parts.length - 1];
   };
 
@@ -276,11 +277,11 @@ function UpcomingCourseCard({
             ref={ref}
           >
             {croppedMaterials.map(function (m, index) {
-              let fileName = m.link;
-              if (m.fileName !== undefined && m.fileName !== null) {
-                fileName = m.fileName;
+              let file_name = m.link;
+              if (m.file_name !== undefined && m.file_name !== null) {
+                file_name = m.file_name;
               }
-              const ext = getExtension(fileName);
+              const ext = getExtension(file_name);
               let fileIcon;
               switch (ext) {
                 case "pdf":
@@ -312,7 +313,7 @@ function UpcomingCourseCard({
                   >
                     <MaterialCard>
                       {fileIcon}
-                      {fileName}
+                      {file_name}
                     </MaterialCard>
                   </a>
                 );
@@ -367,7 +368,7 @@ function UpcomingCourseCard({
           }}
         >
           <Link
-            href={`courses/${course_code}/${academic_year}`}
+            href={`courses/${class_id}/${course_code}/${academic_year}`}
             sx={{ textDecoration: "none", color: "neutral.darkest" }}
           >
             <h4 style={{ padding: "8px 0px", display: "flex", flexGrow: 1 }}>

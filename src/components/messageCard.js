@@ -2,6 +2,7 @@ import * as React from "react";
 import { styled } from "@mui/material/styles";
 import Icons from "./icons";
 import { Box, Stack, IconButton, Collapse } from "@mui/material";
+import { render } from "@testing-library/react";
 
 const Accordion = styled("div")(({ theme }) => ({
   background: `rgba(255, 255, 255, 0.8)`,
@@ -32,10 +33,22 @@ const Accordion = styled("div")(({ theme }) => ({
   },
 }));
 
-function MessageCard({ message: { subject, from, sendAt, content } }) {
+function MessageCard({ message: { subject, from, send_at, content } }) {
   const [active, setActive] = React.useState(true);
   const onToggle = () => {
     setActive(!active);
+  };
+  const renderSendAt = () => {
+    console.log(send_at);
+    return new Date(Date.parse(send_at))?.toLocaleString("en-US", {
+      weekday: "long",
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "numeric",
+      minute: "numeric",
+      second: "numeric",
+    });
   };
   return (
     <Accordion active={active}>
@@ -56,17 +69,9 @@ function MessageCard({ message: { subject, from, sendAt, content } }) {
             >
               <span style={{ display: "inline-flex" }}>
                 by
-                <Box sx={{ color: "primary.dark" }}>{from}</Box>
+                <Box sx={{ color: "primary.dark" }}>{` ${from}`}</Box>
               </span>
-              {sendAt.toLocaleString("en-US", {
-                weekday: "long",
-                year: "numeric",
-                month: "short",
-                day: "numeric",
-                hour: "numeric",
-                minute: "numeric",
-                second: "numeric",
-              })}
+              {renderSendAt()}
             </Box>
           </Stack>
         </Stack>

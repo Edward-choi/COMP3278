@@ -54,7 +54,7 @@ function App() {
           <Route path="/timetable" element={<Timetable />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/courses/:id/:academic_year" element={<Course />} />
+          <Route path="/courses/:id" element={<Course />} />
           <Route
             path="/faceRecognitionRegister/:name"
             element={<FaceRecognitionRegister />}

@@ -8,7 +8,7 @@ import {
 } from "@mui/material";
 
 export default function CourseCard({
-  course: { academic_year, course_code, course_name, image },
+  course: { class_id, academic_year, course_code, course_name, image },
 }) {
   const renderBanner = () => {
     if (image) {
@@ -33,10 +33,7 @@ export default function CourseCard({
         boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.15)",
       }}
     >
-      <Link
-        href={`courses/${course_code}/${academic_year}`}
-        sx={{ textDecoration: "none" }}
-      >
+      <Link href={`courses/${class_id}`} sx={{ textDecoration: "none" }}>
         <CardActionArea sx={{ height: "100%" }}>
           {renderBanner()}
           <CardContent>

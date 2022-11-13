@@ -12,7 +12,7 @@ const generateCourseInformation = (weekday) => {
     weekday % 2
       ? {
           link: "https://hku.zoom.us/j/96226740999?pwd=ZER1UUdxSVVhQzNXbXFkUDd3WjRBdz09",
-          meetingId: "214t1ds14",
+          meeting_id: "214t1ds14",
         }
       : null;
   var materials = [];
@@ -29,7 +29,7 @@ const generateCourseInformation = (weekday) => {
     messages[i] = {
       subject: "Update Tutorial Schedule",
       from: "Dr. Chan",
-      sendAt: today,
+      send_at: today,
       content: "Bla bal testing testing",
     };
   }

@@ -70,8 +70,71 @@ FROM (
             DATE
     ) t;
 UPDATE Information
-SET classroom_address = "Meng Wah Complex MWT2"
+SET venue = "Meng Wah Complex MWT2"
 WHERE (course_number % 2) = 0;
 UPDATE Information
-SET classroom_address = "Chong Yue Ming CYYP2"
+SET venue = "Chong Yue Ming CYYP2"
 WHERE (course_number % 2) > 0;
+INSERT IGNORE INTO TeacherMessage(
+        class_id,
+        course_number,
+        send_at,
+        subject,
+        content,
+        from_id
+    )
+VALUES (
+        1,
+        FLOOR(1 + RAND() * 20),
+        FLOOR(
+            TIME_TO_SEC('15:00:00') + RAND() * (
+                TIME_TO_SEC(TIMEDIFF('22:00:00', '15:00:00'))
+            )
+        ),
+        "Update Tutorial Schedule",
+        "Bla Bla testing testing 124",
+        4
+    ),
+    (
+        1,
+        FLOOR(1 + RAND() * 20),
+        FLOOR(
+            TIME_TO_SEC('15:00:00') + RAND() * (
+                TIME_TO_SEC(TIMEDIFF('22:00:00', '15:00:00'))
+            )
+        ),
+        "Update Tutorial Schedule",
+        "Bla Bla testing testing 124",
+        4
+    ),
+    (
+        1,
+        FLOOR(1 + RAND() * 20),
+        FLOOR(
+            TIME_TO_SEC('15:00:00') + RAND() * (
+                TIME_TO_SEC(TIMEDIFF('22:00:00', '15:00:00'))
+            )
+        ),
+        "Update Tutorial Schedule",
+        "Bla Bla testing testing 124",
+        4
+    );
+INSERT IGNORE INTO CourseMaterial(class_id, course_number, file_link, file_name)
+SELECT class_id,
+    course_number,
+    "https://moodle.hku.hk/pluginfile.php/4050987/mod_resource/content/1/tutorial%202-0%20Project%20Introduction.pdf?forcedownload=1",
+    "ProjectCodeIntroduction.pdf"
+FROM Information
+WHERE date <= now()
+    AND (
+        course_number = (FLOOR(RAND() *(course_number)) + 1)
+    );
+INSERT IGNORE INTO ZoomLink(class_id, course_number, link)
+SELECT class_id,
+    course_number,
+    "https://hku.zoom.us/j/96226740999?pwd=ZER1UUdxSVVhQzNXbXFkUDd3WjRBdz09"
+FROM Information
+WHERE date <= now()
+    AND (
+        course_number = (FLOOR(RAND() *(course_number)) + 1)
+    );

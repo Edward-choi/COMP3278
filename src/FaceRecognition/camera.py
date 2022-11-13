@@ -400,6 +400,7 @@ def logoutHistUpdate(user_id):
     cursor.execute(logoutHistUpdate)
     myconn.commit()
 
+# Get all enrolled courses with given user_id
 @app.route("/courses", methods=["GET"])
 def getClasses():
     user_id = request.args.get('user_id')
@@ -418,6 +419,7 @@ def getClasses():
         res.append(row)
     return jsonify(res)
 
+# Get all current courses with given user_id
 @app.route("/current_courses", methods=["GET"], strict_slashes=False)
 def getCurrentClasses():
     user_id = request.args.get('user_id')
@@ -436,7 +438,10 @@ def getCurrentClasses():
         res.append(row)
     return jsonify(res)
 
-
+# Get all courses with given user_id and filtering query
+# search is the search text entered by the user 
+# filter is a string that contains a constraint for sql filtering
+# order is a string that contains the attribute and the order sequence
 @app.route("/filter_courses", methods=["GET"])
 def getFilteredClasses():
     user_id = request.args.get("user_id")
@@ -468,6 +473,100 @@ def getFilteredClasses():
         res.append(row)
     return jsonify(res)
 
+# teacher_ids should be a string that "teacher1_id, teacher2_id, ...."
+def getTeacherInfo(teacher_ids):
+    searchTeachers = f"SELECT first_name, last_name, email, faculty, department FROM Users JOIN Teachers ON user_id = teacher_id WHERE teacher_id IN ({teacher_ids})"
+    cursor.execute(searchTeachers)
+    myconn.commit()
+    result = cursor.fetchall()
+    teachers = []
+    for row in result:
+        name = f"Dr. {row.get('last_name')}, {row.get('first_name')}"
+        if "last_name"in row: del row["last_name"]
+        if "first_name" in row: del row["first_name"]
+        row["name"]= name
+        teachers.append(row)
+    return teachers
+
+@app.route("/course/<id>")
+def getCourse(id):
+    searchCourse = f"SELECT * FROM Classes WHERE class_id = {id}"
+    cursor.execute(searchCourse)
+    myconn.commit()
+    result = cursor.fetchone()
+    teacher_id = result.get("teacher_id")
+    teacher = getTeacherInfo(teacher_id)[0]
+    if "teacher_id" in result: del result["teacher_id"]
+    result["lecturer"] = teacher
+    return jsonify(result)
+
+@app.route("/course_info/<id>")
+def getInformation(id):
+    
+    searchInformation = f"SELECT course_number, venue FROM Information WHERE class_id = {id} AND date <= (now())" 
+    cursor.execute(searchInformation)
+    myconn.commit()
+    result = cursor.fetchall()
+    return result
+
+@app.route("/course_message", methods=["GET"])
+def getMessages():
+    id = request.args.get("id")
+    search = request.args.get("search")
+    order = request.args.get("order")
+    search = f"'%{search}%'"
+    conditions = f"WHERE (send_at LIKE {search} OR subject LIkE {search}) OR content LIKE {search} OR T.first_name LIKE {search} OR T.last_name LIKE {search}"
+    orderBy = "ASC" if int(order) > 0 else "DESC"
+    searchMsgs = f"SELECT send_at, subject, content, T.first_name, T.last_name FROM TeacherMessage TM JOIN Information I ON I.class_id={id} AND TM.class_id = I.class_id AND TM.course_number = I.course_number JOIN (SELECT first_name, last_name, teacher_id FROM Users JOIN Teachers ON user_id = teacher_id)T ON T.teacher_id = from_id {conditions} GROUP BY TM.course_number, message_id ORDER BY send_at {orderBy}"
+    cursor.execute(searchMsgs)
+    myconn.commit()
+    result = cursor.fetchall()
+    print(result)
+    for row in result:
+        name = f"Dr. {row.get('last_name')}, {row.get('first_name')}"
+        if "last_name"in row: del row["last_name"]
+        if "first_name" in row: del row["first_name"]
+        row["from"]= name
+        # print(row.get("send_at"))
+    return jsonify(result)
+
+@app.route("/course_materials", methods=["GET"])
+def getMaterialsAndZooms():
+    id = request.args.get("id")
+    search = request.args.get("search")
+    order = request.args.get("order")
+    conditions = ""
+    print(len(search))
+    if(len(search) > 0):
+        search = f"'%{search}%'"
+        nullSafety = "(file_link is not NULL OR file_name is not NULL OR link is not NULL OR meeting_id is not NULL OR passcode is not NULL)"
+        conditions = f" AND (file_link LIKE {search} OR file_name LIKE {search} OR link LIKE {search} OR meeting_id LIKE {search} OR passcode LIKE {search} OR {nullSafety}) "
+    orderBy = "ASC" if int(order) > 0 else "DESC"
+    searchMaterialsAndZooms = f"SELECT I.course_number, date, ANY_VALUE(file_link) as file_link, ANY_VALUE(file_name) as file_name, ANY_VALUE(link) as link, ANY_VALUE(meeting_id) as meeting_id, ANY_VALUE(passcode) as passcode FROM Information I LEFT JOIN CourseMaterial CM ON CM.class_id = {id} AND CM.class_id = I.class_id AND CM.course_number = I.course_number LEFT JOIN ZoomLink ZM ON ZM.class_id = {id} AND ZM.course_number = I.course_number AND ZM.class_id = I.class_id WHERE date <= (now()) AND I.class_id={id} {conditions} ORDER BY I.course_number {orderBy}, date {orderBy}"
+    cursor.execute(searchMaterialsAndZooms)
+    myconn.commit()
+    result = cursor.fetchall()
+    res = []
+    for row in result:
+        update = False
+        courseNo = row.get("course_number")
+        materials = []
+        if(row.get("file_link") is not None):
+            material = {"link": row.get("file_link"), "file_name":row.get("file_name")}
+            materials.append(material)
+        zoom = {"link":row.get("link"), "meeting_id": row.get("meeting_id"), "passCode":row.get("passcode")}
+        obj = {"course_number": courseNo, "date": row.get("date"), "materials":materials, "zoom":zoom}
+
+        for x in res:
+            if x.get("course_number") == courseNo:
+                x.update({"materials":x.get("materials").append(material)})
+                update = True
+                break
+    
+        if update == False:
+                res.append(obj)
+    
+    return jsonify(res)
 
 def findClassWithinHour():
     studentInfo = getStudentInfo()

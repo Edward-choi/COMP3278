@@ -1,7 +1,6 @@
 import * as React from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import MainContent from "../shared/MainContent";
-import { courses } from "../demo-data/courses";
 import { styled } from "@mui/material/styles";
 import moment from "moment";
 import {
@@ -18,9 +17,9 @@ import {
 } from "@mui/material";
 import Icons from "../components/icons";
 import DropdownButton from "../components/dropdownButton";
-import { courseMaterials, courseMessages } from "../demo-data/course-details";
 import MessageCard from "../components/messageCard";
 import LectureListTile from "../components/lectureListTile";
+import axios from "axios";
 
 function TabPanel({ children, value, index, ...other }) {
   return (
@@ -43,12 +42,12 @@ const StyledTab = styled(Tab)(({ theme }) => ({
 
 export default function Course() {
   const navigator = useNavigate();
-  const { id, academic_year } = useParams();
+  const { id } = useParams();
   const [course, setCourse] = React.useState(null);
   const [tab, setTab] = React.useState(0);
   const [messageSortAsc, setMessageSortAsc] = React.useState(1);
   const [messageSearch, setMessageSearch] = React.useState("");
-  const [courseSortAsc, setCourseSortAsc] = React.useState(1);
+  const [lectureSortAsc, setLectureSortAsc] = React.useState(1);
   const [lectureSearch, setLectureSearch] = React.useState("");
   const [expandDesc, setExpand] = React.useState(true);
   const [messages, setMessages] = React.useState([]);
@@ -57,13 +56,14 @@ export default function Course() {
   React.useEffect(() => {
     const fetchCourse = async () => {
       try {
-        const result = courses.find(
-          (c) =>
-            c.course_code === id && c.academic_year.toString() === academic_year
-        );
-        setCourse(result);
-        setMessages(courseMessages(result));
-        setMaterials(courseMaterials(result));
+        const course = (await getCourse()).data;
+        const messages = (await filterMessage(messageSearch, messageSortAsc))
+          .data;
+        const materials = (await filterMaterials(lectureSearch, lectureSortAsc))
+          .data;
+        setCourse(course);
+        setMessages(messages);
+        setMaterials(materials);
       } catch (e) {
         console.warn(e);
       }
@@ -71,72 +71,85 @@ export default function Course() {
     fetchCourse();
   }, []);
 
+  const getCourse = async () => {
+    const res = await axios.get(`http://127.0.0.1:5000/course/${id}`, {
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+      },
+    });
+    return res;
+  };
+
+  const filterMessage = async (search, order) => {
+    const res = await axios.get(`http://127.0.0.1:5000/course_message`, {
+      params: { id: id, search: search, order: order },
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+      },
+    });
+    return res;
+  };
+
+  const filterMaterials = async (search, order) => {
+    const res = await axios.get(`http://127.0.0.1:5000/course_materials`, {
+      params: { id: id, search: search, order: order },
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+      },
+    });
+    return res;
+  };
+
   const handleTabChange = (event, newValue) => {
     setTab(newValue);
   };
 
-  const handleSearch = (prop) => (event) => {
+  const handleSearch = (prop) => async (event) => {
     event.preventDefault();
     const value = event.target.value;
-    const search = value.toLowerCase().replace(/\W/g, "");
-    const hasMatch = (text) => {
-      const copy = (
-        text instanceof Date ? text.toDateString() : text?.toString() ?? ""
-      )
-        .toLowerCase()
-        .replace(/\W/g, "");
 
-      return copy.indexOf(search) !== -1;
-    };
     switch (prop) {
       case "message":
         setMessageSearch(value);
-        const messageCopies = courseMessages(course);
-        setMessages(
-          messageCopies
-            ?.filter((msg) => Object.values(msg).some((it) => hasMatch(it)))
-            .sort((a, b) => moment(a.sendAt).diff(b.sendAt) * messageSortAsc)
-        );
+        try {
+          const res = (await filterMessage(value, messageSortAsc)).data;
+          setMessages(res);
+        } catch (error) {}
+
         break;
       case "course":
         setLectureSearch(value);
-        const materialCopies = courseMaterials(course);
-        setMaterials(
-          materialCopies
-            ?.filter((it) => {
-              return (
-                (it.zoom &&
-                  Object.values(it.zoom).some((elem) => hasMatch(elem))) ||
-                it.materials.some((obj) =>
-                  Object.values(obj).some((elem) => hasMatch(elem))
-                ) ||
-                hasMatch(it.date)
-              );
-            })
-            .sort((a, b) => moment(a.date).diff(b.date) * courseSortAsc)
-        );
+        try {
+          const res = (await filterMaterials(value, lectureSortAsc)).data;
+          setMaterials(res);
+        } catch (error) {}
+
         break;
       default:
         break;
     }
   };
 
-  const handleFilterChange = (prop) => (event) => {
+  const handleFilterChange = (prop) => async (event) => {
     event.preventDefault();
     const value = event.target.value;
     switch (prop) {
       case "message":
         setMessageSortAsc(value);
-        setMessages((prev) =>
-          prev.sort((a, b) => moment(a.sendAt).diff(b.sendAt) * value)
-        );
-
+        try {
+          const res = (await filterMessage(messageSearch, value)).data;
+          setMessages(res);
+        } catch (error) {}
         break;
       case "course":
-        setCourseSortAsc(value);
-        setMaterials((prev) =>
-          prev.sort((a, b) => moment(a.date).diff(b.date) * value)
-        );
+        setLectureSortAsc(value);
+        try {
+          const res = (await filterMaterials(lectureSearch, value)).data;
+          setMaterials(res);
+        } catch (error) {}
         break;
       default:
         break;
@@ -148,7 +161,7 @@ export default function Course() {
         setMessageSortAsc(-1);
         break;
       case "course":
-        setCourseSortAsc(-1);
+        setLectureSortAsc(-1);
         break;
       default:
         break;
@@ -248,8 +261,9 @@ export default function Course() {
                     Course Instructor
                   </Box>
                   <Box sx={{ color: "primary.main", fontWeight: 700 }}>
-                    {course.lecturer}
+                    {course.lecturer?.name}
                   </Box>
+                  {course.lecture?.email}
                 </Stack>
               </Stack>
             </TabPanel>
@@ -313,7 +327,7 @@ export default function Course() {
                   <Grid item xs={2} sm={2} md={1}>
                     <DropdownButton
                       fullWidth={true}
-                      value={courseSortAsc.name}
+                      value={lectureSortAsc}
                       label="Sort"
                       items={[
                         { value: -1, text: "Newest" },
@@ -329,7 +343,7 @@ export default function Course() {
                 {info.map((it, index) => (
                   <LectureListTile
                     key={`l${index}`}
-                    number={it.courseNumber}
+                    number={it.course_number}
                     date={it.date}
                     materials={it.materials}
                     zoom={it.zoom}

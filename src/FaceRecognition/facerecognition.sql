@@ -53,7 +53,7 @@ CREATE TABLE IF NOT EXISTS `Classes` (
     `course_code` VARCHAR(100) NOT NULL,
     `course_name` VARCHAR(100) NOT NULL,
     `academic_year` INT UNSIGNED NOT NULL COMMENT "first semester if academic_year is even;seoncd semester if academic_year is odd;",
-    `description` VARCHAR(255),
+    `description` VARCHAR(1000),
     PRIMARY KEY (`class_id`),
     UNIQUE unique_index (`course_code`, `academic_year`),
     FOREIGN KEY (`teacher_id`) REFERENCES `Teachers`(`teacher_id`)
@@ -89,28 +89,28 @@ CREATE TABLE IF NOT EXISTS `Class_Time` (
 CREATE TABLE IF NOT EXISTS `Information` (
     `class_id` Int UNSIGNED,
     `date` DATE,
-    `course_number` Int,
-    `classroom_address` VARCHAR(100),
+    `course_number` Int UNSIGNED,
+    `venue` VARCHAR(100),
     PRIMARY KEY (`class_id`, `course_number`),
     FOREIGN KEY (`class_id`) REFERENCES `Classes`(`class_id`)
 );
 CREATE TABLE IF NOT EXISTS `TeacherMessage`(
     `class_id` INT UNSIGNED NOT NULL,
-    `course_number` INT NOT NULL,
-    `message_id` INT UNSIGNED NOT NULL,
-    `sendAt` DATETIME NOT NULL,
+    `course_number` INT UNSIGNED NOT NULL,
+    `message_id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `send_at` DATETIME NOT NULL,
     `subject` VARCHAR(100) NOT NULL,
     `content` VARCHAR(255) NOT NULL,
     `from_id` INT UNSIGNED NOT NULL,
     PRIMARY KEY(`class_id`, `course_number`, `message_id`),
     CONSTRAINT teacher_message_fk FOREIGN KEY (`class_id`, `course_number`) REFERENCES Information(`class_id`, `course_number`),
     FOREIGN KEY(`from_id`) REFERENCES Teachers(`teacher_id`)
-);
+) ENGINE = MyISAM;
 CREATE TABLE IF NOT EXISTS `CourseMaterial`(
     `class_id` INT UNSIGNED NOT NULL,
     `course_number` INT NOT NULL,
     `file_link` VARCHAR(255) NOT NULL,
-    `file_name` VARCHAR(100) NOT NULL,
+    `file_name` VARCHAR(100),
     PRIMARY KEY(`class_id`, `course_number`, `file_link`),
     CONSTRAINT course_material_fk FOREIGN KEY (`class_id`, `course_number`) REFERENCES Information(`class_id`, `course_number`)
 );

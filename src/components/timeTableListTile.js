@@ -76,7 +76,7 @@ function TimetableListTile({
     course_name,
     lecturer,
     venue,
-    courseNumber,
+    course_number,
     startAt,
     endAt,
     materials,
@@ -124,7 +124,7 @@ function TimetableListTile({
                 fontWeight: 600,
               }}
             >
-              Lesson {courseNumber}
+              Lesson {course_number}
             </Box>
             <Box
               sx={{
