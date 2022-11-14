@@ -636,11 +636,35 @@ def getTimetable():
 
 @app.route("/sendEmail")
 def sendEmail():
+    course = {
+        'code': 'COMP3278',
+        'class_time': '14:30 - 15:20',
+        'title': 'COMP3278--Introduction to Database Management System',
+        'description': 'This course studies the principles, design, administration, and implementation of database management systems. Topics include: entity-relationship model, relational model, relational algebra, database design and normalization, database query languages, indexing schemes, integrity and concurrency control.',
+        'address': 'Meng Wah Complex MWT2',
+        'zoom_link': 'https://hku.zoom.us/j/96226740999?pwd=ZER1UUdxSVVhQzNXbXFkUDd3WjRBdz09',
+        'meeting_ID': '214t1ds14',
+        'materials' : ['https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions', 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions'],
+        'messages': [
+            {
+                'from': 'Dr. Chan',
+                'time': 'Sunday, Nov 13, 2022, 3:40:15 PM',
+                'subject': 'Update Tutorial Schedule',
+                'content': 'Next tutorial will be cancelled'
+            },
+            {
+                'from': 'Dr. Wong',
+                'time': 'Saturday, Nov 14, 2022, 5:17:30 PM',
+                'subject': 'Assignment 2 released',
+                'content': 'Assignment 2 has been release. Please submit it before Nov 21, 00:00:00'
+            }
+        ]
+    }
     with app.app_context():
         msg = Message(subject="Course information",
                       sender=app.config.get("MAIL_USERNAME"),
                       recipients=["u3568441@connect.hku.hk"], # replace with your email for testing
-                      html=render_template('email.html'))
+                      html=render_template('email.html', course = course))
         mail.send(msg)
         return "sent"
 
