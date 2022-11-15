@@ -108,7 +108,7 @@ CREATE TABLE IF NOT EXISTS `TeacherMessage`(
 ) ENGINE = MyISAM;
 CREATE TABLE IF NOT EXISTS `CourseMaterial`(
     `class_id` INT UNSIGNED NOT NULL,
-    `course_number` INT NOT NULL,
+    `course_number` INT UNSIGNED NOT NULL,
     `file_link` VARCHAR(255) NOT NULL,
     `file_name` VARCHAR(100),
     PRIMARY KEY(`class_id`, `course_number`, `file_link`),
@@ -116,7 +116,7 @@ CREATE TABLE IF NOT EXISTS `CourseMaterial`(
 );
 CREATE TABLE IF NOT EXISTS `ZoomLink`(
     `class_id` INT UNSIGNED NOT NULL,
-    `course_number` INT NOT NULL,
+    `course_number` INT UNSIGNED NOT NULL,
     `link` VARCHAR(255) NOT NULL,
     `meeting_id` VARCHAR(100),
     `passcode` VARCHAR(100),
