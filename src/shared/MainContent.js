@@ -155,7 +155,11 @@ const MainContent = ({ children }) => {
   const [open, setOpen] = React.useState(drawerOpen);
   const [state, dispatch] = useGlobalState();
 
-  const hasJWT = state.token && state.token.length > 0;
+  const hasJWT =
+    state.user.user_id &&
+    state.user.user_id > 0 &&
+    state.token &&
+    state.token.length > 0;
 
   const logout = (event) => {
     axios

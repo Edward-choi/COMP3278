@@ -1,6 +1,6 @@
 import MainContent from "../shared/MainContent";
 import * as React from "react";
-import { Box, Stack, Divider } from "@mui/material";
+import { Box, Stack, Divider, CircularProgress } from "@mui/material";
 import moment from "moment";
 import { styled } from "@mui/material/styles";
 import UpcomingCourseCard from "../components/upcomingCourseCard";
@@ -72,31 +72,28 @@ const formatDateHeader = (date) => {
 
 function Home() {
   const [state, dispatch] = useGlobalState();
+  const [loading, setLoading] = React.useState(true);
   const [selectedCourse, setCourse] = React.useState();
+  const [upcomingCourse, setUpcomingCourse] = React.useState();
 
-  const onClickCourseList = (course) => {
-    if (course !== selectedCourse) setCourse(course);
-    else setCourse(null);
-  };
+  React.useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        setLoading(true);
+        const upcoming = await getUpcomingCourse();
+        console.log(upcoming);
+      } catch (error) {
+        console.warn(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchCourses();
+  }, []);
 
-  const renderUpcomingCourse = async () => {
-    try {
-      const res = (await fetchUpcomingCourse()).data;
-      console.log(res);
-    } catch (error) {
-      console.warn(error);
-    }
-    return (
-      <Stack spacing={1} direction="column" sx={{ mb: 12 }}>
-        <h2 style={{ fontWeight: 600 }}>Upcoming Course</h2>
-        <UpcomingCourseCard course={courses[0]} />
-      </Stack>
-    );
-  };
-
-  const fetchUpcomingCourse = async () => {
+  const getUpcomingCourse = async () => {
     const res = await axios.get(
-      `http://127.0.0.1:5000/upcoming_course/${state.user_id}`,
+      `http://127.0.0.1:5000/upcoming_course/${state.user.user_id}`,
       {
         headers: {
           "Content-Type": "application/json",
@@ -104,7 +101,20 @@ function Home() {
         },
       }
     );
-    return res;
+  };
+
+  const onClickCourseList = (course) => {
+    if (course !== selectedCourse) setCourse(course);
+    else setCourse(null);
+  };
+
+  const renderUpcomingCourse = () => {
+    return (
+      <Stack spacing={1} direction="column" sx={{ mb: 12 }}>
+        <h2 style={{ fontWeight: 600 }}>Upcoming Course</h2>
+        <UpcomingCourseCard course={courses[0]} />
+      </Stack>
+    );
   };
 
   const thisWeekCourses = () => {
@@ -240,31 +250,48 @@ function Home() {
   return (
     <div>
       <MainContent>
-        <Stack spacing={1} direction="column" marginBottom={10}>
-          <h3 style={{ margin: 0 }}>
-            Welcome Back {state.user.first_name} {state.user.last_name}!
-          </h3>
-          <Box
-            sx={{
-              display: "inline-flex",
-              gap: 4,
-              color: "neutral.medium",
+        {!loading ? (
+          <div>
+            <Stack spacing={1} direction="column" marginBottom={10}>
+              <h3 style={{ margin: 0 }}>
+                Welcome Back {state.user.first_name} {state.user.last_name}!
+              </h3>
+              <Box
+                sx={{
+                  display: "inline-flex",
+                  gap: 4,
+                  color: "neutral.medium",
+                }}
+              >
+                <p>
+                  Login Time:{" "}
+                  {moment(state.loginAt).format("DD-MM-yy HH:mm:ss")}
+                </p>
+                <p>
+                  Elapsed staying time:
+                  {moment.utc(state.duration * 1000).format("HH:mm:ss")}
+                </p>
+              </Box>
+            </Stack>
+            {courses && courses[0] && renderUpcomingCourse()}
+            <Stack spacing={4} direction="column">
+              <h2>Timetable</h2>
+              {renderTimetable()}
+            </Stack>
+          </div>
+        ) : (
+          <div
+            style={{
+              margin: "auto",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              height: "80vh",
             }}
           >
-            <p>
-              Login Time: {moment(state.loginAt).format("DD-MM-yy HH:mm:ss")}
-            </p>
-            <p>
-              Elapsed staying time:
-              {moment.utc(state.duration * 1000).format("HH:mm:ss")}
-            </p>
-          </Box>
-        </Stack>
-        {courses && courses[0] && renderUpcomingCourse()}
-        <Stack spacing={4} direction="column">
-          <h2>Timetable</h2>
-          {renderTimetable()}
-        </Stack>
+            <CircularProgress size="10rem" />
+          </div>
+        )}
       </MainContent>
     </div>
   );

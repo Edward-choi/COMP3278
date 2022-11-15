@@ -104,8 +104,8 @@ function Login() {
         user: res.user,
         loginAt: Date.now(),
       });
-
-      console.log(state.user);
+      console.log("user\n");
+      console.log(res.user);
       navigate("/");
     } catch (e) {
       handleAPIError(e);

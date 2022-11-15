@@ -389,10 +389,11 @@ def createToken():
             return {"msg":"Wrong email or password"}, 401
         else:
             access_token = create_access_token(identity=email, expires_delta=timedelta(days=1))
-            resp = make_response( {"access_token":access_token, "user":result})
+            
             user_id = result.get('user_id')
             loginHistUpdate(user_id)
-            return resp
+            print(user_id)
+            return jsonify( {"access_token":access_token, "user":result})
 
 # Logout route with user_id - this should 
 # 1. unset the JWT token; 2. update loginHist
@@ -405,9 +406,10 @@ def logout():
     return response
 
 def getStudentInfo(user_id):
-    select = "SELECT students.user_id, first_name, last_name, year, major, email FROM users JOIN students ON students.user_id = users.user_id WHERE students.user_id='%s'" % (user_id)
+    select = "SELECT students.user_id, first_name, last_name, year, major, email FROM users JOIN students ON students.user_id = users.user_id WHERE students.user_id=%s" % (user_id)
     cursor.execute(select)
     result = cursor.fetchone()
+    print(result)
     return result
     #output JSON object format: {user_id:<INT> , name: <String>, ...}
 
@@ -596,23 +598,27 @@ def getMaterialsAndZooms():
 def findClassWithinHour(id):
     studentInfo = getStudentInfo(id)
     select = "SELECT class_id FROM students_take_classes where user_id = %s" % studentInfo.get("user_id")
-    getStudentTakesClassesID = cursor.execute(select)
+    cursor.execute(select)
+    myconn.commit()
     StudentTakesClassesID = cursor.fetchall()
     select = "SELECT * FROM class_time WHERE day_of_week = %s" % weekday
-    getClassTime = cursor.execute(select)
+    cursor.execute(select)
+    myconn.commit()
     classTime = cursor.fetchall()
-    print(classTime)
     for i in range(len(StudentTakesClassesID)):
         if (len(classTime) > 0):
             for j in range (len(classTime)):
-                if (StudentTakesClassesID[i][0] == classTime[j][0] and classTime[j][2].total_seconds() - currentTimeDelta <= 3600 and classTime[j][2].total_seconds() - currentTimeDelta >= 0):
+                if (StudentTakesClassesID[i].get("class_id") == classTime[j].get("class_id") and classTime[j].get("start_time").total_seconds() - currentTimeDelta <= 3600 and classTime[j].get("start_time").total_seconds() - currentTimeDelta >= 0):
                     #Get the class within 1 hour.
                     classWithinHour = classTime[j] 
                     # Get info of the class within hour.
                     select = "SELECT * FROM information WHERE class_id = %s AND week = %s" % (classWithinHour[0], weekOfTheYear)
-                    getClassWithinHourInfo = cursor.execute(select)
-                    classWithinHourInfo = cursor.fetchall()
-                    return classWithinHourInfo 
+                    cursor.execute(select)
+                    myconn.commit()
+                    classWithinHourInfo = cursor.fetchone()
+                    print("class withing hour", classWithinHour)
+                    
+                    return classWithinHourInfo if classWithinHourInfo is not None else {"msg":"no upcoming course"}, 200
                     #classWithinHourInfo[n][0] to get value of nth column
     return {"msg":"no upcoming course"}, 200
 

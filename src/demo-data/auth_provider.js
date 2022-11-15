@@ -2,7 +2,7 @@ import { duration } from "@mui/material";
 import React, { useEffect } from "react";
 
 const defaultUserState = {
-  user_id: "",
+  user_id: 0,
   first_name: "",
   last_name: "",
   email: "",
