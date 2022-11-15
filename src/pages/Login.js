@@ -20,7 +20,7 @@ import BannerImg from "../assets/images/login.png";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import StyledButton from "../components/button";
 import axios from "axios";
-import { useGlobalState } from "../demo-data/auth_provider";
+import { useGlobalState } from "../shared/auth_provider";
 
 function Login() {
   const [values, setValues] = React.useState({

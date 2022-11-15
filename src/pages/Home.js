@@ -8,7 +8,7 @@ import TimetableListTile from "../components/timeTableListTile";
 import { default as courses } from "../demo-data/this-week-courses";
 import ClickableImg from "../assets/images/clickable.png";
 import HaveBreakImg from "../assets/images/haveBreak.png";
-import { useGlobalState } from "../demo-data/auth_provider";
+import { useGlobalState } from "../shared/auth_provider";
 import axios from "axios";
 
 const Timetable = styled("div")(({ theme }) => ({
@@ -299,15 +299,7 @@ function Home() {
             </Stack>
           </div>
         ) : (
-          <div
-            style={{
-              margin: "auto",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              height: "80vh",
-            }}
-          >
+          <div className="circular-progress-container">
             <CircularProgress size="10rem" />
           </div>
         )}

@@ -6,12 +6,13 @@
 4. run `source <path to FaceRecognition/facerecognition.sql>`  if you don't have tables on sql
 5. run `export EMAIL_USER=[your email address]` on terminal
 6. run `export EMAIL_PASSWORD=[your email password]` on terminal
-7. run `flask run` for back-end on terminal;
-8. run `source <path to demo-data/course-generator.sql>` if you don't have any data in sql.
-9. open another terminal for font-end
-10. run `npm install` or `yarn` on terminal
-11. run `npm start` or `yarn dev` on terminal
-12. DONE, enjoy testing on front-end and back-end
+7. run `export FLASK_APP=src.FaceRecognition.apis.py` on terminal
+8. run `flask run` for back-end on terminal;
+9. run `source <path to demo-data/course-generator.sql>` if you don't have any data in sql.
+10. open another terminal for font-end
+11. run `npm install` or `yarn` on terminal
+12. run `npm start` or `yarn dev` on terminal
+13. DONE, enjoy testing on front-end and back-end
 
 ## Available Scripts
 

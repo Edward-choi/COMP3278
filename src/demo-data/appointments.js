@@ -9,7 +9,9 @@ export const appointments = [
   {
     title: (
       <div className="courseInfo">
-        <h4 className="course_code">COMP3278</h4>
+        <div style={{ fontSize: 12, fontWeight: 600 }} className="course_code">
+          COMP3278
+        </div>
         <div>
           <LocationOnIcon sx={{ marginBottom: -2, width: 15 }} />
           MB301
@@ -24,7 +26,9 @@ export const appointments = [
   {
     title: (
       <div className="courseInfo">
-        <h4 className="course_code">COMP3330</h4>
+        <div style={{ fontSize: 12, fontWeight: 600 }} className="course_code">
+          COMP3330
+        </div>
         <div>
           <LocationOnIcon sx={{ marginBottom: -2, width: 15 }} />
           CPD LG08

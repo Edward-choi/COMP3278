@@ -11,7 +11,7 @@ import {
 import { styled } from "@mui/material/styles";
 import Icons from "../components/icons";
 import StyledButton from "./button";
-import { useGlobalState } from "../demo-data/auth_provider";
+import { useGlobalState } from "../shared/auth_provider";
 
 const StyledCourseListTile = styled(ListItem)(({ theme }) => ({
   padding: 0,

@@ -782,7 +782,7 @@ def getThisWeekCourse():
     return jsonify(classInfos)
 
 
-@app.route("/sendEmail")
+@app.route("/send_email")
 def sendEmail():
     course = {
         'code': 'COMP3278',
@@ -812,10 +812,12 @@ def sendEmail():
         msg = Message(subject="Course information",
                       sender=app.config.get("MAIL_USERNAME"),
                       # replace with your email for testing
-                      recipients=["u3568441@connect.hku.hk"],
-                      html=render_template('email.html', course=course))
+                      recipients=["humen@connect.hku.hk"],
+                      body="testing",
+                      html=render_template('email.html', course=course),
+                      )
         mail.send(msg)
-        return "sent"
+        return {"msg": "sent"}
 
 
 if __name__ == '__main__':

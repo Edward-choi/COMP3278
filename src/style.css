@@ -196,3 +196,11 @@ tr.MuiTableRow-root.css-1vtj80e-MuiTableRow-root {
 .videoCapture {
   filter: brightness(50%);
 }
+
+.circular-progress-container{
+  margin: auto;
+  display: flex; 
+  justify-content: center;
+  align-items: center;
+  height: 80vh;
+}

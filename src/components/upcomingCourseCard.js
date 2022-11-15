@@ -12,6 +12,7 @@ import {
 import StyledButton from "./button";
 import Icons from "./icons";
 import MessageCard from "./messageCard";
+import axios from "axios";
 
 const CourseCard = styled("div", {
   shouldForwardProp: (prop) => prop !== "disableElevation",
@@ -106,7 +107,14 @@ function UpcomingCourseCard({
     setWidth(ref?.current?.offsetWidth ?? 0);
   }, [ref.current]);
 
-  const sendCopyToEmail = (event) => {};
+  const sendCopyToEmail = async (event) => {
+    const res = await axios.get("http://127.0.0.1:5000/send_email", {
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+      },
+    });
+  };
   const downloadAll = (event) => {
     materials.forEach((material) =>
       window.open(material?.file_link || material.link)

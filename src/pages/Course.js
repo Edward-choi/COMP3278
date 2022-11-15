@@ -41,6 +41,38 @@ const StyledTab = styled(Tab)(({ theme }) => ({
   fontSize: 14,
 }));
 
+const getCourse = async (id) => {
+  const res = await axios.get(`http://127.0.0.1:5000/course/${id}`, {
+    headers: {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*",
+    },
+  });
+  return res;
+};
+
+const filterMessage = async (id, search, order) => {
+  const res = await axios.get(`http://127.0.0.1:5000/course_message`, {
+    params: { id: id, search: search, order: order },
+    headers: {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*",
+    },
+  });
+  return res;
+};
+
+const filterMaterials = async (id, search, order) => {
+  const res = await axios.get(`http://127.0.0.1:5000/course_materials`, {
+    params: { id: id, search: search, order: order },
+    headers: {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*",
+    },
+  });
+  return res;
+};
+
 export default function Course() {
   const navigator = useNavigate();
   const { id } = useParams();
@@ -60,10 +92,12 @@ export default function Course() {
       setLoading(true);
       try {
         const course = (await getCourse()).data;
-        const messages = (await filterMessage(messageSearch, messageSortAsc))
-          .data;
-        const materials = (await filterMaterials(lectureSearch, lectureSortAsc))
-          .data;
+        const messages = (
+          await filterMessage(id, messageSearch, messageSortAsc)
+        ).data;
+        const materials = (
+          await filterMaterials(id, lectureSearch, lectureSortAsc)
+        ).data;
         setCourse(course);
         setMessages(messages);
         setMaterials(materials);
@@ -75,38 +109,6 @@ export default function Course() {
     };
     fetchCourse();
   }, []);
-
-  const getCourse = async () => {
-    const res = await axios.get(`http://127.0.0.1:5000/course/${id}`, {
-      headers: {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
-      },
-    });
-    return res;
-  };
-
-  const filterMessage = async (search, order) => {
-    const res = await axios.get(`http://127.0.0.1:5000/course_message`, {
-      params: { id: id, search: search, order: order },
-      headers: {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
-      },
-    });
-    return res;
-  };
-
-  const filterMaterials = async (search, order) => {
-    const res = await axios.get(`http://127.0.0.1:5000/course_materials`, {
-      params: { id: id, search: search, order: order },
-      headers: {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
-      },
-    });
-    return res;
-  };
 
   const handleTabChange = (event, newValue) => {
     setTab(newValue);
@@ -145,14 +147,14 @@ export default function Course() {
       case "message":
         setMessageSortAsc(value);
         try {
-          const res = (await filterMessage(messageSearch, value)).data;
+          const res = (await filterMessage(id, messageSearch, value)).data;
           setMessages(res);
         } catch (error) {}
         break;
       case "course":
         setLectureSortAsc(value);
         try {
-          const res = (await filterMaterials(lectureSearch, value)).data;
+          const res = (await filterMaterials(id, lectureSearch, value)).data;
           setMaterials(res);
         } catch (error) {}
         break;
@@ -375,15 +377,7 @@ export default function Course() {
             </Stack>
           )
         ) : (
-          <div
-            style={{
-              margin: "auto",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              height: "80vh",
-            }}
-          >
+          <div className="circular-progress-container">
             <CircularProgress size="10rem" />
           </div>
         )}

@@ -11,9 +11,47 @@ import {
   CircularProgress,
 } from "@mui/material";
 import CourseCard from "../components/courseCard";
-import { useGlobalState } from "../demo-data/auth_provider";
+import { useGlobalState } from "../shared/auth_provider";
 import CourseListTile from "../components/courseListTile";
 import DropdownButton from "../components/dropdownButton";
+
+const getCurrentCourses = async (user_id) => {
+  const res = await axios.get("http://127.0.0.1:5000/current_courses", {
+    params: { user_id: user_id },
+    headers: {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*",
+    },
+  });
+  return res;
+};
+
+const getCourses = async (user_id) => {
+  const res = await axios.get(`http://127.0.0.1:5000/courses`, {
+    params: { user_id: user_id },
+    headers: {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*",
+    },
+  });
+  return res;
+};
+
+const getFilterCourses = async (user_id, search, filter, order) => {
+  const res = await axios.get("http://127.0.0.1:5000/filter_courses", {
+    params: {
+      user_id: user_id,
+      search: search,
+      filter: filter,
+      order: order,
+    },
+    headers: {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*",
+    },
+  });
+  return res;
+};
 
 function Courses() {
   const [filterState, setFilter] = React.useState(1);
@@ -30,7 +68,7 @@ function Courses() {
       query:
         state.stars.length > 0
           ? `Classes.class_id IN (${state.stars.join(",")})`
-          : "",
+          : `Classes.class_id IN (-1)`,
       text: "Star",
     },
     { query: "academic_year = YEAR(now())", text: "In progress" },
@@ -48,8 +86,10 @@ function Courses() {
     const fetchCourses = async () => {
       setLoading(true);
       try {
-        const current_courses = (await getCurrentCourses()).data;
-        const courses = (await getCourses()).data;
+        const current_courses = (await getCurrentCourses(state.user.user_id))
+          .data;
+        const courses = (await getFilterCourses(state.user.user_id, searchText))
+          .data;
         setCurrentCourse(current_courses);
         setFilteredCourses(courses);
       } catch (e) {
@@ -60,44 +100,6 @@ function Courses() {
     };
     fetchCourses();
   }, []);
-
-  const getCurrentCourses = async () => {
-    const res = await axios.get("http://127.0.0.1:5000/current_courses", {
-      params: { user_id: state.user.user_id },
-      headers: {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
-      },
-    });
-    return res;
-  };
-
-  const getCourses = async () => {
-    const res = await axios.get(`http://127.0.0.1:5000/courses`, {
-      params: { user_id: state.user.user_id },
-      headers: {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
-      },
-    });
-    return res;
-  };
-
-  const getFilterCourses = async (search, filter, order) => {
-    const res = await axios.get("http://127.0.0.1:5000/filter_courses", {
-      params: {
-        user_id: state.user.user_id,
-        search: search,
-        filter: filter,
-        order: order,
-      },
-      headers: {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
-      },
-    });
-    return res;
-  };
 
   const handleSearch = async (event) => {
     event.preventDefault();
@@ -113,21 +115,24 @@ function Courses() {
     setFilter(event.target.value);
     let query = filterMenu[event.target.value - 1].query;
     try {
-      const res = (await getFilterCourses(searchText, query)).data;
+      const res = (
+        await getFilterCourses(state.user.user_id, searchText, query)
+      ).data;
       setFilteredCourses(res);
     } catch (error) {}
   };
+
   const handleSortChange = async (event) => {
     let value = event.target.value;
-    // let oldSort = state.sortBy;
+
     setSortBy(value);
     let index = value - 1;
-    // let factor = value == oldSort ? -1 : 1;
-
     let order = (sortByMenu[index].query +=
       sortByMenu[index] > 0 ? " ASC" : " DESC");
     try {
-      const res = (await getFilterCourses(searchText, null, order)).data;
+      const res = (
+        await getFilterCourses(state.user.user_id, searchText, null, order)
+      ).data;
       setFilteredCourses(res);
     } catch (error) {}
   };
@@ -189,14 +194,7 @@ function Courses() {
                         handleChange={handleFilterChange}
                         clearSelect={() => clearFilter("state")}
                       />
-                      {/* <DropdownButton
-                    fullWidth={true}
-                    value={filterState.type}
-                    label="Type"
-                    items={["All", "Regular", "Common Core"]}
-                    handleChange={handleFilterChange("type")}
-                    clearSelect={() => clearFilter("type")}
-                  /> */}
+
                       <DropdownButton
                         fullWidth={true}
                         value={sortBy}
@@ -223,15 +221,7 @@ function Courses() {
             </Stack>
           </div>
         ) : (
-          <div
-            style={{
-              margin: "auto",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              height: "80vh",
-            }}
-          >
+          <div className="circular-progress-container">
             <CircularProgress size="10rem" />
           </div>
         )}

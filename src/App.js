@@ -11,7 +11,7 @@ import Register from "./pages/Register";
 import Course from "./pages/Course";
 
 import { CssBaseline, ThemeProvider, createTheme } from "@mui/material";
-import { AuthStateProvider } from "./demo-data/auth_provider";
+import { AuthStateProvider } from "./shared/auth_provider";
 import FaceRecognitionRegister from "./pages/FaceRecognitionRegister";
 import FaceRecognitionLogin from "./pages/FaceRecognitionLogin";
 

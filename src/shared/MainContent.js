@@ -1,6 +1,6 @@
 import * as React from "react";
 import { styled } from "@mui/material/styles";
-import { useGlobalState } from "../demo-data/auth_provider";
+import { useGlobalState } from "./auth_provider";
 import { Link, useLocation, Navigate } from "react-router-dom";
 
 import {
