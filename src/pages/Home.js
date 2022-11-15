@@ -75,13 +75,18 @@ function Home() {
   const [loading, setLoading] = React.useState(true);
   const [selectedCourse, setCourse] = React.useState();
   const [upcomingCourse, setUpcomingCourse] = React.useState();
+  const [weekCourses, setWeekCourses] = React.useState([]);
 
   React.useEffect(() => {
     const fetchCourses = async () => {
       try {
         setLoading(true);
-        const upcoming = await getUpcomingCourse();
+        const upcoming = (await getUpcomingCourse()).data;
+        const thisWeek = (await getThisWeekCourse()).data;
         console.log(upcoming);
+        console.log(thisWeek);
+        if (!upcoming.hasOwnProperty("msg")) setUpcomingCourse(upcoming);
+        if (!thisWeek.hasOwnProperty("msg")) setWeekCourses(thisWeek);
       } catch (error) {
         console.warn(error);
       } finally {
@@ -101,6 +106,20 @@ function Home() {
         },
       }
     );
+    return res;
+  };
+
+  const getThisWeekCourse = async () => {
+    const res = await axios.get(`http://127.0.0.1:5000/this_week_courses`, {
+      params: {
+        user_id: state.user.user_id,
+      },
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+      },
+    });
+    return res;
   };
 
   const onClickCourseList = (course) => {
@@ -112,7 +131,7 @@ function Home() {
     return (
       <Stack spacing={1} direction="column" sx={{ mb: 12 }}>
         <h2 style={{ fontWeight: 600 }}>Upcoming Course</h2>
-        <UpcomingCourseCard course={courses[0]} />
+        <UpcomingCourseCard course={upcomingCourse} />
       </Stack>
     );
   };
@@ -120,8 +139,8 @@ function Home() {
   const thisWeekCourses = () => {
     let events = new Map();
 
-    courses.forEach((course) => {
-      const date = new Date(course.date);
+    weekCourses?.forEach((course) => {
+      const date = new Date(Date.parse(course.date));
       date.setHours(0, 0, 0, 0);
 
       const sDate = date.getTime();
@@ -273,7 +292,7 @@ function Home() {
                 </p>
               </Box>
             </Stack>
-            {courses && courses[0] && renderUpcomingCourse()}
+            {upcomingCourse && renderUpcomingCourse()}
             <Stack spacing={4} direction="column">
               <h2>Timetable</h2>
               {renderTimetable()}

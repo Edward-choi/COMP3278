@@ -3,6 +3,7 @@ import { styled } from "@mui/material/styles";
 import { Box, Stack } from "@mui/system";
 import StyledButton from "./button";
 import Icons from "./icons";
+import moment from "moment";
 
 const ListTile = styled("div", {
   shouldForwardProp: (prop) => prop !== "active",
@@ -87,13 +88,14 @@ function TimetableListTile({
 }) {
   let duration = () => {
     if (startAt && endAt) {
-      var diffMs = endAt - startAt;
-      return Math.round(diffMs / 60000);
+      return moment
+        .duration(moment(endAt, "HH:mm").diff(moment(startAt, "HH:mm")))
+        .asMinutes();
     }
   };
   const renderStartAt = () => {
-    if (startAt !== undefined && startAt !== null && "getHours" in startAt) {
-      return `${startAt.getHours()}:${startAt.getMinutes()}`;
+    if (startAt !== undefined && startAt !== null) {
+      return moment(startAt, "HH:mm").format("HH:mm");
     }
   };
   return (
