@@ -86,6 +86,7 @@ def capture_by_frames(user_name):
     start = False
     video_capture = cv2.VideoCapture(0)
     NUM_IMGS = 100
+    user_id = find_user_id ()
     if not os.path.exists(dir + '/data/{}'.format(str(user_id) + " " + user_name)):
         os.mkdir(dir + '/data/{}'.format(str(user_id) + " " + user_name))
 
