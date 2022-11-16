@@ -443,8 +443,8 @@ def facialLogin():
 
 
 @app.route('/login/<user_id>')
-@app.route('/login', methods=["POST", "GET", 'OPTIONS'], strict_slashes=False)
-@cross_origin(methods=['POST', 'GET', 'OPTIONS'], supports_credentials=True, headers=['Content-Type', 'Authorization'], origin='http://127.0.0.1:5000')
+@app.route('/login', methods=["POST", "GET"], strict_slashes=False)
+@cross_origin(methods=['POST', 'GET'], supports_credentials=True, headers=['Content-Type', 'Authorization'], origin='*')
 def createToken(user_id=None):
     if request.method == "POST":
         myconn = mysql.connector.connect(**config)
@@ -468,7 +468,9 @@ def createToken(user_id=None):
             user_id = result.get('user_id')
             loginHistUpdate(user_id)
             print(user_id)
-            return jsonify({"access_token": access_token, "user": result})
+            response = jsonify({"access_token": access_token, "user": result})
+
+            return response
     elif user_id is not None and int(user_id) > 0:
         myconn = mysql.connector.connect(**config)
         cursor = myconn.cursor(buffered=True, dictionary=True)
@@ -813,7 +815,7 @@ def findClassWithinHour(id):
                     classWithinHourInfo = cursor.fetchone()
                     print("class withing hour", classWithinHour)
                     cursor.close()
-                    return classWithinHourInfo if classWithinHourInfo is not None else {"msg": "no upcoming course"}, 200
+                    return (classWithinHourInfo) if classWithinHourInfo is not None else {"msg": "no upcoming course"}, 200
                     # classWithinHourInfo[n][0] to get value of nth column
     if myconn.is_connected():
         cursor.close()
