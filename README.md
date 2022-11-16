@@ -15,7 +15,7 @@
 13. run `npm start` or `yarn dev` on terminal
 14. DONE, enjoy testing on front-end and back-end
 
-NOTE: if you run this project on Chrome, please download an extension called Allow CORS from 'https://mybrowseraddon.com/access-control-allow-origin.html?v=0.1.8&type=install' first
+UPDATE (16/11): PLEASE DON'T USE CHROME FOR EXECUTION
 
 ## Available Scripts
 

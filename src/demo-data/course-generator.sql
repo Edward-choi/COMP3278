@@ -2,11 +2,15 @@ INSERT IGNORE INTO Users(first_name, last_name, email, password)
 VALUES ('Hubert T.H', 'Chan', 'hubert@cs.hku.hk', ''),
     ('Tat Wing', 'Chim', 'twchim@cs.hku.hk', ''),
     ('Yi King', 'Choi', 'ykchoi@cs.hku.hk', ''),
-    ('Luo', 'Ping', 'pluo@cs.hku.hk', '');
+    ('Luo', 'Ping', 'pluo@cs.hku.hk', ''),
+    ('Ravishankar', 'Ramanathan', '', '');
 INSERT IGNORE INTO Teachers(`teacher_id`)
-SELECT Users.user_id
+SELECT user_id
 FROM Users
-    LEFT JOIN Students ON Users.user_id <> Students.user_id;
+WHERE user_id NOT IN (
+        SELECT user_id
+        FROM Students
+    );
 INSERT IGNORE INTO Classes(
         teacher_id,
         course_code,
@@ -34,6 +38,20 @@ VALUES (
         "Software Development",
         year(curdate()),
         "This course introduces the techniques for developing interactive mobile applications on Android platform. Topics include user interface design, graphics, parallel computing, database, network, multimedia, sensors and location service. Trends and tools for developing applications on various mobile platforms are also discussed. Students participate in both individual assignments and group projects to practice ideation, reading, writing, coding and presentation skills."
+    ),
+    (
+        1,
+        "COMP2396",
+        "Object-oriented programming and Java",
+        year(curdate()) -1,
+        "Hello! Welcome to COMP2396 Object-oriented Programming and Java!"
+    ),
+    (
+        5,
+        "COMP3357",
+        "Cryptography",
+        year(curdate()) + 1,
+        "This course offers a gentle introduction to the field of cryptography. We will start from the basic principles of confidentiality, integrity and authentication. After that, we will go through some fundamental cryptographic primitives like hash function, symmetric key encryption, public key encryption and digital signatures. Finally, we will introduce the basics of quantum cryptography including quantum key distribution and random number generation. "
     );
 INSERT IGNORE INTO Class_Time(
         class_id,
@@ -46,7 +64,9 @@ VALUES (1, 0, '14:30:00', '15:20:00'),
     (2, 1, '13:30:00', '15:20:00'),
     (2, 4, '13:30:00', '14:20:00'),
     (3, 1, '09:30:00', '10:20:00'),
-    (3, 4, '09:30:00', '11:20:00');
+    (3, 4, '09:30:00', '11:20:00'),
+    (4, 1, '12:30:00', '13:20:00'),
+    (4, 4, '12:30:00', '14:20:00');
 -- Insert course information between 2022-9-1 and 2022-12-1
 INSERT IGNORE INTO Information(`class_id`, `date`, `course_number`) WITH recursive Date_Ranges AS (
         select '2022-09-01' as Date
@@ -84,10 +104,10 @@ INSERT IGNORE INTO TeacherMessage(
         from_id
     )
 VALUES (
-        1,
+        FLOOR(1 + RAND() * 4),
         FLOOR(1 + RAND() * 20),
         FROM_UNIXTIME(
-            UNIX_TIMESTAMP('2022-09-01 14:53:27') + FLOOR(0 + (RAND() * 63072000))
+            UNIX_TIMESTAMP('2022-09-01 14:53:27') + FLOOR(0 + (RAND() * 2592000))
         ),
         "Update Tutorial Schedule",
         "Bla Bla testing testing 124",
@@ -95,9 +115,9 @@ VALUES (
     ),
     (
         1,
-        FLOOR(1 + RAND() * 20),
+        FLOOR(1 + RAND() * 4),
         FROM_UNIXTIME(
-            UNIX_TIMESTAMP('2022-09-01 14:53:27') + FLOOR(0 + (RAND() * 63072000))
+            UNIX_TIMESTAMP('2022-09-01 14:53:27') + FLOOR(0 + (RAND() * 2592000))
         ),
         "Update Tutorial Schedule",
         "Bla Bla testing testing 124",
@@ -105,9 +125,9 @@ VALUES (
     ),
     (
         1,
-        FLOOR(1 + RAND() * 20),
+        FLOOR(1 + RAND() * 4),
         FROM_UNIXTIME(
-            UNIX_TIMESTAMP('2022-09-01 14:53:27') + FLOOR(0 + (RAND() * 63072000))
+            UNIX_TIMESTAMP('2022-09-01 14:53:27') + FLOOR(0 + (RAND() * 2592000))
         ),
         "Update Tutorial Schedule",
         "Bla Bla testing testing 124",
@@ -132,3 +152,10 @@ WHERE date <= now()
     AND (
         course_number = (FLOOR(RAND() *(course_number)) + 1)
     );
+-- Assume all students enrolled all our stored courses in DB
+INSERT IGNORE INTO Students_Take_Classes(user_id, class_id, year)
+SELECT user_id,
+    class_id,
+    academic_year
+FROM Students,
+    Classes;

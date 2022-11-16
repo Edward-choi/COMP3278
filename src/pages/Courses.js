@@ -105,7 +105,9 @@ function Courses() {
     event.preventDefault();
     setSearchText(event.target.value);
     try {
-      const res = (await getFilterCourses(event.target.value)).data;
+      const res = (
+        await getFilterCourses(state.user.user_id, event.target.value)
+      ).data;
       setFilteredCourses(res);
     } catch (error) {}
   };
