@@ -103,7 +103,7 @@ def capture_by_frames(user_name):
     start = False
     video_capture = cv2.VideoCapture(0)
     NUM_IMGS = 100
-    user_id = find_user_id ()
+    user_id = find_user_id()
     if not os.path.exists(dir + '/data/{}'.format(str(user_id) + " " + user_name)):
         os.mkdir(dir + '/data/{}'.format(str(user_id) + " " + user_name))
 
@@ -197,6 +197,7 @@ def createAccount(firstName, lastName, email, password):
     cursor = myconn.cursor(buffered=True, dictionary=True)
     createUser = f"INSERT INTO Users(first_name, last_name, email, password) VALUES('{firstName}','{lastName}', '{email}', '{password}')"
     cursor.execute(createUser)
+    myconn.commit()
     if myconn.is_connected():
         cursor.close()
         myconn.close()
@@ -208,6 +209,7 @@ def createStudent(major, year):
     cursor.execute("SELECT max(user_id) as user_id FROM Users")
     myconn.commit()
     result = cursor.fetchone()
+
     student_id = result.get('user_id')
     cursor.execute(f"ALTER TABLE Students AUTO_INCREMENT = {student_id}")
     createStudent = "INSERT INTO STUDENTS(year, major) VALUES(%d, '%s')" % (

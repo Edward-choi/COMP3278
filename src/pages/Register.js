@@ -81,12 +81,28 @@ function Register() {
       return;
     } else {
       try {
-        await register();
+        let body = {
+          firstName: values.firstName,
+          lastName: values.lastName,
+          email: values.email,
+          password: values.password,
+          year: values.year,
+          major: values.major,
+        };
+        const result = await axios
+          .post("http://127.0.0.1:5000/registration", body, {
+            headers: {
+              "Content-Type": "application/json",
+              "Access-Control-Allow-Origin": "*",
+            },
+          })
+          .then((res) => {
+            setStep(step + 1);
+          });
       } catch (e) {
         handleAPIError(e);
       }
     }
-    setStep(step + 1);
   };
 
   const checkEmail = async (email) => {
