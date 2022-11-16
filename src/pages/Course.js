@@ -122,7 +122,7 @@ export default function Course() {
       case "message":
         setMessageSearch(value);
         try {
-          const res = (await filterMessage(value, messageSortAsc)).data;
+          const res = (await filterMessage(id, value, messageSortAsc)).data;
           setMessages(res);
         } catch (error) {}
 
@@ -130,7 +130,7 @@ export default function Course() {
       case "course":
         setLectureSearch(value);
         try {
-          const res = (await filterMaterials(value, lectureSortAsc)).data;
+          const res = (await filterMaterials(id, value, lectureSortAsc)).data;
           setMaterials(res);
         } catch (error) {}
 
