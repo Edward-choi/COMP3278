@@ -149,9 +149,7 @@ def checkEmail(email):
     cursor.execute(f"SELECT email FROM Users WHERE email = '{email}'")
     myconn.commit()
     result = cursor.fetchone()
-    response = make_response({"result": result != None})
-    response.headers.add("Access-Control-Allow-Origin", "*")
-    return response
+    return jsonify({"msg": result != None})
 
 
 @app.route('/registration', methods=["POST", "GET"], strict_slashes=False)
@@ -164,7 +162,7 @@ def registration():
         email = val["email"]
         password = val["password"]
         major = val["major"]
-        year = val["year"]
+        year = int(val["year"])
         createAccount(firstName, lastName, email, password)
         createStudent(major, year)
         return jsonify(result=True)
@@ -172,8 +170,8 @@ def registration():
 
 
 def createAccount(firstName, lastName, email, password):
-    createUser = "INSERT INTO Users(first_name, last_name, email, password) VALUES('%s','%s', '%s', '%s')" % (
-        firstName, lastName, email, password)
+    createUser = f"INSERT INTO Users(first_name, last_name, email, password) VALUES('{firstName}','{lastName}', '{email}', '{password}')"
+
     cursor.execute(createUser)
 
 
@@ -658,8 +656,7 @@ def getMaterialsAndZooms():
 @app.route("/upcoming_course/<id>")
 def findClassWithinHour(id):
     studentInfo = getStudentInfo(id)
-    select = "SELECT class_id FROM students_take_classes where user_id = %s" % studentInfo.get(
-        "user_id")
+    select = "SELECT class_id FROM students_take_classes where user_id = %s" % id
     cursor.execute(select)
     myconn.commit()
     StudentTakesClassesID = cursor.fetchall()
@@ -713,76 +710,80 @@ def getThisWeekCourse():
     cursor.execute(searchClasses)
     myconn.commit()
     currentClasses = cursor.fetchall()
-    class_ids = ", ".join(str(course.get("class_id"))
-                          for course in currentClasses)
-    # Search class_id, start and end time, date, venue, course_number, messages,
-    # materials, and zoom for each lecture in Class_Time, Information Tables,
-    # TeacherMessage, CourseMaterial and ZoomLink
-    upcomingFri = "curdate() + INTERVAL 4 - weekday(curdate()) DAY"
-    searchClassAllInfo = f"SELECT I.class_id, DATE_FORMAT(start_time, '%H:%i') as start_time, DATE_FORMAT(end_time,'%H:%i') as end_time, date, I.course_number, venue, message_id, send_at, subject, content, from_id, file_link, file_name, link, meeting_id, passcode FROM Information I JOIN Class_TIME CT ON I.class_id IN ({class_ids}) AND I.class_id = CT.class_id AND date <= {upcomingFri} AND date >= now() AND WEEKDAY(date) = day_of_week LEFT JOIN TeacherMessage TM ON TM.class_id = I.class_id AND TM.course_number = I.course_number LEFT JOIN CourseMaterial CM ON CM.class_id = I.class_id AND CM.course_number = I.course_number LEFT JOIN ZoomLink ZL ON ZL.class_id = I.class_id AND ZL.course_number = I.course_number ORDER BY date, start_time,I.course_number"
-    cursor.execute(searchClassAllInfo)
-    myconn.commit()
-    classAllInfo = cursor.fetchall()
-    classInfos = []
+    if (len(currentClasses) > 0):
+        class_ids = ", ".join(str(course.get("class_id"))
+                              for course in currentClasses)
 
-    # Rephrase dict to json
-    for row in classAllInfo:
-        class_id = row.get("class_id")
-        course_number = row.get("course_number")
-        course = next((x for x in currentClasses if x.get(
-            "class_id") == class_id), None)
-        if (course is not None):
-            update = False
-            message = None
-            material = None
-            zoom = None
-            if (row.get("send_at") is not None and row.get("from_id") is not None):
-                fromTeacher = getTeacherInfo(row.get("from_id"))[0]
-                message = {
-                    "subject": row.get("subject"),
-                    "from": fromTeacher.get("name"),
-                    "send_at": row.get("send_at"),
-                    "content": row.get("content"),
-                }
-            if (row.get("file_link") is not None):
-                material = {
-                    "link": row.get("file_link"),
-                    "file_name": row.get("file_name")
-                }
-            if (row.get("link")):
-                zoom = {
-                    "link": row.get("link"),
-                    "meeting_id": row.get("meeting_id"),
-                    "passcode": row.get("passcode")
-                }
-            for x in classInfos:
-                if (x.get("class_id") == class_id and x.get("course_number") == course_number):
-                    if (material is not None):
-                        x.update({"materials": x.get("materials").append(
-                            material)})
-                    if (message is not None):
-                        x.update(
-                            {"messages": x.get("messages").append(message)})
-                    update = True
-            if (update == False):
-                courseInfo = {
-                    "class_id": class_id,
-                    "course_code": course.get("course_code"),
-                    "course_name": course.get("course_name"),
-                    "academic_year": course.get("academic_year"),
-                    "description": course.get("description"),
-                    "lecturer": f"Dr. {course.get('last_name')}, {course.get('first_name')}",
-                    "course_number": course_number,
-                    "date": row.get("date"),
-                    "startAt": row.get("start_time"),
-                    "endAt": row.get("end_time"),
-                    "venue": row.get("venue"),
-                    "messages": [message] if message is not None and message.get("send_at") is not None else [],
-                    "materials": [material] if material is not None and material.get("link") is not None else [],
-                    "zoom": zoom
-                }
-                classInfos.append(courseInfo)
-    return jsonify(classInfos)
+        # Search class_id, start and end time, date, venue, course_number, messages,
+        # materials, and zoom for each lecture in Class_Time, Information Tables,
+        # TeacherMessage, CourseMaterial and ZoomLink
+        upcomingFri = "curdate() + INTERVAL 4 - weekday(curdate()) DAY"
+        searchClassAllInfo = f"SELECT I.class_id, DATE_FORMAT(start_time, '%H:%i') as start_time, DATE_FORMAT(end_time,'%H:%i') as end_time, date, I.course_number, venue, message_id, send_at, subject, content, from_id, file_link, file_name, link, meeting_id, passcode FROM Information I JOIN Class_TIME CT ON I.class_id IN ({class_ids}) AND I.class_id = CT.class_id AND date <= {upcomingFri} AND date >= now() AND WEEKDAY(date) = day_of_week LEFT JOIN TeacherMessage TM ON TM.class_id = I.class_id AND TM.course_number = I.course_number LEFT JOIN CourseMaterial CM ON CM.class_id = I.class_id AND CM.course_number = I.course_number LEFT JOIN ZoomLink ZL ON ZL.class_id = I.class_id AND ZL.course_number = I.course_number ORDER BY date, start_time,I.course_number"
+        cursor.execute(searchClassAllInfo)
+        myconn.commit()
+        classAllInfo = cursor.fetchall()
+        classInfos = []
+
+        # Rephrase dict to json
+        for row in classAllInfo:
+            class_id = row.get("class_id")
+            course_number = row.get("course_number")
+            course = next((x for x in currentClasses if x.get(
+                "class_id") == class_id), None)
+            if (course is not None):
+                update = False
+                message = None
+                material = None
+                zoom = None
+                if (row.get("send_at") is not None and row.get("from_id") is not None):
+                    fromTeacher = getTeacherInfo(row.get("from_id"))[0]
+                    message = {
+                        "subject": row.get("subject"),
+                        "from": fromTeacher.get("name"),
+                        "send_at": row.get("send_at"),
+                        "content": row.get("content"),
+                    }
+                if (row.get("file_link") is not None):
+                    material = {
+                        "link": row.get("file_link"),
+                        "file_name": row.get("file_name")
+                    }
+                if (row.get("link")):
+                    zoom = {
+                        "link": row.get("link"),
+                        "meeting_id": row.get("meeting_id"),
+                        "passcode": row.get("passcode")
+                    }
+                for x in classInfos:
+                    if (x.get("class_id") == class_id and x.get("course_number") == course_number):
+                        if (material is not None):
+                            x.update({"materials": x.get("materials").append(
+                                material)})
+                        if (message is not None):
+                            x.update(
+                                {"messages": x.get("messages").append(message)})
+                        update = True
+                if (update == False):
+                    courseInfo = {
+                        "class_id": class_id,
+                        "course_code": course.get("course_code"),
+                        "course_name": course.get("course_name"),
+                        "academic_year": course.get("academic_year"),
+                        "description": course.get("description"),
+                        "lecturer": f"Dr. {course.get('last_name')}, {course.get('first_name')}",
+                        "course_number": course_number,
+                        "date": row.get("date"),
+                        "startAt": row.get("start_time"),
+                        "endAt": row.get("end_time"),
+                        "venue": row.get("venue"),
+                        "messages": [message] if message is not None and message.get("send_at") is not None else [],
+                        "materials": [material] if material is not None and material.get("link") is not None else [],
+                        "zoom": zoom
+                    }
+                    classInfos.append(courseInfo)
+        return jsonify(classInfos)
+    else:
+        return {"msg": "no classes"}, 401
 
 
 @app.route("/send_email")

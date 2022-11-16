@@ -21,6 +21,34 @@ import StyledButton from "../components/button";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import Icons from "../components/icons";
 
+const checkEmail = async (email) => {
+  const res = await axios.get(`http://127.0.0.1:5000/registration/${email}`, {
+    headers: {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*",
+    },
+  });
+  return await res.data;
+};
+
+const register = async (firstName, lastName, email, password, year, major) => {
+  let body = {
+    firstName: firstName,
+    lastName: lastName,
+    email: email,
+    password: password,
+    year: year,
+    major: major,
+  };
+  const result = await axios.post("http://127.0.0.1:5000/registration", body, {
+    headers: {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*",
+    },
+  });
+  return await result;
+};
+
 function Register() {
   const [step, setStep] = React.useState(1);
   const [values, setValues] = React.useState({
@@ -32,11 +60,18 @@ function Register() {
     password: "",
     confirmPassword: "",
     showPassword: false,
-    formErrors: { name: "", email: "", password: "", confirmPassword: "" },
+    formErrors: {
+      name: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+      year: "",
+    },
     nameValid: false,
     emailValid: false,
     passwordValid: false,
     confirmPasswordValid: false,
+    yearValid: true,
   });
 
   const [agreeTerms, setAgree] = React.useState(true);
@@ -47,26 +82,29 @@ function Register() {
 
   const nextStep = async (event) => {
     let formValidationErrors = values.formErrors;
-    if (!values.nameValid) formValidationErrors.name = "name is invalid";
+    if (!values.nameValid && values.name?.length <= 0)
+      formValidationErrors.name = "name is invalid";
 
-    if (!values.emailValid) formValidationErrors.email = "email is invalid";
+    if (!values.emailValid && values.email?.length <= 0)
+      formValidationErrors.email = "email is invalid";
 
-    if (!values.passwordValid)
+    if (!values.passwordValid && values.passwordValid?.length <= 0)
       formValidationErrors.password = "password is invalid";
-    if (!values.confirmPasswordValid)
+    if (!values.confirmPasswordValid && values.confirmPassword?.length <= 0)
       formValidationErrors.confirmPassword = "confirm password is invalid";
     setValues({ ...values, formErrors: formValidationErrors });
     if (
       !values.nameValid ||
       !values.emailValid ||
       !values.passwordValid ||
-      !values.confirmPassword
+      !values.confirmPassword ||
+      !values.yearValid
     )
       return;
 
-    let emailRegistered;
+    let emailRegistered = false;
     try {
-      emailRegistered = await checkEmail(values.email);
+      emailRegistered = (await checkEmail(values.email))["msg"];
     } catch (e) {
       console.log("error in checking registered email");
       handleAPIError(e);
@@ -81,44 +119,19 @@ function Register() {
       return;
     } else {
       try {
-        await register();
+        await register(
+          values.firstName,
+          values.lastName,
+          values.email,
+          values.password,
+          values.year,
+          values.major
+        );
         setStep(step + 1);
       } catch (e) {
         handleAPIError(e);
       }
     }
-  };
-
-  const checkEmail = async (email) => {
-    const res = await axios.get(`http://127.0.0.1:5000/registration/${email}`, {
-      headers: {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
-      },
-    });
-    return await res.data.result;
-  };
-
-  const register = async () => {
-    let body = {
-      firstName: values.firstName,
-      lastName: values.lastName,
-      email: values.email,
-      password: values.password,
-      year: values.year,
-      major: values.major,
-    };
-    const result = await axios.post(
-      "http://127.0.0.1:5000/registration",
-      body,
-      {
-        headers: {
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": "*",
-        },
-      }
-    );
-    return await result.data;
   };
 
   const handleAPIError = (error) => {
@@ -137,6 +150,7 @@ function Register() {
     let emailValid = values.emailValid;
     let passwordValid = values.passwordValid;
     let confirmPasswordValid = values.confirmPasswordValid;
+    let yearValid = values.yearValid;
     let value = event.target.value;
 
     switch (prop) {
@@ -155,9 +169,15 @@ function Register() {
         fieldValidationErrors.confirmPassword = confirmPasswordValid
           ? ""
           : "confirm passwords does not match";
+        break;
       case "firstName":
         nameValid = value.length > 0;
         fieldValidationErrors.name = nameValid ? "" : `${prop} cannot be empty`;
+        break;
+      case "year":
+        yearValid = parseInt(value) > 0 && parseInt(value) <= 8;
+        fieldValidationErrors.year = yearValid ? "" : "invalid year";
+        break;
       default:
         break;
     }
@@ -167,6 +187,7 @@ function Register() {
       nameValid: nameValid,
       emailValid: emailValid,
       passwordValid: passwordValid,
+      yearValid: yearValid,
       confirmPasswordValid: confirmPasswordValid,
       [prop]: value,
     });
@@ -229,6 +250,7 @@ function Register() {
                   onChange={handleChange("year")}
                   label="Year"
                   placeholder="e.g. 2"
+                  error={!values.yearValid && values.formErrors.year.length > 0}
                 />
               </Stack>
               <FormControl

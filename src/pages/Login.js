@@ -218,7 +218,7 @@ function Login() {
               <FormHelperText>{values.formErrors.password}</FormHelperText>
             </FormControl>
           </Stack>
-          <div
+          {/* <div
             style={{
               display: "flex",
               direction: "row",
@@ -246,7 +246,7 @@ function Login() {
               />
             </FormGroup>
             <a className="link">Forget password?</a>
-          </div>
+          </div> */}
 
           <Stack direction="column" spacing={3} mt={12}>
             <StyledButton
