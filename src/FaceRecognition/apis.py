@@ -254,6 +254,7 @@ def verified():
         response = jsonify({
             'state': verified,
             'name': current_name,
+            'user_id': user_id,
             'start': verificationStart
         })
     except:
@@ -262,6 +263,7 @@ def verified():
             'name': '',
             'start': False
         })
+
     response.headers.add("Access-Control-Allow-Origin", "*")
     return response
 
@@ -336,6 +338,8 @@ def facialLogin():
     current_name = ''
     global verificationStart
     verificationStart = False
+    global user_id
+    user_id = -1
 
     # 2 Load recognize and read label from model
     recognizer = cv2.face.LBPHFaceRecognizer_create()
@@ -438,9 +442,10 @@ def facialLogin():
 # send user's detail to front-end storage, and update loginHist
 
 
-@app.route('/login', methods=["POST", "GET"], strict_slashes=False)
-@cross_origin(methods=['POST'], supports_credentials=True, headers=['Content-Type', 'Authorization'], origin='http://127.0.0.1:5000')
-def createToken():
+@app.route('/login/<user_id>')
+@app.route('/login', methods=["POST", "GET", 'OPTIONS'], strict_slashes=False)
+@cross_origin(methods=['POST', 'GET', 'OPTIONS'], supports_credentials=True, headers=['Content-Type', 'Authorization'], origin='http://127.0.0.1:5000')
+def createToken(user_id=None):
     if request.method == "POST":
         myconn = mysql.connector.connect(**config)
         cursor = myconn.cursor(buffered=True, dictionary=True)
@@ -464,6 +469,16 @@ def createToken():
             loginHistUpdate(user_id)
             print(user_id)
             return jsonify({"access_token": access_token, "user": result})
+    elif user_id is not None and int(user_id) > 0:
+        myconn = mysql.connector.connect(**config)
+        cursor = myconn.cursor(buffered=True, dictionary=True)
+        student = getStudentInfo(int(user_id))
+        loginHistUpdate(int(user_id))
+        access_token = create_access_token(
+            identity=student.get("email"), expires_delta=timedelta(days=1))
+        response = jsonify({"access_token": access_token, "user": student})
+        return response
+
 
 # Logout route with user_id - this should
 # 1. unset the JWT token; 2. update loginHist
@@ -836,6 +851,8 @@ def getTimetable(id):
     students_take_classes T, Information I, Class_Time C 
     WHERE S.user_id = T.user_id AND T.class_id = I.class_id 
     AND T.class_id = C.class_id AND S.user_id = ''' + id
+    myconn = mysql.connector.connect(**config)
+    cursor = myconn.cursor(buffered=True, dictionary=True)
     cursor.execute(select)
     StudentTakesClassesID = cursor.fetchall()
     data = []
@@ -868,7 +885,7 @@ def getThisWeekCourse():
         # materials, and zoom for each lecture in Class_Time, Information Tables,
         # TeacherMessage, CourseMaterial and ZoomLink
         upcomingFri = "curdate() + INTERVAL 4 - weekday(curdate()) DAY"
-        searchClassAllInfo = f"SELECT I.class_id, DATE_FORMAT(start_time, '%H:%i') as start_time, DATE_FORMAT(end_time,'%H:%i') as end_time, date, I.course_number, venue, message_id, send_at, subject, content, from_id, file_link, file_name, link, meeting_id, passcode FROM Information I JOIN Class_TIME CT ON I.class_id IN ({class_ids}) AND I.class_id = CT.class_id AND date <= {upcomingFri} AND date >= now() AND WEEKDAY(date) = day_of_week LEFT JOIN TeacherMessage TM ON TM.class_id = I.class_id AND TM.course_number = I.course_number LEFT JOIN CourseMaterial CM ON CM.class_id = I.class_id AND CM.course_number = I.course_number LEFT JOIN ZoomLink ZL ON ZL.class_id = I.class_id AND ZL.course_number = I.course_number ORDER BY date, start_time,I.course_number"
+        searchClassAllInfo = f"SELECT I.class_id, DATE_FORMAT(start_time, '%H:%i') as start_time, DATE_FORMAT(end_time,'%H:%i') as end_time, date, I.course_number, venue, message_id, send_at, subject, content, from_id, file_link, file_name, link, meeting_id, passcode FROM Information I JOIN Class_TIME CT ON I.class_id IN ({class_ids}) AND I.class_id = CT.class_id AND date <= {upcomingFri} AND date >= curdate() AND WEEKDAY(date) = day_of_week LEFT JOIN TeacherMessage TM ON TM.class_id = I.class_id AND TM.course_number = I.course_number LEFT JOIN CourseMaterial CM ON CM.class_id = I.class_id AND CM.course_number = I.course_number LEFT JOIN ZoomLink ZL ON ZL.class_id = I.class_id AND ZL.course_number = I.course_number ORDER BY date, start_time,I.course_number"
         cursor.execute(searchClassAllInfo)
         myconn.commit()
         classAllInfo = cursor.fetchall()

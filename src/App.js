@@ -9,6 +9,7 @@ import Courses from "./pages/Courses";
 import Timetable from "./pages/Timetable";
 import Register from "./pages/Register";
 import Course from "./pages/Course";
+import Profile from "./pages/Profile";
 
 import { CssBaseline, ThemeProvider, createTheme } from "@mui/material";
 import { AuthStateProvider } from "./shared/auth_provider";
@@ -63,6 +64,7 @@ function App() {
             path="/faceRecognitionLogin"
             element={<FaceRecognitionLogin />}
           />
+          <Route path="/profile" element={<Profile />} />
         </Routes>
       </ThemeProvider>
     </AuthStateProvider>

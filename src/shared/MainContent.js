@@ -226,8 +226,12 @@ const MainContent = ({ children }) => {
   React.useEffect(() => {
     const fetchCheckUpcoming = async () => {
       try {
-        const res = await checkUpcomingClass(state.user.user_id);
-        console.log(res);
+        const res = (await checkUpcomingClass(state.user.user_id)).data;
+        if (res.hasOwnProperty("result")) {
+          setHasUpcoming(res.result);
+        } else {
+          setHasUpcoming(false);
+        }
       } catch (error) {
         console.warn(error);
       }
@@ -249,21 +253,30 @@ const MainContent = ({ children }) => {
         <DrawerHeader>
           {open ? (
             <div className="profile-wrapper">
-              <div className="profile-icon">
-                <Icons.UserIcon />
-              </div>
-              <Stack
-                direction="column"
-                sx={{
-                  flexGrow: 1,
-                  flexShrink: 1,
+              <a
+                href="/profile"
+                style={{
+                  textDecoration: "none",
+                  display: "flex",
+                  direction: "flex-row",
                 }}
               >
-                <div className="username">
-                  {state.user.first_name} {state.user.last_name}
+                <div className="profile-icon">
+                  <Icons.UserIcon />
                 </div>
-                <div className="user-email">{state.user.email}</div>
-              </Stack>
+                <Stack
+                  direction="column"
+                  sx={{
+                    flexGrow: 1,
+                    flexShrink: 1,
+                  }}
+                >
+                  <div className="username">
+                    {state.user.first_name} {state.user.last_name}
+                  </div>
+                  <div className="user-email">{state.user.email}</div>
+                </Stack>
+              </a>
               <IconButton
                 onClick={() => {
                   setOpen(false);

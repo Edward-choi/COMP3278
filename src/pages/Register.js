@@ -21,6 +21,24 @@ import StyledButton from "../components/button";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import Icons from "../components/icons";
 
+const register = async (firstName, lastName, email, password, year, major) => {
+  let body = {
+    firstName: firstName,
+    lastName: lastName,
+    email: email,
+    password: password,
+    year: year,
+    major: major,
+  };
+  const result = await axios.post("http://127.0.0.1:5000/registration", body, {
+    headers: {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*",
+    },
+  });
+  return await result.data;
+};
+
 function Register() {
   const [step, setStep] = React.useState(1);
   const [values, setValues] = React.useState({
@@ -108,28 +126,6 @@ function Register() {
   const checkEmail = async (email) => {
     const res = await axios.get(`http://127.0.0.1:5000/registration/${email}`);
     return await res.data.result;
-  };
-
-  const register = async () => {
-    let body = {
-      firstName: values.firstName,
-      lastName: values.lastName,
-      email: values.email,
-      password: values.password,
-      year: values.year,
-      major: values.major,
-    };
-    const result = await axios.post(
-      "http://127.0.0.1:5000/registration",
-      body,
-      {
-        headers: {
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": "*",
-        },
-      }
-    );
-    return await result.data;
   };
 
   const handleAPIError = (error) => {

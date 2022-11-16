@@ -6,13 +6,15 @@
 4. run `source <path to FaceRecognition/facerecognition.sql>`  if you don't have tables on sql
 5. run `export EMAIL_USER=[your email address]` on terminal
 6. run `export EMAIL_PASSWORD=[your email password]` on terminal
+If 5 - 6 are blocked by the browser because of "low-security". please follow the instructions on
+'https://github.com/twtrubiks/Flask-Mail-example'
 7. run `export FLASK_APP=src.FaceRecognition.apis.py` on terminal
 8. run `flask run` for back-end on terminal;
 9. run `source <path to demo-data/course-generator.sql>` if you don't have any data in sql.
 10. run `set global max_allowed_packet=67108864` in your sql; we might need this to send more information from server to front-end
 11. open another terminal for font-end
 12. run `npm install` or `yarn` on terminal
-13. run `npm start` or `yarn dev` on terminal
+13. run `npm start` or `yarn start` on terminal
 14. DONE, enjoy testing on front-end and back-end
 
 UPDATE (16/11): PLEASE DON'T USE CHROME FOR EXECUTION

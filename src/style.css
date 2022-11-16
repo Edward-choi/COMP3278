@@ -181,13 +181,24 @@ tr.MuiTableRow-root.css-1vtj80e-MuiTableRow-root {
     padding: 0px 10%;
     position: relative;
   }
+  .profile-container{
+    min-width: 35vw;
+    max-width: 50%;
+    margin: 0 auto;
+    position: relative;
+  }
 }
 
 @media screen and (max-width:1024px) {
   .form-container{
     min-width: 50vw;
-    max-width: 50%;
-    
+    max-width: 50%; 
+    margin: 0 auto;
+    position: relative;
+  }
+  .profile-container{
+    min-width: 50vw;
+    max-width: 80%;
     margin: 0 auto;
     position: relative;
   }
