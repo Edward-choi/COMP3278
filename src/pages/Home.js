@@ -69,6 +69,31 @@ const formatDateHeader = (date) => {
     return `${moment(date).format("dddd D.M")}`;
   }
 };
+const getUpcomingCourse = async (user_id) => {
+  const res = await axios.get(
+    `http://127.0.0.1:5000/upcoming_course/${user_id}`,
+    {
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+      },
+    }
+  );
+  return res;
+};
+
+const getThisWeekCourse = async (user_id) => {
+  const res = await axios.get(`http://127.0.0.1:5000/this_week_courses`, {
+    params: {
+      user_id: user_id,
+    },
+    headers: {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*",
+    },
+  });
+  return res;
+};
 
 function Home() {
   const [state, dispatch] = useGlobalState();
@@ -81,8 +106,8 @@ function Home() {
     const fetchCourses = async () => {
       try {
         setLoading(true);
-        const upcoming = (await getUpcomingCourse()).data;
-        const thisWeek = (await getThisWeekCourse()).data;
+        const upcoming = (await getUpcomingCourse(state.user.user_id)).data;
+        const thisWeek = (await getThisWeekCourse(state.user.user_id)).data;
         console.log(upcoming);
         console.log(thisWeek);
         if (!upcoming.hasOwnProperty("msg")) setUpcomingCourse(upcoming);
@@ -95,32 +120,6 @@ function Home() {
     };
     fetchCourses();
   }, []);
-
-  const getUpcomingCourse = async () => {
-    const res = await axios.get(
-      `http://127.0.0.1:5000/upcoming_course/${state.user.user_id}`,
-      {
-        headers: {
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": "*",
-        },
-      }
-    );
-    return res;
-  };
-
-  const getThisWeekCourse = async () => {
-    const res = await axios.get(`http://127.0.0.1:5000/this_week_courses`, {
-      params: {
-        user_id: state.user.user_id,
-      },
-      headers: {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
-      },
-    });
-    return res;
-  };
 
   const onClickCourseList = (course) => {
     if (course !== selectedCourse) setCourse(course);

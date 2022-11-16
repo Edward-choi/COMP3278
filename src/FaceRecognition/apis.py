@@ -16,7 +16,8 @@ from flask_jwt_extended import create_access_token, get_jwt, get_jwt_identity, \
 dir = 'src/FaceRecognition'
 template = '../templates'
 app = Flask(__name__)
-cors = CORS(app, supports_credentials=True)
+cors = CORS(app, supports_credentials=True,
+            resources={r'/*': {'origins': '*'}})
 app.config['CORS_HEADERS'] = 'Content-Type'
 
 app.config["JWT_SECRET_KEY"] = "super-secret"
@@ -31,6 +32,7 @@ mail_settings = {
 app.config.update(mail_settings)
 mail = Mail(app)
 
+
 jwt = JWTManager(app)
 faceCascade = cv2.CascadeClassifier(
     dir + '/haarcascade/haarcascade_frontalface_default.xml')
@@ -43,10 +45,14 @@ sqlpwd = {'/Users/edwardchoi': 'root',
 sqlport = {'/Users/edwardchoi': '8889',
            '/Users/hiumanchau': '3306', '/Users/a85256': '3306'}
 
-# 1 Create database connection
-print("local path", local_path)
-myconn = mysql.connector.connect(
-    host="localhost", user=sqluser[local_path], passwd=sqlpwd[local_path], database="facerecognition", port=sqlport[local_path])
+config = {
+    "host": "localhost",
+    "user": sqluser[local_path],
+    "passwd": sqlpwd[local_path],
+    "database": "facerecognition",
+    "port": sqlport[local_path],
+    "connect_timeout": 6000
+}
 date = datetime.utcnow()
 now = datetime.now()
 weekday = datetime.today().weekday()  # used in class_time
@@ -54,7 +60,13 @@ weekOfTheYear = datetime.today().isocalendar().week  # used in information
 current_time = now.strftime("%H:%M:%S")
 currentTimeDelta = datetime.now().hour*3600 + datetime.now().minute * \
     60 + datetime.now().second
-cursor = myconn.cursor(buffered=True, dictionary=True)
+
+# Moved mysql connector in each function
+print("local path", local_path)
+
+# Create a connector pool for multi-threads
+myconn_pool = mysql.connector.pooling.MySQLConnectionPool(
+    pool_name="pool", pool_reset_session=True, **config)
 
 
 class JSONResponse(Response):
@@ -71,9 +83,14 @@ app.response_class = JSONResponse
 
 
 def find_user_id():
+    myconn = mysql.connector.connect(**config)
+    cursor = myconn.cursor(buffered=True, dictionary=True)
     cursor.execute("SELECT max(user_id) as user_id FROM Users")
     myconn.commit()
     result = cursor.fetchone()
+    if myconn.is_connected():
+        cursor.close()
+        myconn.close()
     return result.get('user_id')
 
 
@@ -146,9 +163,14 @@ def capture_by_frames(user_name):
 @app.route('/registration/<email>', strict_slashes=False)
 @cross_origin(supports_credentials=True)
 def checkEmail(email):
+    myconn = mysql.connector.connect(**config)
+    cursor = myconn.cursor(buffered=True, dictionary=True)
     cursor.execute(f"SELECT email FROM Users WHERE email = '{email}'")
     myconn.commit()
     result = cursor.fetchone()
+    if myconn.is_connected():
+        cursor.close()
+        myconn.close()
     return jsonify({"msg": result != None})
 
 
@@ -170,12 +192,18 @@ def registration():
 
 
 def createAccount(firstName, lastName, email, password):
+    myconn = mysql.connector.connect(**config)
+    cursor = myconn.cursor(buffered=True, dictionary=True)
     createUser = f"INSERT INTO Users(first_name, last_name, email, password) VALUES('{firstName}','{lastName}', '{email}', '{password}')"
-
     cursor.execute(createUser)
+    if myconn.is_connected():
+        cursor.close()
+        myconn.close()
 
 
 def createStudent(major, year):
+    myconn = mysql.connector.connect(**config)
+    cursor = myconn.cursor(buffered=True, dictionary=True)
     cursor.execute("SELECT max(user_id) as user_id FROM Users")
     myconn.commit()
     result = cursor.fetchone()
@@ -185,6 +213,9 @@ def createStudent(major, year):
         year, major)
     cursor.execute(createStudent)
     myconn.commit()
+    if myconn.is_connected():
+        cursor.close()
+        myconn.close()
 
 
 @app.route('/facial_registered')
@@ -399,6 +430,8 @@ def facialLogin():
 @cross_origin(methods=['POST'], supports_credentials=True, headers=['Content-Type', 'Authorization'], origin='http://127.0.0.1:5000')
 def createToken():
     if request.method == "POST":
+        myconn = mysql.connector.connect(**config)
+        cursor = myconn.cursor(buffered=True, dictionary=True)
         val = request.get_json()
         email = val["email"]
         password = val["password"]
@@ -406,6 +439,9 @@ def createToken():
         cursor.execute(searchUser)
         myconn.commit()
         result = cursor.fetchone()
+        if myconn.is_connected():
+            cursor.close()
+            myconn.close()
         if (result == None):
             return {"msg": "Wrong email or password"}, 401
         else:
@@ -431,11 +467,16 @@ def logout():
 
 
 def getStudentInfo(user_id):
+    myconn = mysql.connector.connect(**config)
+    cursor = myconn.cursor(buffered=True, dictionary=True)
     select = "SELECT students.user_id, first_name, last_name, year, major, email FROM users JOIN students ON students.user_id = users.user_id WHERE students.user_id=%s" % (
         user_id)
     cursor.execute(select)
     result = cursor.fetchone()
     print(result)
+    if myconn.is_connected():
+        cursor.close()
+        myconn.close()
     return result
     # output JSON object format: {user_id:<INT> , name: <String>, ...}
 
@@ -445,21 +486,33 @@ def getStudentInfo(user_id):
 
 
 def loginHistUpdate(user_id):
+    myconn = mysql.connector.connect(**config)
+    cursor = myconn.cursor(buffered=True, dictionary=True)
     loginHistUpdate = f"INSERT INTO login_hist(user_id, login_time) VALUES('{user_id}', now()) ON DUPLICATE KEY UPDATE login_time=now()"
     cursor.execute(loginHistUpdate)
     myconn.commit()
+    if myconn.is_connected():
+        cursor.close()
+        myconn.close()
 
 
 def logoutHistUpdate(user_id):
+    myconn = mysql.connector.connect(**config)
+    cursor = myconn.cursor(buffered=True, dictionary=True)
     logoutHistUpdate = "UPDATE login_hist SET logout_time = now() WHERE user_id = '%s'" % (user_id)
     cursor.execute(logoutHistUpdate)
     myconn.commit()
+    if myconn.is_connected():
+        cursor.close()
+        myconn.close()
 
 # Get all enrolled courses with given user_id
 
 
 @app.route("/courses", methods=["GET"])
 def getClasses():
+    myconn = mysql.connector.connect(**config)
+    cursor = myconn.cursor(buffered=True, dictionary=True)
     user_id = request.args.get('user_id')
 
     searchClasses = f"SELECT Classes.class_id, T.first_name, T.last_name, course_code, course_name, academic_year, description FROM Classes JOIN Students_Take_Classes ON user_id = {user_id}, ( select first_name, last_name, teacher_id from Users JOIN teachers on user_id = teacher_id) T WHERE T.teacher_id = Classes.teacher_id GROUP BY Classes.class_id"
@@ -476,6 +529,9 @@ def getClasses():
             del row["first_name"]
         row["lecturer"] = name
         res.append(row)
+    if myconn.is_connected():
+        cursor.close()
+        myconn.close()
     return jsonify(res)
 
 # Get all current courses with given user_id
@@ -483,6 +539,8 @@ def getClasses():
 
 @app.route("/current_courses", methods=["GET"], strict_slashes=False)
 def getCurrentClasses():
+    myconn = mysql.connector.connect(**config)
+    cursor = myconn.cursor(buffered=True, dictionary=True)
     user_id = request.args.get('user_id')
 
     searchClasses = f"SELECT Classes.class_id, T.first_name, T.last_name, course_code, course_name, academic_year, description FROM Classes JOIN Students_Take_Classes ON user_id = {user_id}, ( select first_name, last_name, teacher_id from Users JOIN teachers on user_id = teacher_id) T WHERE T.teacher_id = Classes.teacher_id AND academic_year = YEAR(now()) GROUP BY Classes.class_id"
@@ -499,6 +557,9 @@ def getCurrentClasses():
             del row["first_name"]
         row["lecturer"] = name
         res.append(row)
+    if myconn.is_connected():
+        cursor.close()
+        myconn.close()
     return jsonify(res)
 
 # Get all courses with given user_id and filtering query
@@ -525,7 +586,8 @@ def getFilteredClasses():
     else:
         order = f"ORDER BY {order}"
     filterClasses = f"SELECT Classes.class_id as class_id, T.first_name, T.last_name, course_code, course_name, academic_year, description FROM Classes JOIN Students_Take_Classes ON user_id = {user_id}, ( select first_name, last_name, teacher_id from Users JOIN teachers on user_id = teacher_id) T WHERE T.teacher_id = Classes.teacher_id AND {conditions} GROUP BY Classes.class_id {order} "
-
+    myconn = mysql.connector.connect(**config)
+    cursor = myconn.cursor(buffered=True, dictionary=True)
     cursor.execute(filterClasses)
     myconn.commit()
     courses = cursor.fetchall()
@@ -538,16 +600,24 @@ def getFilteredClasses():
             del row["first_name"]
         row["lecturer"] = name
         res.append(row)
+    if myconn.is_connected():
+        cursor.close()
+        myconn.close()
     return jsonify(res)
 
 # teacher_ids should be a string that "teacher1_id, teacher2_id, ...."
 
 
 def getTeacherInfo(teacher_ids):
+    myconn = mysql.connector.connect(**config)
+    cursor = myconn.cursor(buffered=True, dictionary=True)
     searchTeachers = f"SELECT first_name, last_name, email, faculty, department FROM Users JOIN Teachers ON user_id = teacher_id WHERE teacher_id IN ({teacher_ids})"
     cursor.execute(searchTeachers)
     myconn.commit()
     result = cursor.fetchall()
+    if myconn.is_connected():
+        cursor.close()
+        myconn.close()
     teachers = []
     for row in result:
         name = f"Dr. {row.get('last_name')}, {row.get('first_name')}"
@@ -563,10 +633,15 @@ def getTeacherInfo(teacher_ids):
 @app.route("/course/<id>")
 def getCourse(id):
     if (id is not None):
+        myconn = mysql.connector.connect(**config)
+        cursor = myconn.cursor(buffered=True, dictionary=True)
         searchCourse = f"SELECT * FROM Classes WHERE class_id = {id}"
         cursor.execute(searchCourse)
         myconn.commit()
         result = cursor.fetchone()
+        if myconn.is_connected():
+            cursor.close()
+            myconn.close()
         teacher_id = result.get("teacher_id")
         teacher = getTeacherInfo(teacher_id)[0]
         if "teacher_id" in result:
@@ -579,11 +654,15 @@ def getCourse(id):
 
 @app.route("/course_info/<id>")
 def getInformation(id):
-
+    myconn = mysql.connector.connect(**config)
+    cursor = myconn.cursor(buffered=True, dictionary=True)
     searchInformation = f"SELECT course_number, venue FROM Information WHERE class_id = {id} AND date <= (now())"
     cursor.execute(searchInformation)
     myconn.commit()
     result = cursor.fetchall()
+    if myconn.is_connected():
+        cursor.close()
+        myconn.close()
     return result
 
 
@@ -596,6 +675,8 @@ def getMessages():
     conditions = f"WHERE (send_at LIKE {search} OR subject LIkE {search}) OR content LIKE {search} OR T.first_name LIKE {search} OR T.last_name LIKE {search}"
     orderBy = "ASC" if int(order) > 0 else "DESC"
     searchMsgs = f"SELECT send_at, subject, content, T.first_name, T.last_name FROM TeacherMessage TM JOIN Information I ON I.class_id={id} AND TM.class_id = I.class_id AND TM.course_number = I.course_number JOIN (SELECT first_name, last_name, teacher_id FROM Users JOIN Teachers ON user_id = teacher_id)T ON T.teacher_id = from_id {conditions} GROUP BY TM.course_number, message_id ORDER BY send_at {orderBy}"
+    myconn = mysql.connector.connect(**config)
+    cursor = myconn.cursor(buffered=True, dictionary=True)
     cursor.execute(searchMsgs)
     myconn.commit()
     result = cursor.fetchall()
@@ -607,7 +688,9 @@ def getMessages():
         if "first_name" in row:
             del row["first_name"]
         row["from"] = name
-
+    if myconn.is_connected():
+        cursor.close()
+        myconn.close()
     return jsonify(result)
 
 
@@ -624,9 +707,14 @@ def getMaterialsAndZooms():
         conditions = f" AND (file_link LIKE {search} OR file_name LIKE {search} OR link LIKE {search} OR meeting_id LIKE {search} OR passcode LIKE {search} OR {nullSafety}) "
     orderBy = "ASC" if int(order) > 0 else "DESC"
     searchMaterialsAndZooms = f"SELECT I.course_number, date, ANY_VALUE(file_link) as file_link, ANY_VALUE(file_name) as file_name, ANY_VALUE(link) as link, ANY_VALUE(meeting_id) as meeting_id, ANY_VALUE(passcode) as passcode FROM Information I LEFT JOIN CourseMaterial CM ON CM.class_id = {id} AND CM.class_id = I.class_id AND CM.course_number = I.course_number LEFT JOIN ZoomLink ZM ON ZM.class_id = {id} AND ZM.course_number = I.course_number AND ZM.class_id = I.class_id WHERE date <= (now()) AND I.class_id={id} {conditions} ORDER BY I.course_number {orderBy}, date {orderBy}"
+    myconn = mysql.connector.connect(**config)
+    cursor = myconn.cursor(buffered=True, dictionary=True)
     cursor.execute(searchMaterialsAndZooms)
     myconn.commit()
     result = cursor.fetchall()
+    if myconn.is_connected():
+        cursor.close()
+        myconn.close()
     res = []
     for row in result:
         update = False
@@ -649,13 +737,33 @@ def getMaterialsAndZooms():
 
         if update == False:
             res.append(obj)
-
     return jsonify(res)
+
+
+@app.route("/check_upcoming/<id>")
+def checkClassWithinHour(id):
+    select = f"SELECT COUNT(I.class_id) as count FROM Information I JOIN Class_TIME CT ON  I.class_id IN (SELECT class_id FROM students_take_classes where user_id = {id}) AND I.class_id = CT.class_id AND DATE(date) = CURDATE() AND WEEKDAY(date) = day_of_week"
+    # myconn = mysql.connector.connect(**config)
+    myconn = myconn_pool.get_connection()
+    cursor = myconn.cursor(buffered=True, dictionary=True)
+    cursor.execute(select)
+    myconn.commit()
+    result = cursor.fetchone()
+    print(result)
+    if myconn.is_connected():
+        cursor.close()
+        myconn.close()
+    if (result.get("count")):
+        return jsonify({"result": result.get("count") > 0})
+    else:
+        return jsonify({"msg": "fail to check upcoming course"}), 404
 
 
 @app.route("/upcoming_course/<id>")
 def findClassWithinHour(id):
-    studentInfo = getStudentInfo(id)
+    # myconn = mysql.connector.connect(**config)
+    myconn = myconn_pool.get_connection()
+    cursor = myconn.cursor(buffered=True, dictionary=True)
     select = "SELECT class_id FROM students_take_classes where user_id = %s" % id
     cursor.execute(select)
     myconn.commit()
@@ -677,9 +785,12 @@ def findClassWithinHour(id):
                     myconn.commit()
                     classWithinHourInfo = cursor.fetchone()
                     print("class withing hour", classWithinHour)
-
+                    cursor.close()
                     return classWithinHourInfo if classWithinHourInfo is not None else {"msg": "no upcoming course"}, 200
                     # classWithinHourInfo[n][0] to get value of nth column
+    if myconn.is_connected():
+        cursor.close()
+        myconn.close()
     return {"msg": "no upcoming course"}, 200
 
 
@@ -687,6 +798,8 @@ def getTimetable():
     studentInfo = getStudentInfo()
     select = "SELECT class_id FROM students_take_classes where user_id = %s" % studentInfo.get(
         "user_id")
+    myconn = mysql.connector.connect(**config)
+    cursor = myconn.cursor(buffered=True, dictionary=True)
     cursor.execute(select)
     StudentTakesClassesID = cursor.fetchall()
     tempWHERE = "class_id = "
@@ -699,6 +812,9 @@ def getTimetable():
     getTimetable = cursor.execute(select)
     timetable = cursor.fetchall()
     timetable = sorted(timetable, key=lambda x: (x[1], x[2]))
+    if myconn.is_connected():
+        cursor.close()
+        myconn.close()
     return timetable
 
 
@@ -707,6 +823,8 @@ def getThisWeekCourse():
     user_id = request.args.get("user_id")
     # Search enrolled and currently attending classes from SQL
     searchClasses = f"SELECT Classes.class_id, T.first_name, T.last_name, course_code, course_name, academic_year, description FROM Classes JOIN Students_Take_Classes ON user_id = {user_id}, ( select first_name, last_name, teacher_id from Users JOIN teachers on user_id = teacher_id) T WHERE T.teacher_id = Classes.teacher_id AND academic_year = YEAR(now()) GROUP BY Classes.class_id"
+    myconn = mysql.connector.connect(**config)
+    cursor = myconn.cursor(buffered=True, dictionary=True)
     cursor.execute(searchClasses)
     myconn.commit()
     currentClasses = cursor.fetchall()
@@ -723,7 +841,9 @@ def getThisWeekCourse():
         myconn.commit()
         classAllInfo = cursor.fetchall()
         classInfos = []
-
+        if myconn.is_connected():
+            cursor.close()
+            myconn.close()
         # Rephrase dict to json
         for row in classAllInfo:
             class_id = row.get("class_id")
@@ -781,6 +901,7 @@ def getThisWeekCourse():
                         "zoom": zoom
                     }
                     classInfos.append(courseInfo)
+
         return jsonify(classInfos)
     else:
         return {"msg": "no classes"}, 401

@@ -4,6 +4,7 @@ import { useGlobalState } from "./auth_provider";
 import { Link, useLocation, Navigate } from "react-router-dom";
 
 import {
+  Stack,
   Box,
   List,
   Divider,
@@ -20,6 +21,7 @@ import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 
 import NavIcons from "../components/icons";
 import axios from "axios";
+import Icons from "../components/icons";
 
 const drawerWidth = 260;
 
@@ -76,10 +78,47 @@ const closedMixin = (theme) => ({
 
 const DrawerHeader = styled("div")(({ theme }) => ({
   display: "flex",
+  direction: "flex-row",
   alignItems: "center",
+  width: "100%",
+  alignSelf: "stretch",
   justifyContent: "flex-end",
   padding: theme.spacing(0, 1),
-
+  "& .username": {
+    fontWeight: 600,
+    fontSize: 14,
+    color: theme.palette.neutral.darkest,
+  },
+  "& .user-email": {
+    fontSize: 12,
+    color: theme.palette.neutral.medium,
+  },
+  "& .profile-wrapper": {
+    position: "relative",
+    display: "flex",
+    justifyContent: "stretch",
+    alignContent: "center",
+    width: "100%",
+  },
+  "& .profile-icon": {
+    borderRadius: theme.spacing(1),
+    width: 32,
+    height: 32,
+    alignSelf: "center",
+    alignItems: "center",
+    justifyContent: "center",
+    display: "flex",
+    marginRight: theme.spacing(4),
+    backgroundColor: theme.palette.primary.main,
+    flexShrink: 0,
+    "& svg": {
+      height: 24,
+      width: "auto",
+    },
+    "& path": {
+      fill: "#FFF",
+    },
+  },
   // necessary for content to be below app bar
   ...theme.mixins.toolbar,
 }));
@@ -149,11 +188,25 @@ const DrawerPages = [
   },
 ];
 
+const checkUpcomingClass = async (user_id) => {
+  const res = await axios.get(
+    `http://127.0.0.1:5000/check_upcoming/${user_id}`,
+    {
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+      },
+    }
+  );
+  return res;
+};
+
 const MainContent = ({ children }) => {
   const location = useLocation();
   const page = location.pathname;
   const [open, setOpen] = React.useState(drawerOpen);
   const [state, dispatch] = useGlobalState();
+  const [hasUpcoming, setHasUpcoming] = React.useState(false);
 
   const hasJWT =
     state.user.user_id &&
@@ -171,6 +224,18 @@ const MainContent = ({ children }) => {
   };
 
   React.useEffect(() => {
+    const fetchCheckUpcoming = async () => {
+      try {
+        const res = await checkUpcomingClass(state.user.user_id);
+        console.log(res);
+      } catch (error) {
+        console.warn(error);
+      }
+    };
+    fetchCheckUpcoming();
+  }, []);
+
+  React.useEffect(() => {
     const timer = () => {
       dispatch({ duration: state.duration + 1 });
     };
@@ -183,14 +248,31 @@ const MainContent = ({ children }) => {
       <Drawer variant="permanent" open={open}>
         <DrawerHeader>
           {open ? (
-            <IconButton
-              onClick={() => {
-                setOpen(false);
-                setDrawerOpen(false);
-              }}
-            >
-              <ChevronLeftIcon />
-            </IconButton>
+            <div className="profile-wrapper">
+              <div className="profile-icon">
+                <Icons.UserIcon />
+              </div>
+              <Stack
+                direction="column"
+                sx={{
+                  flexGrow: 1,
+                  flexShrink: 1,
+                }}
+              >
+                <div className="username">
+                  {state.user.first_name} {state.user.last_name}
+                </div>
+                <div className="user-email">{state.user.email}</div>
+              </Stack>
+              <IconButton
+                onClick={() => {
+                  setOpen(false);
+                  setDrawerOpen(false);
+                }}
+              >
+                <ChevronLeftIcon />
+              </IconButton>
+            </div>
           ) : (
             <IconButton
               onClick={() => {

@@ -9,10 +9,13 @@
 7. run `export FLASK_APP=src.FaceRecognition.apis.py` on terminal
 8. run `flask run` for back-end on terminal;
 9. run `source <path to demo-data/course-generator.sql>` if you don't have any data in sql.
-10. open another terminal for font-end
-11. run `npm install` or `yarn` on terminal
-12. run `npm start` or `yarn dev` on terminal
-13. DONE, enjoy testing on front-end and back-end
+10. run `set global max_allowed_packet=67108864` in your sql; we might need this to send more information from server to front-end
+11. open another terminal for font-end
+12. run `npm install` or `yarn` on terminal
+13. run `npm start` or `yarn dev` on terminal
+14. DONE, enjoy testing on front-end and back-end
+
+NOTE: if you run this project on Chrome, please download an extension called Allow CORS from 'https://mybrowseraddon.com/access-control-allow-origin.html?v=0.1.8&type=install' first
 
 ## Available Scripts
 
