@@ -5,7 +5,6 @@ import moment from "moment";
 import { styled } from "@mui/material/styles";
 import UpcomingCourseCard from "../components/upcomingCourseCard";
 import TimetableListTile from "../components/timeTableListTile";
-import { default as courses } from "../demo-data/this-week-courses";
 import ClickableImg from "../assets/images/clickable.png";
 import HaveBreakImg from "../assets/images/haveBreak.png";
 import { useGlobalState } from "../shared/auth_provider";
@@ -59,7 +58,8 @@ const TimetableContainer = styled("div")(({ theme }) => ({
 
 const formatDateHeader = (date) => {
   const today = new Date().setHours(0, 0, 0, 0);
-  const diffHours = moment.duration(date - today).asHours();
+  const sDate = new Date(Date.parse(date));
+  const diffHours = moment.duration(sDate - today).asHours();
 
   if (diffHours >= 0 && diffHours <= 24) {
     return `Today ${moment(date).format("D.M")}`;

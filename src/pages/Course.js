@@ -91,7 +91,7 @@ export default function Course() {
     const fetchCourse = async () => {
       setLoading(true);
       try {
-        const course = (await getCourse()).data;
+        const course = (await getCourse(id)).data;
         const messages = (
           await filterMessage(id, messageSearch, messageSortAsc)
         ).data;

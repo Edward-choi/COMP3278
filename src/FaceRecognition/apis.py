@@ -526,7 +526,7 @@ def getFilteredClasses():
         order = ""
     else:
         order = f"ORDER BY {order}"
-    filterClasses = f"SELECT Classes.class_id, T.first_name, T.last_name, course_code, course_name, academic_year, description FROM Classes JOIN Students_Take_Classes ON user_id = {user_id}, ( select first_name, last_name, teacher_id from Users JOIN teachers on user_id = teacher_id) T WHERE T.teacher_id = Classes.teacher_id AND {conditions} GROUP BY Classes.class_id {order} "
+    filterClasses = f"SELECT Classes.class_id as class_id, T.first_name, T.last_name, course_code, course_name, academic_year, description FROM Classes JOIN Students_Take_Classes ON user_id = {user_id}, ( select first_name, last_name, teacher_id from Users JOIN teachers on user_id = teacher_id) T WHERE T.teacher_id = Classes.teacher_id AND {conditions} GROUP BY Classes.class_id {order} "
 
     cursor.execute(filterClasses)
     myconn.commit()
@@ -564,16 +564,19 @@ def getTeacherInfo(teacher_ids):
 
 @app.route("/course/<id>")
 def getCourse(id):
-    searchCourse = f"SELECT * FROM Classes WHERE class_id = {id}"
-    cursor.execute(searchCourse)
-    myconn.commit()
-    result = cursor.fetchone()
-    teacher_id = result.get("teacher_id")
-    teacher = getTeacherInfo(teacher_id)[0]
-    if "teacher_id" in result:
-        del result["teacher_id"]
-    result["lecturer"] = teacher
-    return jsonify(result)
+    if (id is not None):
+        searchCourse = f"SELECT * FROM Classes WHERE class_id = {id}"
+        cursor.execute(searchCourse)
+        myconn.commit()
+        result = cursor.fetchone()
+        teacher_id = result.get("teacher_id")
+        teacher = getTeacherInfo(teacher_id)[0]
+        if "teacher_id" in result:
+            del result["teacher_id"]
+        result["lecturer"] = teacher
+        return jsonify(result)
+    else:
+        return {"msg": "undefined course id"}, 401
 
 
 @app.route("/course_info/<id>")

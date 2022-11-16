@@ -33,7 +33,7 @@ export default function CourseCard({
         boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.15)",
       }}
     >
-      <Link href={`courses/${class_id}`} sx={{ textDecoration: "none" }}>
+      <Link href={`/courses/${class_id}`} sx={{ textDecoration: "none" }}>
         <CardActionArea sx={{ height: "100%" }}>
           {renderBanner()}
           <CardContent>
