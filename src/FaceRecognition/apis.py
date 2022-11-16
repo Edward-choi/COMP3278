@@ -1,3 +1,4 @@
+import json
 from flask import Flask, render_template, Response, request, jsonify, make_response
 import re
 import cv2
@@ -817,6 +818,25 @@ def getTimetable():
         cursor.close()
         myconn.close()
     return timetable
+
+@app.route("/timetable/<id>")
+def getTimetable(id):
+    select = '''SELECT * FROM students S,
+    students_take_classes T, Information I, Class_Time C 
+    WHERE S.user_id = T.user_id AND T.class_id = I.class_id 
+    AND T.class_id = C.class_id AND S.user_id = ''' + id
+    cursor.execute(select)
+    StudentTakesClassesID = cursor.fetchall()
+    data = []
+    for i in range(len(StudentTakesClassesID)):
+        data.append(
+            {
+                'start_time': StudentTakesClassesID[i].get("start_time"),
+                'end_time': StudentTakesClassesID[i].get("end_time"),
+            }
+        )
+    json_str = json.dumps({"data": data}, default=str)
+    return json_str
 
 
 @app.route("/this_week_courses", methods=["GET"])
