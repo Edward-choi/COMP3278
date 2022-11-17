@@ -19,6 +19,32 @@ If 5 - 6 are blocked by the browser because of "low-security". please follow the
 
 UPDATE (16/11): PLEASE DON'T USE CHROME FOR EXECUTION
 
+## Routine of our project
+
+1. Click "Sign up" Link at the bottom on Login Page
+2. Fill in the Register Form and click "Continue" button;
+At this point, our database will save your information and assume you enrolled all courses in our DB
+3. Click "Facial Register" for next "Facial Login" or "Skip" for email login
+4. Return to Login Page and choose your login method
+5. After login, there are one side drawer containing the routers to Profile Page, Home Page, Courses Page and Timetable Page
+6. On Home Page, you can do the following
+    - check your login time and staying duration on the top
+    - check class that will start within an hour
+    - check your this week timetable
+    - both timetable and upcoming class component allows you to
+        1. send a copy of course information to your registered email; (an alert will pop up no matter success or fail)
+        2. download all attached materials by clicking the block or "Download All" button;
+        3. open zoom link by clicking if there is any attached zoom link;  
+        4. click the Course Name to enter Course Detail Page
+7. On Courses Page, you can do the following
+    - click course card or course list tile to enter Course Detail Page
+    - search, sort and filter your enrolled courses below with the toolbar
+8. On Course Detail Page, you can do the following
+    - read course details, which includes general information, messages, and course materials
+    - search and sort the teacher's messages and course materials respectively on tab panel
+    - open zoom link or download materials by clicking the link
+9. On Profile Page, you can edit your personal information (an alert will pop up no matter success or fail after clicking "Save")
+
 ## Available Scripts
 
 In the project directory, you can run:
