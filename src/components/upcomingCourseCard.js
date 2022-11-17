@@ -126,12 +126,12 @@ function UpcomingCourseCard({
           }
         )
       ).data;
-      console.log(res.msg);
-      setAlertMessage(res.msg);
+      // console.log(res.msg);
+      // setAlertMessage(res.msg);
     } catch (error) {
-      if (error.response) {
-        setAlertMessage(error.response.data.msg);
-      }
+      // if (error.response) {
+      //   setAlertMessage(error.response.data.msg);
+      // }
     } finally {
       setLoading(false);
       onClickSend();
