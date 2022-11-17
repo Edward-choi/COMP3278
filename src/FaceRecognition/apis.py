@@ -28,8 +28,8 @@ mail_settings = {
     "MAIL_PORT": 465,
     "MAIL_USE_TLS": False,
     "MAIL_USE_SSL": True,
-    "MAIL_USERNAME": os.environ['EMAIL_USER'],
-    "MAIL_PASSWORD": os.environ['EMAIL_PASSWORD']
+    "MAIL_USERNAME": 'edward68710166@gmail.com',
+    "MAIL_PASSWORD": 'xmqsfgtbfxhgnkmc'
 }
 app.config.update(mail_settings)
 mail = Mail(app)
@@ -900,8 +900,8 @@ def getTimetable(id):
                 'end_time': StudentTakesClassesID[i].get("end_time"),
             }
         )
-    json_str = json.dumps({"data": data}, default=str)
-    return json_str
+    results = json.dumps({"data": data}, default=str)
+    return results
 
 
 @app.route("/this_week_courses", methods=["GET"])
@@ -1040,39 +1040,38 @@ def sendEmail(uid, cid):
     cursor.execute(material_select)
     materialInfo = cursor.fetchall()
 
-    json_str = json.dumps(
-        {
+    results = {
             "course_data": courseInfo, 
             "user_data": userInfo,
             "message_data": messageInfo,
             "zoom_data": zoomInfo,
             "material_data": materialInfo,
-        }, 
-    default=str)
+        }
+    print(results)
 
     materials = []
     messages = []
-    for i in range(len(json_str.material_data)):
-        materials.append(json_str.material_data[i].file_link)
+    for i in range(len(results['material_data'])):
+        materials.append(results['material_data'][i]['file_link'])
     
-    for i in range(len(json_str.message_data)):
-        materials.append({
-            'from': json_str.message_data[i].first_name,
-            'time': json_str.message_data[i].sendAt,
-            'subject': json_str.message_data[i].subject,
-            'content': json_str.message_data[i].content,
+    for i in range(len(results['message_data'])):
+        messages.append({
+            'from': results['message_data'][i]['first_name'],
+            'time': results['message_data'][i]['sendAt'],
+            'subject': results['message_data'][i]['subject'],
+            'content': results['message_data'][i]['content'],
         })
-    # return json_str
+    # return results
     course = {
-        'code': json_str.course_data.course_code,
-        'class_time': json_str.course_data.start_time[0:5] + ' - ' + json_str.course_data.end_time[0:5],
-        'title': json_str.course_data.course_code + '--' + json_str.course_data.course_name,
-        'description': json_str.course_data.description,
-        'address': json_str.course_data.venue,
-        'zoom_link': json_str.zoom_data.link,
-        'meeting_ID': json_str.zoom_data.meeting_id,
+        'code': results['course_data']['course_code'],
+        'class_time': str(results['course_data']['start_time']) + ' - ' + str(results['course_data']['end_time']),
+        'title': results['course_data']['course_code'] + '--' + results['course_data']['course_name'],
+        'description': results['course_data']['description'],
+        'address': results['course_data']['venue'],
+        'zoom_link': results['zoom_data']['link'],
+        'meeting_ID': results['zoom_data']['meeting_id'],
         'materials': materials,
-        'messages': materials
+        'messages': messages
     }
     with app.app_context():
         msg = Message(subject="Course information",
