@@ -17,6 +17,18 @@ import FaceRecognitionRegister from "./pages/FaceRecognitionRegister";
 import FaceRecognitionLogin from "./pages/FaceRecognitionLogin";
 
 function App() {
+  React.useEffect(() => {
+    const handleTabClose = (event) => {
+      event.preventDefault();
+      return (event.returnValue = "Are you sure you want to exit?");
+    };
+    window.addEventListener("beforeunload", handleTabClose);
+    return () => {
+      sessionStorage.removeItem("token");
+      localStorage.clear();
+      window.removeEventListener("beforeunload", handleTabClose);
+    };
+  }, []);
   return (
     <AuthStateProvider>
       <ThemeProvider

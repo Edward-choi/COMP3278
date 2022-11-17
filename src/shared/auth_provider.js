@@ -10,7 +10,7 @@ const defaultUserState = {
 };
 
 const defaultAuthState = {
-  token: JSON.parse(localStorage.getItem("state"))?.token ?? "",
+  token: sessionStorage.getItem("token") ?? "",
   user: JSON.parse(localStorage.getItem("state"))?.user ?? defaultUserState,
   loginAt: JSON.parse(localStorage.getItem("state"))?.loginAt ?? Date.now(),
   duration: JSON.parse(localStorage.getItem("state"))?.duration ?? 0,
@@ -26,6 +26,7 @@ export const AuthStateProvider = ({ children }) => {
     defaultAuthState
   );
   useEffect(() => {
+    sessionStorage.setItem("token", state.token);
     localStorage.setItem("state", JSON.stringify(state));
   }, [state]);
   return (

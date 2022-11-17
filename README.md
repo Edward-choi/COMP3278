@@ -2,7 +2,7 @@
 
 1. run `conda create -n face python=3.x` on terminal; where x is last digit of your python version if you haven't created conda
 2. run `conda activate face`  on terminal
-3. run `pip install -r src/FaceRecognition/requirements.txt` on terminal
+3. run `pip install -r src/FaceRecognition/requirements.txt` on terminal if you haven't download required modules
 4. run `source <path to FaceRecognition/facerecognition.sql>`  if you don't have tables on sql
 5. run `export EMAIL_USER=[your email address]` on terminal
 6. run `export EMAIL_PASSWORD=[your email password]` on terminal

@@ -443,10 +443,10 @@ def facialLogin():
 # send user's detail to front-end storage, and update loginHist
 
 
-@app.route('/login/<user_id>')
+@app.route('/login/<uid>')
 @app.route('/login', methods=["POST", "GET"], strict_slashes=False)
 @cross_origin(methods=['POST', 'GET'], supports_credentials=True, headers=['Content-Type', 'Authorization'], origin='*')
-def createToken(user_id=None):
+def createToken(uid=None):
     if request.method == "POST":
         myconn = mysql.connector.connect(**config)
         cursor = myconn.cursor(buffered=True, dictionary=True)
@@ -466,17 +466,17 @@ def createToken(user_id=None):
             access_token = create_access_token(
                 identity=email, expires_delta=timedelta(days=1))
 
-            user_id = result.get('user_id')
-            loginHistUpdate(user_id)
-            print(user_id)
+            uid = result.get('user_id')
+            loginHistUpdate(uid)
+            print(uid)
             response = jsonify({"access_token": access_token, "user": result})
 
             return response
-    elif user_id is not None and int(user_id) > 0:
+    elif uid is not None and int(uid) > 0:
         myconn = mysql.connector.connect(**config)
         cursor = myconn.cursor(buffered=True, dictionary=True)
-        student = getStudentInfo(int(user_id))
-        loginHistUpdate(int(user_id))
+        student = getStudentInfo(int(uid))
+        loginHistUpdate(int(uid))
         access_token = create_access_token(
             identity=student.get("email"), expires_delta=timedelta(days=1))
         response = jsonify({"access_token": access_token, "user": student})
@@ -491,16 +491,16 @@ def createToken(user_id=None):
 def logout():
     response = make_response({"msg": "logout successful"})
     unset_jwt_cookies(response)
-    user_id = request.get_json()["user_id"]
-    logoutHistUpdate(user_id)
+    uid = request.get_json()["user_id"]
+    logoutHistUpdate(uid)
     return response
 
 
-def getStudentInfo(user_id=None):
+def getStudentInfo(uid=None):
     myconn = mysql.connector.connect(**config)
     cursor = myconn.cursor(buffered=True, dictionary=True)
     select = "SELECT students.user_id, first_name, last_name, year, major, email, password FROM users JOIN students ON students.user_id = users.user_id WHERE students.user_id=%s" % (
-        user_id)
+        uid)
     cursor.execute(select)
     result = cursor.fetchone()
     print(result)
@@ -511,9 +511,9 @@ def getStudentInfo(user_id=None):
     # output JSON object format: {user_id:<INT> , name: <String>, ...}
 
 
-@app.route("/personal_info/<user_id>")
-def getPersonalInfo(user_id):
-    result = getStudentInfo(user_id)
+@app.route("/personal_info/<uid>")
+def getPersonalInfo(uid):
+    result = getStudentInfo(uid)
     return jsonify(result)
 
 
@@ -522,10 +522,10 @@ def getPersonalInfo(user_id):
 def updateProfile():
     if (request.method == "POST"):
         val = request.get_json()
-        user_id = val["user_id"]
-        if (user_id is None):
+        uid = val["user_id"]
+        if (uid is None):
             return {"msg": "invalid user id"}, 401
-        old = getStudentInfo(user_id)
+        old = getStudentInfo(uid)
         firstName = val["firstName"] if val["firstName"] is not None else old.get(
             "first_name")
         lastName = val["lastName"] if val["lastName"] is not None else old.get(
@@ -536,7 +536,7 @@ def updateProfile():
         major = val["major"] if val["major"] is not None else old.get("major")
         year = int(val["year"]) if val["year"] is not None else old.get("year")
         try:
-            update = f"UPDATE Users, Students SET first_name='{firstName}', last_name='{lastName}', email='{email}', password='{password}', major='{major}', year={year} WHERE Users.user_id = {user_id} AND Students.user_id={user_id}"
+            update = f"UPDATE Users, Students SET first_name='{firstName}', last_name='{lastName}', email='{email}', password='{password}', major='{major}', year={year} WHERE Users.user_id = {uid} AND Students.user_id={uid}"
             myconn = mysql.connector.connect(**config)
             cursor = myconn.cursor(buffered=True, dictionary=True)
             cursor.execute(update)
@@ -544,7 +544,7 @@ def updateProfile():
             if myconn.is_connected():
                 cursor.close()
                 myconn.close()
-            return {"user": {"user_id": user_id, "first_name": firstName, "last_name": lastName, "email": email, "password": password}}
+            return {"user": {"user_id": uid, "first_name": firstName, "last_name": lastName, "email": email, "password": password}}
         except:
             return {"msg": "update fail"}, 401
 
@@ -553,10 +553,10 @@ def updateProfile():
 # otherwise update the history
 
 
-def loginHistUpdate(user_id):
+def loginHistUpdate(uid):
     myconn = mysql.connector.connect(**config)
     cursor = myconn.cursor(buffered=True, dictionary=True)
-    loginHistUpdate = f"INSERT INTO login_hist(user_id, login_time) VALUES('{user_id}', now()) ON DUPLICATE KEY UPDATE login_time=now()"
+    loginHistUpdate = f"INSERT INTO login_hist(user_id, login_time) VALUES('{uid}', now()) ON DUPLICATE KEY UPDATE login_time=now()"
     cursor.execute(loginHistUpdate)
     myconn.commit()
     if myconn.is_connected():
@@ -564,10 +564,10 @@ def loginHistUpdate(user_id):
         myconn.close()
 
 
-def logoutHistUpdate(user_id):
+def logoutHistUpdate(uid):
     myconn = mysql.connector.connect(**config)
     cursor = myconn.cursor(buffered=True, dictionary=True)
-    logoutHistUpdate = "UPDATE login_hist SET logout_time = now() WHERE user_id = '%s'" % (user_id)
+    logoutHistUpdate = "UPDATE login_hist SET logout_time = now() WHERE user_id = '%s'" % (uid)
     cursor.execute(logoutHistUpdate)
     myconn.commit()
     if myconn.is_connected():
@@ -581,9 +581,9 @@ def logoutHistUpdate(user_id):
 def getClasses():
     myconn = mysql.connector.connect(**config)
     cursor = myconn.cursor(buffered=True, dictionary=True)
-    user_id = request.args.get('user_id')
+    uid = request.args.get('user_id')
 
-    searchClasses = f"SELECT Classes.class_id, T.first_name, T.last_name, course_code, course_name, academic_year, description FROM Classes JOIN Students_Take_Classes ON user_id = {user_id}, ( select first_name, last_name, teacher_id from Users JOIN teachers on user_id = teacher_id) T WHERE T.teacher_id = Classes.teacher_id GROUP BY Classes.class_id"
+    searchClasses = f"SELECT Classes.class_id, T.first_name, T.last_name, course_code, course_name, academic_year, description FROM Classes JOIN Students_Take_Classes ON user_id = {uid}, ( select first_name, last_name, teacher_id from Users JOIN teachers on user_id = teacher_id) T WHERE T.teacher_id = Classes.teacher_id GROUP BY Classes.class_id"
     cursor.execute(searchClasses)
     myconn.commit()
     enrollments = cursor.fetchall()
@@ -609,9 +609,9 @@ def getClasses():
 def getCurrentClasses():
     myconn = mysql.connector.connect(**config)
     cursor = myconn.cursor(buffered=True, dictionary=True)
-    user_id = request.args.get('user_id')
+    uid = request.args.get('user_id')
 
-    searchClasses = f"SELECT Classes.class_id, T.first_name, T.last_name, course_code, course_name, academic_year, description FROM Classes JOIN Students_Take_Classes ON user_id = {user_id}, ( select first_name, last_name, teacher_id from Users JOIN teachers on user_id = teacher_id) T WHERE T.teacher_id = Classes.teacher_id AND academic_year = YEAR(now()) GROUP BY Classes.class_id"
+    searchClasses = f"SELECT Classes.class_id, T.first_name, T.last_name, course_code, course_name, academic_year, description FROM Classes JOIN Students_Take_Classes ON user_id = {uid}, ( select first_name, last_name, teacher_id from Users JOIN teachers on user_id = teacher_id) T WHERE T.teacher_id = Classes.teacher_id AND academic_year = YEAR(now()) GROUP BY Classes.class_id"
     cursor.execute(searchClasses)
     myconn.commit()
     enrollments = cursor.fetchall()
@@ -638,7 +638,7 @@ def getCurrentClasses():
 
 @app.route("/filter_courses", methods=["GET"])
 def getFilteredClasses():
-    user_id = request.args.get("user_id")
+    uid = request.args.get("user_id")
     search = request.args.get("search")
     filter = request.args.get("filter")
     order = request.args.get("order")
@@ -653,7 +653,7 @@ def getFilteredClasses():
         order = ""
     else:
         order = f"ORDER BY {order}"
-    filterClasses = f"SELECT Classes.class_id as class_id, T.first_name, T.last_name, course_code, course_name, academic_year, description FROM Classes JOIN Students_Take_Classes ON user_id = {user_id}, ( select first_name, last_name, teacher_id from Users JOIN Teachers on user_id = teacher_id) T WHERE T.teacher_id = Classes.teacher_id AND {conditions} GROUP BY Classes.class_id {order} "
+    filterClasses = f"SELECT Classes.class_id as class_id, T.first_name, T.last_name, course_code, course_name, academic_year, description FROM Classes JOIN Students_Take_Classes ON user_id = {uid}, ( select first_name, last_name, teacher_id from Users JOIN Teachers on user_id = teacher_id) T WHERE T.teacher_id = Classes.teacher_id AND {conditions} GROUP BY Classes.class_id {order} "
     myconn = mysql.connector.connect(**config)
     cursor = myconn.cursor(buffered=True, dictionary=True)
     cursor.execute(filterClasses)
@@ -812,7 +812,7 @@ def getMaterialsAndZooms():
 def findClassWithinHour(id):
     if id is not None:
         date = 'curdate()'
-        classInfos = searchClassInfo(user_id=id, date=date, oneHourWithin=True)
+        classInfos = searchClassInfo(uid=id, date=date, oneHourWithin=True)
 
         if (len(classInfos) > 0):
             return jsonify(classInfos[0])
@@ -906,11 +906,11 @@ def getTimetable(id):
 
 @app.route("/this_week_courses", methods=["GET"])
 def getThisWeekCourse():
-    user_id = request.args.get("user_id")
+    uid = request.args.get("user_id")
     # Search enrolled and currently attending classes from SQL
-    if (user_id is not None):
+    if (uid is not None):
         upcomingFri = "curdate() + INTERVAL 4 - weekday(curdate()) DAY"
-        classInfos = searchClassInfo(user_id=user_id, date=upcomingFri)
+        classInfos = searchClassInfo(uid=uid, date=upcomingFri)
         return jsonify(classInfos)
     else:
         return {"msg": "invalid user_id"}, 401
@@ -919,14 +919,14 @@ def getThisWeekCourse():
 # Don't put a route on it
 
 
-def searchClassInfo(user_id=None, class_ids=None, date=None, oneHourWithin=False):
+def searchClassInfo(uid=None, class_ids=None, date=None, oneHourWithin=False):
     ids = class_ids
     setTimeZoom = "set time_zone = '+08:00'"
     myconn = mysql.connector.connect(**config)
     cursor = myconn.cursor(buffered=True, dictionary=True)
     cursor.execute(setTimeZoom)
     myconn.commit()
-    searchClasses = f"SELECT Classes.class_id, T.first_name, T.last_name, course_code, course_name, academic_year, description FROM Classes JOIN Students_Take_Classes ON user_id = {user_id}, ( select first_name, last_name, teacher_id from Users JOIN teachers on user_id = teacher_id) T WHERE T.teacher_id = Classes.teacher_id AND academic_year = YEAR(now()) GROUP BY Classes.class_id"
+    searchClasses = f"SELECT Classes.class_id, T.first_name, T.last_name, course_code, course_name, academic_year, description FROM Classes JOIN Students_Take_Classes ON user_id = {uid}, ( select first_name, last_name, teacher_id from Users JOIN teachers on user_id = teacher_id) T WHERE T.teacher_id = Classes.teacher_id AND academic_year = YEAR(now()) GROUP BY Classes.class_id"
 
     cursor.execute(searchClasses)
     myconn.commit()
@@ -1014,75 +1014,78 @@ def searchClassInfo(user_id=None, class_ids=None, date=None, oneHourWithin=False
 
 @app.route("/send_email/<uid>/<cid>")
 def sendEmail(uid, cid):
-    myconn = mysql.connector.connect(**config)
-    cursor = myconn.cursor(buffered=True, dictionary=True)
+    try:
+        myconn = mysql.connector.connect(**config)
+        cursor = myconn.cursor(buffered=True, dictionary=True)
 
-    class_select = '''SELECT C.course_code, C.course_name, C.description, I.venue, CT.start_time, CT.end_time 
-    FROM Classes C, Information I, Class_Time CT 
-    WHERE DATE(I.date) = CURDATE() AND C.class_id = CT.class_id AND C.class_id = I.class_id 
-    AND C.class_id = ''' + cid
-    cursor.execute(class_select)
-    courseInfo = cursor.fetchone()
+        class_select = '''SELECT C.course_code, C.course_name, C.description, I.venue, CT.start_time, CT.end_time 
+        FROM Classes C, Information I, Class_Time CT 
+        WHERE DATE(I.date) = CURDATE() AND C.class_id = CT.class_id AND C.class_id = I.class_id 
+        AND C.class_id = ''' + cid
+        cursor.execute(class_select)
+        courseInfo = cursor.fetchone()
 
-    user_select = '''SELECT first_name, email FROM Users WHERE user_id = ''' + uid
-    cursor.execute(user_select)
-    userInfo = cursor.fetchone()
+        user_select = '''SELECT first_name, email FROM Users WHERE user_id = ''' + uid
+        cursor.execute(user_select)
+        userInfo = cursor.fetchone()
 
-    message_select = '''SELECT first_name, sendAt, subject, content FROM Users, TeacherMessage WHERE user_id = from_id AND class_id = ''' + cid
-    cursor.execute(message_select)
-    messageInfo = cursor.fetchall()
+        message_select = '''SELECT first_name, send_at, subject, content FROM Users, TeacherMessage WHERE user_id = from_id AND class_id = ''' + cid
+        cursor.execute(message_select)
+        messageInfo = cursor.fetchall()
 
-    zoom_select = '''SELECT link, meeting_id, passcode FROM ZoomLink WHERE class_id = ''' + cid
-    cursor.execute(zoom_select)
-    zoomInfo = cursor.fetchone()
+        zoom_select = '''SELECT link, meeting_id, passcode FROM ZoomLink WHERE class_id = ''' + cid
+        cursor.execute(zoom_select)
+        zoomInfo = cursor.fetchone()
 
-    material_select = '''SELECT file_link, file_name FROM CourseMaterial WHERE class_id = ''' + cid
-    cursor.execute(material_select)
-    materialInfo = cursor.fetchall()
+        material_select = '''SELECT file_link, file_name FROM CourseMaterial WHERE class_id = ''' + cid
+        cursor.execute(material_select)
+        materialInfo = cursor.fetchall()
 
-    results = {
-            "course_data": courseInfo, 
+        results = {
+            "course_data": courseInfo,
             "user_data": userInfo,
             "message_data": messageInfo,
             "zoom_data": zoomInfo,
             "material_data": materialInfo,
         }
-    print(results)
+        print(results)
 
-    materials = []
-    messages = []
-    for i in range(len(results['material_data'])):
-        materials.append(results['material_data'][i]['file_link'])
-    
-    for i in range(len(results['message_data'])):
-        messages.append({
-            'from': results['message_data'][i]['first_name'],
-            'time': results['message_data'][i]['sendAt'],
-            'subject': results['message_data'][i]['subject'],
-            'content': results['message_data'][i]['content'],
-        })
-    # return results
-    course = {
-        'code': results['course_data']['course_code'],
-        'class_time': str(results['course_data']['start_time']) + ' - ' + str(results['course_data']['end_time']),
-        'title': results['course_data']['course_code'] + '--' + results['course_data']['course_name'],
-        'description': results['course_data']['description'],
-        'address': results['course_data']['venue'],
-        'zoom_link': results['zoom_data']['link'],
-        'meeting_ID': results['zoom_data']['meeting_id'],
-        'materials': materials,
-        'messages': messages
-    }
-    with app.app_context():
-        msg = Message(subject="Course information",
-                      sender=app.config.get("MAIL_USERNAME"),
-                      # replace with your email for testing
-                      recipients=["u3568441@connect.hku.hk"],
-                      body="testing",
-                      html=render_template('email.html', course=course),
-                      )
-        mail.send(msg)
-        return {"msg": "sent"}
+        materials = []
+        messages = []
+        for i in range(len(results['material_data'])):
+            materials.append(results['material_data'][i]['file_link'])
+
+        for i in range(len(results['message_data'])):
+            messages.append({
+                'from': results['message_data'][i]['first_name'],
+                'time': results['message_data'][i]['send_at'],
+                'subject': results['message_data'][i]['subject'],
+                'content': results['message_data'][i]['content'],
+            })
+        # return results
+        course = {
+            'code': results['course_data']['course_code'],
+            'class_time': str(results['course_data']['start_time']) + ' - ' + str(results['course_data']['end_time']),
+            'title': results['course_data']['course_code'] + '--' + results['course_data']['course_name'],
+            'description': results['course_data']['description'],
+            'address': results['course_data']['venue'],
+            'zoom_link': results['zoom_data']['link'],
+            'meeting_ID': results['zoom_data']['meeting_id'],
+            'materials': materials,
+            'messages': messages
+        }
+        with app.app_context():
+            msg = Message(subject="Course information",
+                          sender=app.config.get("MAIL_USERNAME"),
+                          # replace with your email for testing
+                          recipients=["humen@connect.hku.hk"],
+                          body="testing",
+                          html=render_template('email.html', course=course),
+                          )
+            mail.send(msg)
+            return {"msg": "Send Successfully -- check your email box!"}
+    except:
+        return {"msg": "Fail"}
 
 
 if __name__ == '__main__':

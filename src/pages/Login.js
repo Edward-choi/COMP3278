@@ -98,7 +98,7 @@ function Login() {
     }
     if (!values.passwordValid && !values.emailValid) return;
     try {
-      let res = await createToken();
+      const res = await createToken();
       dispatch({
         token: res.access_token,
         user: res.user,
