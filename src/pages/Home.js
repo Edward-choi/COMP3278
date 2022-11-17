@@ -1,6 +1,13 @@
 import MainContent from "../shared/MainContent";
 import * as React from "react";
-import { Box, Stack, Divider, CircularProgress } from "@mui/material";
+import {
+  Box,
+  Stack,
+  Divider,
+  CircularProgress,
+  Snackbar,
+  Alert,
+} from "@mui/material";
 import moment from "moment";
 import { styled } from "@mui/material/styles";
 import UpcomingCourseCard from "../components/upcomingCourseCard";
@@ -101,6 +108,8 @@ function Home() {
   const [selectedCourse, setCourse] = React.useState();
   const [upcomingCourse, setUpcomingCourse] = React.useState();
   const [weekCourses, setWeekCourses] = React.useState([]);
+  const [showAlert, setShowAlert] = React.useState(false);
+  const [alertMessage, setAlertMessage] = React.useState("");
 
   React.useEffect(() => {
     const fetchCourses = async () => {
@@ -121,6 +130,17 @@ function Home() {
     fetchCourses();
   }, []);
 
+  const onClickSend = () => {
+    setShowAlert(true);
+  };
+
+  const handleCloseAlert = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setShowAlert(false);
+  };
+
   const onClickCourseList = (course) => {
     if (course !== selectedCourse) setCourse(course);
     else setCourse(null);
@@ -130,7 +150,11 @@ function Home() {
     return (
       <Stack spacing={1} direction="column" sx={{ mb: 12 }}>
         <h2 style={{ fontWeight: 600 }}>Upcoming Course</h2>
-        <UpcomingCourseCard course={upcomingCourse} />
+        <UpcomingCourseCard
+          course={upcomingCourse}
+          onClickSend={onClickSend}
+          setAlertMessage={setAlertMessage}
+        />
       </Stack>
     );
   };
@@ -164,7 +188,12 @@ function Home() {
     if (selectedCourse !== undefined && selectedCourse !== null) {
       return (
         <div className="courseCardContainer">
-          <UpcomingCourseCard disableElevation course={selectedCourse} />
+          <UpcomingCourseCard
+            disableElevation
+            course={selectedCourse}
+            onClickSend={onClickSend}
+            setAlertMessage={(msg) => setAlertMessage(msg)}
+          />
         </div>
       );
     } else {
@@ -296,6 +325,18 @@ function Home() {
               <h2>Timetable</h2>
               {renderTimetable()}
             </Stack>
+            <Snackbar
+              open={showAlert}
+              autoHideDuration={6000}
+              onClose={handleCloseAlert}
+            >
+              <Alert
+                onClose={handleCloseAlert}
+                severity={alertMessage.includes("Fail") ? "error" : "success"}
+              >
+                {alertMessage}
+              </Alert>
+            </Snackbar>
           </div>
         ) : (
           <div className="circular-progress-container">

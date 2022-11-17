@@ -52,6 +52,7 @@ export default function FaceRecognitionLogin() {
       headers: {
         "Content-Type": "application/json",
         "Access-Control-Allow-Origin": "*",
+        "Access-Control-Access-Credentials": true,
       },
     });
     return await res.data;
