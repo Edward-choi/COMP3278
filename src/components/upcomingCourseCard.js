@@ -117,7 +117,7 @@ function UpcomingCourseCard({
     try {
       const res = await (
         await axios.get(
-          `http://127.0.0.1:5000/send_email/${state.user.email}`,
+          `http://127.0.0.1:5000/send_email/${state.user.user_id}/${class_id}`,
           {
             headers: {
               "Content-Type": "application/json",

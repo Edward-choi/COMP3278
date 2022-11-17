@@ -13,6 +13,7 @@ from datetime import datetime, timedelta
 from flask_mail import Mail, Message
 from flask_jwt_extended import create_access_token, get_jwt, get_jwt_identity, \
     unset_jwt_cookies, jwt_required, JWTManager
+import mysql.connector.pooling
 
 dir = 'src/FaceRecognition'
 template = '../templates'
@@ -880,10 +881,10 @@ def getTimetable():
 
 @app.route("/timetable/<id>")
 def getTimetable(id):
-    select = '''SELECT * FROM students S,
-    students_take_classes T, Information I, Class_Time C 
-    WHERE S.user_id = T.user_id AND T.class_id = I.class_id 
-    AND T.class_id = C.class_id AND S.user_id = ''' + id
+    select = '''SELECT * FROM students S, Classes C, 
+    students_take_classes T, Information I, Class_Time CT 
+    WHERE S.user_id = T.user_id AND T.class_id = I.class_id AND T.class_id = C.class_id 
+    AND T.class_id = CT.class_id AND WEEKDAY(I.date) = CT.day_of_week AND S.user_id = ''' + id
     myconn = mysql.connector.connect(**config)
     cursor = myconn.cursor(buffered=True, dictionary=True)
     cursor.execute(select)
@@ -892,6 +893,9 @@ def getTimetable(id):
     for i in range(len(StudentTakesClassesID)):
         data.append(
             {
+                'course_code': StudentTakesClassesID[i].get("course_code"),
+                'venue': StudentTakesClassesID[i].get("venue"),
+                'date':  StudentTakesClassesID[i].get("date"),
                 'start_time': StudentTakesClassesID[i].get("start_time"),
                 'end_time': StudentTakesClassesID[i].get("end_time"),
             }
@@ -1008,47 +1012,78 @@ def searchClassInfo(user_id=None, class_ids=None, date=None, oneHourWithin=False
         return []
 
 
-@app.route("/send_email/<email>")
-def sendEmail(email=None):
-    if email is None or len(email) <= 0:
-        return {"msg": "Fail to send email -- please verify whether your registered email is valid"}, 404
+@app.route("/send_email/<uid>/<cid>")
+def sendEmail(uid, cid):
+    myconn = mysql.connector.connect(**config)
+    cursor = myconn.cursor(buffered=True, dictionary=True)
+
+    class_select = '''SELECT C.course_code, C.course_name, C.description, I.venue, CT.start_time, CT.end_time 
+    FROM Classes C, Information I, Class_Time CT 
+    WHERE DATE(I.date) = CURDATE() AND C.class_id = CT.class_id AND C.class_id = I.class_id 
+    AND C.class_id = ''' + cid
+    cursor.execute(class_select)
+    courseInfo = cursor.fetchone()
+
+    user_select = '''SELECT first_name, email FROM Users WHERE user_id = ''' + uid
+    cursor.execute(user_select)
+    userInfo = cursor.fetchone()
+
+    message_select = '''SELECT first_name, sendAt, subject, content FROM Users, TeacherMessage WHERE user_id = from_id AND class_id = ''' + cid
+    cursor.execute(message_select)
+    messageInfo = cursor.fetchall()
+
+    zoom_select = '''SELECT link, meeting_id, passcode FROM ZoomLink WHERE class_id = ''' + cid
+    cursor.execute(zoom_select)
+    zoomInfo = cursor.fetchone()
+
+    material_select = '''SELECT file_link, file_name FROM CourseMaterial WHERE class_id = ''' + cid
+    cursor.execute(material_select)
+    materialInfo = cursor.fetchall()
+
+    json_str = json.dumps(
+        {
+            "course_data": courseInfo, 
+            "user_data": userInfo,
+            "message_data": messageInfo,
+            "zoom_data": zoomInfo,
+            "material_data": materialInfo,
+        }, 
+    default=str)
+
+    materials = []
+    messages = []
+    for i in range(len(json_str.material_data)):
+        materials.append(json_str.material_data[i].file_link)
+    
+    for i in range(len(json_str.message_data)):
+        materials.append({
+            'from': json_str.message_data[i].first_name,
+            'time': json_str.message_data[i].sendAt,
+            'subject': json_str.message_data[i].subject,
+            'content': json_str.message_data[i].content,
+        })
+    # return json_str
     course = {
-        'code': 'COMP3278',
-        'class_time': '14:30 - 15:20',
-        'title': 'COMP3278--Introduction to Database Management System',
-        'description': 'This course studies the principles, design, administration, and implementation of database management systems. Topics include: entity-relationship model, relational model, relational algebra, database design and normalization, database query languages, indexing schemes, integrity and concurrency control.',
-        'address': 'Meng Wah Complex MWT2',
-        'zoom_link': 'https://hku.zoom.us/j/96226740999?pwd=ZER1UUdxSVVhQzNXbXFkUDd3WjRBdz09',
-        'meeting_ID': '214t1ds14',
-        'materials': ['https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions', 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions'],
-        'messages': [
-            {
-                'from': 'Dr. Chan',
-                'time': 'Sunday, Nov 13, 2022, 3:40:15 PM',
-                'subject': 'Update Tutorial Schedule',
-                'content': 'Next tutorial will be cancelled'
-            },
-            {
-                'from': 'Dr. Wong',
-                'time': 'Saturday, Nov 14, 2022, 5:17:30 PM',
-                'subject': 'Assignment 2 released',
-                'content': 'Assignment 2 has been release. Please submit it before Nov 21, 00:00:00'
-            }
-        ]
+        'code': json_str.course_data.course_code,
+        'class_time': json_str.course_data.start_time[0:5] + ' - ' + json_str.course_data.end_time[0:5],
+        'title': json_str.course_data.course_code + '--' + json_str.course_data.course_name,
+        'description': json_str.course_data.description,
+        'address': json_str.course_data.venue,
+        'zoom_link': json_str.zoom_data.link,
+        'meeting_ID': json_str.zoom_data.meeting_id,
+        'materials': materials,
+        'messages': materials
     }
     with app.app_context():
-        try:
-            msg = Message(subject="Course information",
-                          sender=app.config.get("MAIL_USERNAME"),
-                          # replace with your email for testing
-                          recipients=[email],
-                          body="testing",
-                          html=render_template('email.html', course=course),
-                          )
-            mail.send(msg)
-            return {"msg": "Sent Successfully! Check it in your email box!"}
-        except:
-            return {"msg": "Fail to send email -- please verify whether your registered email is valid"}, 404
+        msg = Message(subject="Course information",
+                      sender=app.config.get("MAIL_USERNAME"),
+                      # replace with your email for testing
+                      recipients=["u3568441@connect.hku.hk"],
+                      body="testing",
+                      html=render_template('email.html', course=course),
+                      )
+        mail.send(msg)
+        return {"msg": "sent"}
 
 
 if __name__ == '__main__':
