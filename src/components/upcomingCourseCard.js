@@ -13,6 +13,7 @@ import StyledButton from "./button";
 import Icons from "./icons";
 import MessageCard from "./messageCard";
 import axios from "axios";
+import { useGlobalState } from "../shared/auth_provider";
 
 const CourseCard = styled("div", {
   shouldForwardProp: (prop) => prop !== "disableElevation",
@@ -96,24 +97,45 @@ function UpcomingCourseCard({
     messages,
   },
   disableElevation,
+  onClickSend,
+  setAlertMessage,
 }) {
   const theme = useTheme();
   const isSmallOrLess = useMediaQuery(theme.breakpoints.up("sm"));
   const ref = React.useRef(null);
   const [width, setWidth] = React.useState(0);
   const [expandDesc, setExpand] = React.useState(false);
+  const [loadingSend, setLoading] = React.useState(false);
+  const [state, dispatch] = useGlobalState();
 
   React.useLayoutEffect(() => {
     setWidth(ref?.current?.offsetWidth ?? 0);
   }, [ref.current]);
 
   const sendCopyToEmail = async (event) => {
-    const res = await axios.get("http://127.0.0.1:5000/send_email", {
-      headers: {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
-      },
-    });
+    setLoading(true);
+    try {
+      const res = await (
+        await axios.get(
+          `http://127.0.0.1:5000/send_email/${state.user.email}`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              "Access-Control-Allow-Origin": "*",
+            },
+          }
+        )
+      ).data;
+      console.log(res.msg);
+      setAlertMessage(res.msg);
+    } catch (error) {
+      if (error.response) {
+        setAlertMessage(error.response.data.msg);
+      }
+    } finally {
+      setLoading(false);
+      onClickSend();
+    }
   };
   const downloadAll = (event) => {
     materials.forEach((material) =>
@@ -397,6 +419,8 @@ function UpcomingCourseCard({
             variant="contained"
             startIcon={<Icons.EmailIcon />}
             onClick={sendCopyToEmail}
+            loading={loadingSend.toString()}
+            loading_indicator="Sending..."
           >
             {isSmallOrLess && "Send"}
           </StyledButton>

@@ -495,10 +495,10 @@ def logout():
     return response
 
 
-def getStudentInfo(user_id):
+def getStudentInfo(user_id=None):
     myconn = mysql.connector.connect(**config)
     cursor = myconn.cursor(buffered=True, dictionary=True)
-    select = "SELECT students.user_id, first_name, last_name, year, major, email FROM users JOIN students ON students.user_id = users.user_id WHERE students.user_id=%s" % (
+    select = "SELECT students.user_id, first_name, last_name, year, major, email, password FROM users JOIN students ON students.user_id = users.user_id WHERE students.user_id=%s" % (
         user_id)
     cursor.execute(select)
     result = cursor.fetchone()
@@ -508,6 +508,44 @@ def getStudentInfo(user_id):
         myconn.close()
     return result
     # output JSON object format: {user_id:<INT> , name: <String>, ...}
+
+
+@app.route("/personal_info/<user_id>")
+def getPersonalInfo(user_id):
+    result = getStudentInfo(user_id)
+    return jsonify(result)
+
+
+@app.route("/edit_profile", methods=["POST"])
+@cross_origin(methods=['POST'], supports_credentials=True, headers=['Content-Type', 'Authorization'], origin='*')
+def updateProfile():
+    if (request.method == "POST"):
+        val = request.get_json()
+        user_id = val["user_id"]
+        if (user_id is None):
+            return {"msg": "invalid user id"}, 401
+        old = getStudentInfo(user_id)
+        firstName = val["firstName"] if val["firstName"] is not None else old.get(
+            "first_name")
+        lastName = val["lastName"] if val["lastName"] is not None else old.get(
+            "last_name")
+        email = val["email"] if val["email"] is not None else old.get("email")
+        password = val["password"] if val["password"] is not None else old.get(
+            "password")
+        major = val["major"] if val["major"] is not None else old.get("major")
+        year = int(val["year"]) if val["year"] is not None else old.get("year")
+        try:
+            update = f"UPDATE Users, Students SET first_name='{firstName}', last_name='{lastName}', email='{email}', password='{password}', major='{major}', year={year} WHERE Users.user_id = {user_id} AND Students.user_id={user_id}"
+            myconn = mysql.connector.connect(**config)
+            cursor = myconn.cursor(buffered=True, dictionary=True)
+            cursor.execute(update)
+            myconn.commit()
+            if myconn.is_connected():
+                cursor.close()
+                myconn.close()
+            return {"user": {"user_id": user_id, "first_name": firstName, "last_name": lastName, "email": email, "password": password}}
+        except:
+            return {"msg": "update fail"}, 401
 
 # Given that our SQL only stores one login history per user (user_id as PK)
 # This insert the login_time to login_hist if user hasn't logged before;
@@ -769,58 +807,51 @@ def getMaterialsAndZooms():
     return jsonify(res)
 
 
-@app.route("/check_upcoming/<id>")
-def checkClassWithinHour(id):
-    select = f"SELECT COUNT(I.class_id) as count FROM Information I JOIN Class_TIME CT ON  I.class_id IN (SELECT class_id FROM students_take_classes where user_id = {id}) AND I.class_id = CT.class_id AND DATE(date) = CURDATE() AND WEEKDAY(date) = day_of_week"
-    # myconn = mysql.connector.connect(**config)
-    myconn = myconn_pool.get_connection()
-    cursor = myconn.cursor(buffered=True, dictionary=True)
-    cursor.execute(select)
-    myconn.commit()
-    result = cursor.fetchone()
-    print(result)
-    if myconn.is_connected():
-        cursor.close()
-        myconn.close()
-    if (result.get("count")):
-        return jsonify({"result": result.get("count") > 0})
-    else:
-        return jsonify({"msg": "fail to check upcoming course"}), 404
-
-
 @app.route("/upcoming_course/<id>")
 def findClassWithinHour(id):
+    if id is not None:
+        date = 'curdate()'
+        classInfos = searchClassInfo(user_id=id, date=date, oneHourWithin=True)
+
+        if (len(classInfos) > 0):
+            return jsonify(classInfos[0])
+        else:
+            return jsonify({"msg": "no upcoming course"}), 200
+    else:
+        return jsonify({"msg": "invalid user_id"}), 401
+
     # myconn = mysql.connector.connect(**config)
-    myconn = myconn_pool.get_connection()
-    cursor = myconn.cursor(buffered=True, dictionary=True)
-    select = "SELECT class_id FROM students_take_classes where user_id = %s" % id
-    cursor.execute(select)
-    myconn.commit()
-    StudentTakesClassesID = cursor.fetchall()
-    select = "SELECT * FROM class_time WHERE day_of_week = %s" % weekday
-    cursor.execute(select)
-    myconn.commit()
-    classTime = cursor.fetchall()
-    for i in range(len(StudentTakesClassesID)):
-        if (len(classTime) > 0):
-            for j in range(len(classTime)):
-                if (StudentTakesClassesID[i].get("class_id") == classTime[j].get("class_id") and classTime[j].get("start_time").total_seconds() - currentTimeDelta <= 3600 and classTime[j].get("start_time").total_seconds() - currentTimeDelta >= 0):
-                    # Get the class within 1 hour.
-                    classWithinHour = classTime[j]
-                    # Get info of the class within hour.
-                    select = "SELECT * FROM information WHERE class_id = %s AND week = %s" % (
-                        classWithinHour[0], weekOfTheYear)
-                    cursor.execute(select)
-                    myconn.commit()
-                    classWithinHourInfo = cursor.fetchone()
-                    print("class withing hour", classWithinHour)
-                    cursor.close()
-                    return (classWithinHourInfo) if classWithinHourInfo is not None else {"msg": "no upcoming course"}, 200
-                    # classWithinHourInfo[n][0] to get value of nth column
-    if myconn.is_connected():
-        cursor.close()
-        myconn.close()
-    return {"msg": "no upcoming course"}, 200
+    # myconn = myconn_pool.get_connection()
+    # cursor = myconn.cursor(buffered=True, dictionary=True)
+    # select = "SELECT class_id FROM students_take_classes where user_id = %s" % id
+    # cursor.execute(select)
+    # myconn.commit()
+    # StudentTakesClassesID = cursor.fetchall()
+    # select = "SELECT * FROM class_time WHERE day_of_week = %s" % weekday
+    # cursor.execute(select)
+    # myconn.commit()
+    # classTime = cursor.fetchall()
+    # for i in range(len(StudentTakesClassesID)):
+    #     if (len(classTime) > 0):
+    #         for j in range(len(classTime)):
+    #             if (StudentTakesClassesID[i].get("class_id") == classTime[j].get("class_id") and classTime[j].get("start_time").total_seconds() - currentTimeDelta <= 3600 and classTime[j].get("start_time").total_seconds() - currentTimeDelta >= 0):
+    #                 # Get the class within 1 hour.
+    #                 classWithinHour = classTime[j]
+    #                 class_id = classWithinHour.get("class_id")
+    #                 print(class_id)
+
+    #                 # Get info of the class within hour.
+    #                 select = f"SELECT * FROM Information WHERE class_id = {class_id} AND date = curdate()"
+    #                 cursor.execute(select)
+    #                 myconn.commit()
+    #                 classWithinHourInfo = cursor.fetchone()
+    #                 print("class withing hour", classWithinHourInfo)
+    #                 cursor.close()
+    #                 return jsonify(classWithinHourInfo) if classWithinHourInfo is not None else {"msg": "no upcoming course"}, 200
+    #                 # classWithinHourInfo[n][0] to get value of nth column
+    # if myconn.is_connected():
+    #     cursor.close()
+    #     myconn.close()
 
 
 def getTimetable():
@@ -873,21 +904,41 @@ def getTimetable(id):
 def getThisWeekCourse():
     user_id = request.args.get("user_id")
     # Search enrolled and currently attending classes from SQL
-    searchClasses = f"SELECT Classes.class_id, T.first_name, T.last_name, course_code, course_name, academic_year, description FROM Classes JOIN Students_Take_Classes ON user_id = {user_id}, ( select first_name, last_name, teacher_id from Users JOIN teachers on user_id = teacher_id) T WHERE T.teacher_id = Classes.teacher_id AND academic_year = YEAR(now()) GROUP BY Classes.class_id"
+    if (user_id is not None):
+        upcomingFri = "curdate() + INTERVAL 4 - weekday(curdate()) DAY"
+        classInfos = searchClassInfo(user_id=user_id, date=upcomingFri)
+        return jsonify(classInfos)
+    else:
+        return {"msg": "invalid user_id"}, 401
+
+# This function for local function searching only
+# Don't put a route on it
+
+
+def searchClassInfo(user_id=None, class_ids=None, date=None, oneHourWithin=False):
+    ids = class_ids
+    setTimeZoom = "set time_zone = '+08:00'"
     myconn = mysql.connector.connect(**config)
     cursor = myconn.cursor(buffered=True, dictionary=True)
+    cursor.execute(setTimeZoom)
+    myconn.commit()
+    searchClasses = f"SELECT Classes.class_id, T.first_name, T.last_name, course_code, course_name, academic_year, description FROM Classes JOIN Students_Take_Classes ON user_id = {user_id}, ( select first_name, last_name, teacher_id from Users JOIN teachers on user_id = teacher_id) T WHERE T.teacher_id = Classes.teacher_id AND academic_year = YEAR(now()) GROUP BY Classes.class_id"
+
     cursor.execute(searchClasses)
     myconn.commit()
     currentClasses = cursor.fetchall()
-    if (len(currentClasses) > 0):
-        class_ids = ", ".join(str(course.get("class_id"))
-                              for course in currentClasses)
 
+    if ids is None or len(ids) <= 0:
+        if (len(currentClasses) > 0):
+            ids = ", ".join(str(course.get("class_id"))
+                            for course in currentClasses)
+    if ids is not None and len(ids) > 0 and date is not None:
+
+        timeRange = " AND (TIME_TO_SEC(start_time) - TIME_TO_SEC(TIME(LOCALTIME()))) <= 3600 AND (TIME_TO_SEC(start_time) - TIME_TO_SEC(TIME(LOCALTIME())))>=0" if oneHourWithin else ""
         # Search class_id, start and end time, date, venue, course_number, messages,
         # materials, and zoom for each lecture in Class_Time, Information Tables,
         # TeacherMessage, CourseMaterial and ZoomLink
-        upcomingFri = "curdate() + INTERVAL 4 - weekday(curdate()) DAY"
-        searchClassAllInfo = f"SELECT I.class_id, DATE_FORMAT(start_time, '%H:%i') as start_time, DATE_FORMAT(end_time,'%H:%i') as end_time, date, I.course_number, venue, message_id, send_at, subject, content, from_id, file_link, file_name, link, meeting_id, passcode FROM Information I JOIN Class_TIME CT ON I.class_id IN ({class_ids}) AND I.class_id = CT.class_id AND date <= {upcomingFri} AND date >= curdate() AND WEEKDAY(date) = day_of_week LEFT JOIN TeacherMessage TM ON TM.class_id = I.class_id AND TM.course_number = I.course_number LEFT JOIN CourseMaterial CM ON CM.class_id = I.class_id AND CM.course_number = I.course_number LEFT JOIN ZoomLink ZL ON ZL.class_id = I.class_id AND ZL.course_number = I.course_number ORDER BY date, start_time,I.course_number"
+        searchClassAllInfo = f"SELECT I.class_id, DATE_FORMAT(start_time, '%H:%i') as start_time, DATE_FORMAT(end_time,'%H:%i') as end_time, date, I.course_number, venue, message_id, send_at, subject, content, from_id, file_link, file_name, link, meeting_id, passcode FROM Information I JOIN Class_TIME CT ON I.class_id IN ({ids}) AND I.class_id = CT.class_id AND date BETWEEN curdate() AND {date} AND WEEKDAY(date) = day_of_week {timeRange} LEFT JOIN TeacherMessage TM ON TM.class_id = I.class_id AND TM.course_number = I.course_number LEFT JOIN CourseMaterial CM ON CM.class_id = I.class_id AND CM.course_number = I.course_number LEFT JOIN ZoomLink ZL ON ZL.class_id = I.class_id AND ZL.course_number = I.course_number ORDER BY date, start_time,I.course_number"
         cursor.execute(searchClassAllInfo)
         myconn.commit()
         classAllInfo = cursor.fetchall()
@@ -952,14 +1003,15 @@ def getThisWeekCourse():
                         "zoom": zoom
                     }
                     classInfos.append(courseInfo)
-
-        return jsonify(classInfos)
+        return classInfos
     else:
-        return {"msg": "no classes"}, 401
+        return []
 
 
-@app.route("/send_email")
-def sendEmail():
+@app.route("/send_email/<email>")
+def sendEmail(email=None):
+    if email is None or len(email) <= 0:
+        return {"msg": "Fail to send email -- please verify whether your registered email is valid"}, 404
     course = {
         'code': 'COMP3278',
         'class_time': '14:30 - 15:20',
@@ -985,15 +1037,18 @@ def sendEmail():
         ]
     }
     with app.app_context():
-        msg = Message(subject="Course information",
-                      sender=app.config.get("MAIL_USERNAME"),
-                      # replace with your email for testing
-                      recipients=["humen@connect.hku.hk"],
-                      body="testing",
-                      html=render_template('email.html', course=course),
-                      )
-        mail.send(msg)
-        return {"msg": "sent"}
+        try:
+            msg = Message(subject="Course information",
+                          sender=app.config.get("MAIL_USERNAME"),
+                          # replace with your email for testing
+                          recipients=[email],
+                          body="testing",
+                          html=render_template('email.html', course=course),
+                          )
+            mail.send(msg)
+            return {"msg": "Sent Successfully! Check it in your email box!"}
+        except:
+            return {"msg": "Fail to send email -- please verify whether your registered email is valid"}, 404
 
 
 if __name__ == '__main__':
