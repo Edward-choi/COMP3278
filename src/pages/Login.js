@@ -219,35 +219,6 @@ function Login() {
               <FormHelperText>{values.formErrors.password}</FormHelperText>
             </FormControl>
           </Stack>
-          {/* <div
-            style={{
-              display: "flex",
-              direction: "row",
-              justifyContent: "space-between",
-              alignItems: "center",
-              textAlign: "center",
-            }}
-          >
-            <FormGroup>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={rememberPassword}
-                    onChange={handleRemember}
-                  />
-                }
-                label="Remember Password"
-                sx={{
-                  "& .MuiSvgIcon-root": { fontSize: 18 },
-                  "& .MuiFormControlLabel-label": {
-                    fontSize: 14,
-                    color: "neutral.medium",
-                  },
-                }}
-              />
-            </FormGroup>
-            <a className="link">Forget password?</a>
-          </div> */}
 
           <Stack direction="column" spacing={3} mt={12}>
             <StyledButton

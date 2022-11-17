@@ -188,19 +188,6 @@ const DrawerPages = [
   },
 ];
 
-const checkUpcomingClass = async (user_id) => {
-  const res = await axios.get(
-    `http://127.0.0.1:5000/check_upcoming/${user_id}`,
-    {
-      headers: {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
-      },
-    }
-  );
-  return res;
-};
-
 const MainContent = ({ children }) => {
   const location = useLocation();
   const page = location.pathname;
@@ -222,22 +209,6 @@ const MainContent = ({ children }) => {
       })
       .catch((e) => {});
   };
-
-  React.useEffect(() => {
-    const fetchCheckUpcoming = async () => {
-      try {
-        const res = (await checkUpcomingClass(state.user.user_id)).data;
-        if (res.hasOwnProperty("result")) {
-          setHasUpcoming(res.result);
-        } else {
-          setHasUpcoming(false);
-        }
-      } catch (error) {
-        console.warn(error);
-      }
-    };
-    fetchCheckUpcoming();
-  }, []);
 
   React.useEffect(() => {
     const timer = () => {
