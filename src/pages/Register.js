@@ -322,7 +322,7 @@ function Register() {
                 </FormHelperText>
               </FormControl>
             </Stack>
-            <div
+            {/* <div
               style={{
                 display: "flex",
                 direction: "row",
@@ -346,7 +346,7 @@ function Register() {
                 />
               </FormGroup>
               <Link className="link">Terms & Condition</Link>
-            </div>
+            </div> */}
 
             <Stack direction="column" spacing={3} mt={8}>
               <StyledButton

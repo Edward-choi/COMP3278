@@ -193,7 +193,6 @@ const MainContent = ({ children }) => {
   const page = location.pathname;
   const [open, setOpen] = React.useState(drawerOpen);
   const [state, dispatch] = useGlobalState();
-  const [hasUpcoming, setHasUpcoming] = React.useState(false);
 
   const hasJWT =
     state.user.user_id &&
