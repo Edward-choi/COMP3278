@@ -1078,7 +1078,7 @@ def sendEmail(uid, cid):
             msg = Message(subject="Course information",
                           sender=app.config.get("MAIL_USERNAME"),
                           # replace with your email for testing
-                          recipients=["humen@connect.hku.hk"],
+                          recipients=[results['user_data']['email']],
                           body="testing",
                           html=render_template('email.html', course=course),
                           )
