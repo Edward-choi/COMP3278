@@ -814,7 +814,7 @@ def getMaterialsAndZooms():
 def findClassWithinHour(id):
     if id is not None:
         date = 'curdate()'
-        classInfos = searchClassInfo(uid=id, date=date, oneHourWithin=True)
+        classInfos = searchClassInfo(uid=id, lastDate=date, oneHourWithin=True)
 
         if (len(classInfos) > 0):
             return jsonify(classInfos[0])
@@ -911,8 +911,10 @@ def getThisWeekCourse():
     uid = request.args.get("user_id")
     # Search enrolled and currently attending classes from SQL
     if (uid is not None):
+        upcomingMon = "curdate()+INTERVAL 1 - weekday(curdate())DAY"
         upcomingFri = "curdate() + INTERVAL 4 - weekday(curdate()) DAY"
-        classInfos = searchClassInfo(uid=uid, date=upcomingFri)
+        classInfos = searchClassInfo(
+            uid=uid, lastDate=upcomingFri, firstDate=upcomingMon)
         return jsonify(classInfos)
     else:
         return {"msg": "invalid user_id"}, 401
@@ -921,7 +923,7 @@ def getThisWeekCourse():
 # Don't put a route on it
 
 
-def searchClassInfo(uid=None, class_ids=None, date=None, oneHourWithin=False):
+def searchClassInfo(uid=None, class_ids=None, firstDate='curdate()', lastDate=None, oneHourWithin=False):
     ids = class_ids
     setTimeZoom = "set time_zone = '+08:00'"
     myconn = mysql.connector.connect(**config)
@@ -944,7 +946,7 @@ def searchClassInfo(uid=None, class_ids=None, date=None, oneHourWithin=False):
         # Search class_id, start and end time, date, venue, course_number, messages,
         # materials, and zoom for each lecture in Class_Time, Information Tables,
         # TeacherMessage, CourseMaterial and ZoomLink
-        searchClassAllInfo = f"SELECT I.class_id, DATE_FORMAT(start_time, '%H:%i') as start_time, DATE_FORMAT(end_time,'%H:%i') as end_time, date, I.course_number, venue, message_id, send_at, subject, content, from_id, file_link, file_name, link, meeting_id, passcode FROM Information I JOIN Class_TIME CT ON I.class_id IN ({ids}) AND I.class_id = CT.class_id AND date BETWEEN curdate() AND {date} AND WEEKDAY(date) = day_of_week {timeRange} LEFT JOIN TeacherMessage TM ON TM.class_id = I.class_id AND TM.course_number = I.course_number LEFT JOIN CourseMaterial CM ON CM.class_id = I.class_id AND CM.course_number = I.course_number LEFT JOIN ZoomLink ZL ON ZL.class_id = I.class_id AND ZL.course_number = I.course_number ORDER BY date, start_time,I.course_number"
+        searchClassAllInfo = f"SELECT I.class_id, DATE_FORMAT(start_time, '%H:%i') as start_time, DATE_FORMAT(end_time,'%H:%i') as end_time, date, I.course_number, venue, message_id, send_at, subject, content, from_id, file_link, file_name, link, meeting_id, passcode FROM Information I JOIN Class_TIME CT ON I.class_id IN ({ids}) AND I.class_id = CT.class_id AND date BETWEEN {firstDate} AND {lastDate} AND WEEKDAY(date) = day_of_week {timeRange} LEFT JOIN TeacherMessage TM ON TM.class_id = I.class_id AND TM.course_number = I.course_number LEFT JOIN CourseMaterial CM ON CM.class_id = I.class_id AND CM.course_number = I.course_number LEFT JOIN ZoomLink ZL ON ZL.class_id = I.class_id AND ZL.course_number = I.course_number ORDER BY date, start_time,I.course_number"
         cursor.execute(searchClassAllInfo)
         myconn.commit()
         classAllInfo = cursor.fetchall()
