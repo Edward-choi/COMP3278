@@ -17,7 +17,7 @@ If 5 - 6 are blocked by the browser because of "low-security". please follow the
 13. run `npm start` or `yarn start` on terminal
 14. DONE, enjoy testing on front-end and back-end
 
-UPDATE (16/11): PLEASE DON'T USE CHROME FOR EXECUTION
+UPDATE (18/11): USE *CHROME* for execution. Please download Allow CORS in 'https://chrome.google.com/webstore/detail/allow-cors-access-control/lhobafahddgcelffkeicbaginigeejlf?hl=en'
 
 ## Routine of our project
 

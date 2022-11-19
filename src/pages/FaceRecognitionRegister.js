@@ -65,7 +65,9 @@ export default function FaceRecognitionRegister() {
           marginTop: "10rem",
           textAlign: "center",
           visibility: state ? "visible" : "hidden",
+          cursor: "pointer",
         }}
+        onClick={() => navigate("/login")}
       >
         <Icons.RegisteredIcon />
         <div style={{ marginTop: "8rem", color: "white" }}>

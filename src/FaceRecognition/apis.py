@@ -161,6 +161,7 @@ def capture_by_frames(user_name):
     registration = True
 
     train()
+    return True
 
 
 @app.route('/registration/<email>', strict_slashes=False)
@@ -329,6 +330,7 @@ def train():
     # Train the recognizer and save the trained model.
     recognizer.train(x_train, np.array(y_label))
     recognizer.save(dir + '/train.yml')
+    return True
 
 
 def facialLogin():
