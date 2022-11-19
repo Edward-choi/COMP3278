@@ -9,6 +9,7 @@ import ProgressBar from "../components/progressBar";
 export default function FaceRecognitionRegister() {
   const { name } = useParams();
   const [state, setState] = useState(false);
+  const [trained, setTrained] = useState(false);
   let navigate = useNavigate();
 
   // Using useEffect for single rendering
@@ -35,6 +36,29 @@ export default function FaceRecognitionRegister() {
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    const trainedInterval = setInterval(() => {
+      axios({
+        method: "GET",
+        url: "http://127.0.0.1:5000/data_trained",
+      })
+        .then((response) => {
+          const res = response.data;
+          setTrained(res.trained);
+          if (res.trained) clearInterval(trainedInterval);
+        })
+        .catch((error) => {
+          if (error.response) {
+            console.log(error.response);
+            console.log(error.response.status);
+            console.log(error.response.headers);
+          }
+        });
+    }, 1000);
+
+    return () => clearInterval(trainedInterval);
+  }, []);
+
   // useEffect(() => {
   //   if (state) {
   //     navigate("/login");
@@ -42,14 +66,26 @@ export default function FaceRecognitionRegister() {
   // }, [state]);
   return (
     <div>
-      <IconButton
-        aria-label="delete"
-        style={{ position: "absolute", left: 20, top: 20 }}
-        component={Link}
-        to={"/register"}
-      >
-        <KeyboardBackspaceIcon fontSize="large" sx={{ color: "white" }} />
-      </IconButton>
+      {
+        trained
+        ?
+        <IconButton
+          aria-label="delete"
+          style={{ position: "absolute", left: 20, top: 20 }}
+          component={Link}
+          to={"/register"}
+        >
+          <KeyboardBackspaceIcon fontSize="large" sx={{ color: "white" }} />
+        </IconButton>
+        :
+        <IconButton
+          aria-label="delete"
+          style={{ position: "absolute", left: 20, top: 20 }}
+          disabled
+        >
+          <KeyboardBackspaceIcon fontSize="large" sx={{ color: "white" }} />
+        </IconButton>
+      }
       <img
         src={"http://127.0.0.1:5000/video_capture/" + name}
         alt=""

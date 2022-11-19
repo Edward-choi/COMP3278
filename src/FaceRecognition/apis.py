@@ -99,10 +99,12 @@ def find_user_id():
 def capture_by_frames(user_name):
     global video_capture
     global registration
+    global trained
     global cnt
     global start
     registration = False
     start = False
+    trained = False
     video_capture = cv2.VideoCapture(0)
     NUM_IMGS = 100
     user_id = find_user_id()
@@ -161,6 +163,7 @@ def capture_by_frames(user_name):
     registration = True
 
     train()
+    trained = True
 
 
 @app.route('/registration/<email>', strict_slashes=False)
@@ -178,7 +181,7 @@ def checkEmail(email):
 
 
 @app.route('/registration', methods=["POST", "GET"], strict_slashes=False)
-@cross_origin(supports_credentials=True)
+@cross_origin(origin='localhost',headers=['Content-Type','Authorization'])
 def registration():
     if request.method == 'POST':
         val = request.get_json()
@@ -268,13 +271,29 @@ def verified():
     response.headers.add("Access-Control-Allow-Origin", "*")
     return response
 
+@app.route('/data_trained')
+def data_trained():
+    try:
+        response = jsonify({
+            'trained': trained,
+        })
+    except:
+        response = jsonify({
+            'trained': False,
+        })
+
+    response.headers.add("Access-Control-Allow-Origin", "*")
+    return response
+
 
 @app.route('/video_capture/<name>')
+@cross_origin(origin='localhost',headers=['Content-Type','Authorization'])
 def video_capture(name):
     return Response(capture_by_frames(name), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
 @app.route('/login_verification')
+@cross_origin(origin='localhost',headers=['Content-Type','Authorization'])
 def login_verification():
     return Response(facialLogin(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
