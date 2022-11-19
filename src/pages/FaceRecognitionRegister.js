@@ -35,11 +35,11 @@ export default function FaceRecognitionRegister() {
     return () => clearInterval(interval);
   }, []);
 
-  useEffect(() => {
-    if (state) {
-      navigate("/login");
-    }
-  }, [state]);
+  // useEffect(() => {
+  //   if (state) {
+  //     navigate("/login");
+  //   }
+  // }, [state]);
   return (
     <div>
       <IconButton
