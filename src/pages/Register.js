@@ -165,6 +165,7 @@ function Register() {
       case "firstName":
         nameValid = value.length > 0;
         fieldValidationErrors.name = nameValid ? "" : `${prop} cannot be empty`;
+        break;
       default:
         break;
     }
