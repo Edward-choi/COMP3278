@@ -41,17 +41,17 @@ faceCascade = cv2.CascadeClassifier(
 
 local_path = os.path.expanduser('~')
 sqluser = {'/Users/edwardchoi': 'root',
-           "/Users/hiumanchau": "root", 
+           "/Users/hiumanchau": "root",
            '/Users/a85256': "root",
-           r"C:\Users\James Chan" : "root"}
+           r"C:\Users\James Chan": "root"}
 sqlpwd = {'/Users/edwardchoi': 'root',
-          "/Users/hiumanchau": "chin124328", 
+          "/Users/hiumanchau": "chin124328",
           '/Users/a85256': "Yanchiho2001@",
-          r"C:\Users\James Chan" : "jamesmysql"}
+          r"C:\Users\James Chan": "jamesmysql"}
 sqlport = {'/Users/edwardchoi': '8889',
-           '/Users/hiumanchau': '3306', 
+           '/Users/hiumanchau': '3306',
            '/Users/a85256': '3306',
-           r"C:\Users\James Chan" : '3306'}
+           r"C:\Users\James Chan": '3306'}
 
 config = {
     "host": "localhost",
@@ -188,7 +188,7 @@ def checkEmail(email):
 
 
 @app.route('/registration', methods=["POST", "GET"], strict_slashes=False)
-@cross_origin(origin='localhost',headers=['Content-Type','Authorization'])
+@cross_origin(origin='localhost', headers=['Content-Type', 'Authorization'])
 def registration():
     if request.method == 'POST':
         val = request.get_json()
@@ -278,6 +278,7 @@ def verified():
     response.headers.add("Access-Control-Allow-Origin", "*")
     return response
 
+
 @app.route('/data_trained')
 def data_trained():
     try:
@@ -294,13 +295,13 @@ def data_trained():
 
 
 @app.route('/video_capture/<name>')
-@cross_origin(origin='localhost',headers=['Content-Type','Authorization'])
+@cross_origin(origin='localhost', headers=['Content-Type', 'Authorization'])
 def video_capture(name):
     return Response(capture_by_frames(name), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
 @app.route('/login_verification')
-@cross_origin(origin='localhost',headers=['Content-Type','Authorization'])
+@cross_origin(origin='localhost', headers=['Content-Type', 'Authorization'])
 def login_verification():
     return Response(facialLogin(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
@@ -848,39 +849,6 @@ def findClassWithinHour(id):
     else:
         return jsonify({"msg": "invalid user_id"}), 401
 
-    # myconn = mysql.connector.connect(**config)
-    # myconn = myconn_pool.get_connection()
-    # cursor = myconn.cursor(buffered=True, dictionary=True)
-    # select = "SELECT class_id FROM students_take_classes where user_id = %s" % id
-    # cursor.execute(select)
-    # myconn.commit()
-    # StudentTakesClassesID = cursor.fetchall()
-    # select = "SELECT * FROM class_time WHERE day_of_week = %s" % weekday
-    # cursor.execute(select)
-    # myconn.commit()
-    # classTime = cursor.fetchall()
-    # for i in range(len(StudentTakesClassesID)):
-    #     if (len(classTime) > 0):
-    #         for j in range(len(classTime)):
-    #             if (StudentTakesClassesID[i].get("class_id") == classTime[j].get("class_id") and classTime[j].get("start_time").total_seconds() - currentTimeDelta <= 3600 and classTime[j].get("start_time").total_seconds() - currentTimeDelta >= 0):
-    #                 # Get the class within 1 hour.
-    #                 classWithinHour = classTime[j]
-    #                 class_id = classWithinHour.get("class_id")
-    #                 print(class_id)
-
-    #                 # Get info of the class within hour.
-    #                 select = f"SELECT * FROM Information WHERE class_id = {class_id} AND date = curdate()"
-    #                 cursor.execute(select)
-    #                 myconn.commit()
-    #                 classWithinHourInfo = cursor.fetchone()
-    #                 print("class withing hour", classWithinHourInfo)
-    #                 cursor.close()
-    #                 return jsonify(classWithinHourInfo) if classWithinHourInfo is not None else {"msg": "no upcoming course"}, 200
-    #                 # classWithinHourInfo[n][0] to get value of nth column
-    # if myconn.is_connected():
-    #     cursor.close()
-    #     myconn.close()
-
 
 def getTimetable():
     studentInfo = getStudentInfo()
@@ -1041,18 +1009,19 @@ def searchClassInfo(uid=None, class_ids=None, firstDate='curdate()', lastDate=No
         return []
 
 
-@app.route("/send_email/<uid>/<cid>")
-def sendEmail(uid, cid):
+@app.route("/send_email/<uid>/<cid>/<cno>")
+def sendEmail(uid, cid, cno):
     try:
         myconn = mysql.connector.connect(**config)
         cursor = myconn.cursor(buffered=True, dictionary=True)
 
-        class_select = '''SELECT C.course_code, C.course_name, C.description, I.venue, CT.start_time, CT.end_time 
+        class_select = f'''SELECT C.course_code, C.course_name, C.description, I.venue, CT.start_time, CT.end_time 
         FROM Classes C, Information I, Class_Time CT 
-        WHERE DATE(I.date) = CURDATE() AND C.class_id = CT.class_id AND C.class_id = I.class_id 
-        AND C.class_id = ''' + cid
+        WHERE I.course_number = {cno} AND C.class_id = CT.class_id AND C.class_id = I.class_id 
+        AND C.class_id = {cid}'''
         cursor.execute(class_select)
         courseInfo = cursor.fetchone()
+        print(courseInfo)
 
         user_select = '''SELECT first_name, email FROM Users WHERE user_id = ''' + uid
         cursor.execute(user_select)
@@ -1093,7 +1062,7 @@ def sendEmail(uid, cid):
             })
         # return results
         course = {
-            'code': results['course_data']['course_code'],
+            'code': courseInfo.get('course_code'),
             'class_time': str(results['course_data']['start_time']) + ' - ' + str(results['course_data']['end_time']),
             'title': results['course_data']['course_code'] + '--' + results['course_data']['course_name'],
             'description': results['course_data']['description'],
@@ -1103,18 +1072,20 @@ def sendEmail(uid, cid):
             'materials': materials,
             'messages': messages
         }
+        print('email:', results['user_data']['email'])
         with app.app_context():
             msg = Message(subject="Course information",
                           sender=app.config.get("MAIL_USERNAME"),
                           # replace with your email for testing
-                          recipients=[results['user_data']['email']],
+                          recipients=[userInfo.get('email')],
                           body="testing",
                           html=render_template('email.html', course=course),
                           )
             mail.send(msg)
             return {"msg": "Send Successfully -- check your email box!"}
-    except:
-        return {"msg": "Fail"}
+    except Exception as e:
+        print(e)
+        return {"msg": "Fail to send mail"}
 
 
 if __name__ == '__main__':

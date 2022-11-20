@@ -86,6 +86,7 @@ function UpcomingCourseCard({
   course: {
     class_id,
     course_code,
+    course_number,
     academic_year,
     course_name, // string
     startAt, // time
@@ -117,7 +118,7 @@ function UpcomingCourseCard({
     try {
       const res = await (
         await axios.get(
-          `http://127.0.0.1:5000/send_email/${state.user.user_id}/${class_id}`,
+          `http://127.0.0.1:5000/send_email/${state.user.user_id}/${class_id}/${course_number}`,
           {
             headers: {
               "Content-Type": "application/json",
