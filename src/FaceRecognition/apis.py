@@ -403,7 +403,7 @@ def facialLogin():
             id_, conf = recognizer.predict(roi_gray)
 
             # If the face is recognized
-            if conf >= 20:
+            if conf >= 60:
                 # print(id_)
                 # print(labels[id_])
                 font = cv2.QT_FONT_NORMAL
